@@ -1,17 +1,18 @@
-name: Deploy Frontend (AWS)
+name: Deploy (AWS)
 
-# Al hacer merge a main, o a mano desde Actions. Solo corre desde main: es la
-# unica rama que el rol de AWS acepta.
+# staging → ambiente de pruebas; main → produccion. Cada uno corre en su
+# ambiente de GitHub (Settings → Environments): ahi estan su rol de AWS y sus
+# variables, y produccion exige aprobacion manual antes de empezar.
 on:
   push:
-    branches: [main]
+    branches: [staging, main]
     paths-ignore:
       - '**.md'
       - 'docs/**'
   workflow_dispatch:
 
 concurrency:
-  group: deploy-aws-frontend
+  group: deploy-aws-${{ github.ref_name }}
   cancel-in-progress: false
 
 permissions:
@@ -20,8 +21,10 @@ permissions:
 
 jobs:
   desplegar:
+    if: github.ref_name == 'staging' || github.ref_name == 'main'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    environment: ${{ github.ref_name == 'main' && 'produccion' || 'pruebas' }}
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -35,9 +38,9 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
-      # El panel apunta a la API de AWS (variable API_URL del repositorio), no a
-      # la del servidor actual que trae environment.prod.ts.
-      - name: Apuntar a la API de AWS
+      # La direccion de la API es de cada ambiente (variable API_URL): el panel
+      # se compila para el ambiente al que va.
+      - name: Apuntar a la API del ambiente
         env:
           API_URL: ${{ vars.API_URL }}
         run: |

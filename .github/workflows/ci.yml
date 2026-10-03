@@ -1,10 +1,10 @@
 name: CI
 
-# Valida ANTES de mergear. El deploy compila, pero recien al hacer push a main:
-# para entonces el cambio ya esta aprobado y en camino a produccion.
+# Valida ANTES de mergear a develop, staging o main. El despliegue compila, pero
+# recien despues del merge: para entonces el cambio ya esta en camino.
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [main, staging, develop]
     paths-ignore:
       - '**.md'
   push:
