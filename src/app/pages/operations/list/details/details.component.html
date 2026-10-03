@@ -1,0 +1,167 @@
+<h2 mat-dialog-title>Confirmar Transferencia</h2>
+
+<mat-dialog-content>
+
+    <div class="p-16 rounded bg-light-warning -t-16">
+        <div class="f-s-14">
+
+            @if (operation.typeOperation === '1') {
+            <span class="f-w-600">
+                COMPRA: SC-{{ operation.id.toString().padStart(8,'0') }}
+            </span>
+            } @else {
+            <span class="f-w-600">
+                VENTA: SC-{{ operation.id.toString().padStart(8,'0') }}
+            </span>
+            }
+
+            La operación ha sido registrada el día
+            <b>{{ operation.dateCreation | date:'dd/MM/yyyy' }}</b>
+            a las
+            <b>{{ operation.dateCreation | date:'HH:mm' }}</b>.
+        </div>
+    </div>
+
+    <div class="row m-t-16">
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+            <span class="f-s-12">Cantidad a Transferir</span>
+
+            @if (operation.typeOperation === '1') {
+            <h5 class="f-w-600 lh-sm f-s-14">
+                {{ operation.monto | number:'.2-2':'en' }} USD
+            </h5>
+            } @else {
+            <h5 class="f-w-600 lh-sm f-s-14">
+                {{ operation.total | number:'.2-2':'en' }} PEN
+            </h5>
+            }
+        </div>
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+            <span class="f-s-12">Banco de Destino</span>
+            <div class="f-w-600 lh-sm f-s-14 d-flex align-items-center">
+                <img [src]="'data:image/jpeg;base64,' + companyBank.bankIcon" class="m-r-8 icon-30 rounded-circle"
+                    alt="Banco" />
+                {{ companyBank.bankName }}
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+            <span class="f-s-12">Tipo de Cuenta</span>
+            <h5 class="f-w-600 lh-sm f-s-14">
+
+                @if (companyBank.type === '1') {
+                Ahorros
+                } @else {
+                Corriente
+                }
+
+                @if (companyBank.coinCode === 'PEN') {
+                soles
+                } @else {
+                dólares
+                }
+
+            </h5>
+        </div>
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+            <span class="f-s-12">Titular</span>
+            <h5 class="f-w-600 lh-sm f-s-14">
+                {{ companyBank.titular }}
+            </h5>
+        </div>
+
+        @if (companyBank.bankId === operation.profileBankClient1.bankId) {
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+            <span class="f-s-12">Número de Cuenta</span>
+            <div class="f-w-600 lh-sm f-s-14 d-flex align-items-center justify-content-center">
+                {{ companyBank.accountNumber }}
+
+                <button mat-icon-button [cdkCopyToClipboard]="companyBank.accountNumber"
+                    [matTooltip]="copiado ? 'Copiado' : 'Copiar cuenta'" (click)="copiar()">
+
+                    <i-tabler [name]="copiado ? 'copy-check' : 'copy'" class="icon-18 text-primary">
+                    </i-tabler>
+
+                </button>
+            </div>
+        </div>
+
+        } @else {
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+            <span class="f-s-12">Número de Cuenta Interbancaria</span>
+            <div class="f-w-600 lh-sm f-s-14 d-flex align-items-center justify-content-center">
+                {{ companyBank.accountNumberCci }}
+
+                <button mat-icon-button [cdkCopyToClipboard]="companyBank.accountNumberCci"
+                    [matTooltip]="copiado ? 'Copiado' : 'Copiar cuenta'" (click)="copiar()">
+
+                    <i-tabler [name]="copiado ? 'copy-check' : 'copy'" class="icon-18 text-primary">
+                    </i-tabler>
+
+                </button>
+            </div>
+        </div>
+
+        }
+
+    </div>
+
+    <form class="m-t-8" [formGroup]="operationForm">
+        <div class="row m-t-8">
+
+            <div class="col-12">
+                <mat-label class="f-s-14 f-w-600 d-block m-b-4">
+                    Número de Operación Bancaria*
+                </mat-label>
+
+                <mat-form-field appearance="outline" class="w-100">
+                    <input matInput type="number" formControlName="codeOperation" maxlength="20"
+                        oninput="if(this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength)">
+                </mat-form-field>
+            </div>
+
+            <div class="col-12 m-t-4">
+                <mat-label class="f-s-14 f-w-500 d-block m-b-4">
+                    Si desea puede enviar foto del voucher (opcional)
+                </mat-label>
+
+                <input #fileImage type="file" hidden accept="image/png,image/jpeg,image/webp" (change)="onSelectImage($event)" />
+
+                @if (!operationImage) {
+                <div class="border-dropzone" (click)="fileImage.click()">
+                    <div class="dropzone-content preview flex-col">
+                        <img src="./assets/images/voucher.png" class="upload-icon m-b-4" />
+                        <span class="f-s-14 text-center">
+                            Seleccione Voucher de la Transferencia
+                        </span>
+                    </div>
+                </div>
+                } @else {
+                <div class="border-dropzone" (click)="onRemoveImage()">
+                    <div class="dropzone-content preview">
+                        <img [src]="operationImage" class="upload-icon m-b-4" />
+                    </div>
+                </div>
+                }
+
+            </div>
+        </div>
+    </form>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button mat-button mat-dialog-close class="b-1">
+        Cerrar
+    </button>
+
+    <button mat-flat-button cdkFocusInitial [disabled]="operation.loadingConfirmar || operationForm.invalid"
+        (click)="confirmarTransferencia()">
+        Confirmar
+    </button>
+</mat-dialog-actions>

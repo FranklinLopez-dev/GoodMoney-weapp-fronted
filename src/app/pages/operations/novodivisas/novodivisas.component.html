@@ -1,0 +1,38 @@
+@if(mode() == 'novodivisas' ){
+
+<form [formGroup]="form" (ngSubmit)="save()">
+    <mat-card>
+        <mat-card-content>
+            <app-simulation-section [form]="controlQuote" (moveToDocument)="focusDocumentNumber()" />
+
+            <mat-divider class="m-y-24"></mat-divider>
+
+            <app-profile-section #profileSection [form]="controlProfile" />
+
+            @if(profile()) {
+            <app-accounts-section [form]="controlAccounts" />
+            }
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-16 m-t-24">
+                <mat-slide-toggle labelPosition="before" formControlName="isSuspicious" color="primary">
+                    Operación Inusual
+                </mat-slide-toggle>
+
+                <div class="d-flex align-items-center gap-16">
+                    <button (click)="clear()" type="button" mat-flat-button class="boton-pildora-gris">
+                        Limpiar
+                    </button>
+                    <button mat-flat-button class="boton-pildora" [disabled]="
+                        !controlAccounts.value.originAccount ||
+                        !controlAccounts.value.destinationAccounts?.length ||
+                        isSplitInvalid() || form.invalid || isSaving
+                        " type="submit">Guardar</button>
+                </div>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</form>
+
+} @else {
+<app-profile-detail></app-profile-detail>
+}

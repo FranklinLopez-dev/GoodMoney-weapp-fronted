@@ -1,0 +1,109 @@
+<h2 mat-dialog-title>Verificar la Transferencia</h2>
+<mat-dialog-content>
+
+    <div class="p-16 rounded bg-light-primary -t-16">
+        <div class="f-s-14">
+            <span class="f-w-600">{{ operation.typeOperation == "1" ? "COMPRA" : "VENTA" }}:
+                SC-{{operation.id.toString().padStart(8,
+                "0")}}</span> La operación ha sido registrada el día
+            <b>{{operation.dateCreation | date : 'dd/MM/yyyy'}}</b> a las
+            <b>{{operation.dateCreation | date : 'HH:mm'}}</b>. Deberás verificar la transferencia a
+            la cuenta de Good Money desde tu banca en línea del {{operation.companyBank.bankName}}
+        </div>
+    </div>
+
+    <div class="row m-t-16">
+        <div class="col-md-6 col-lg-4 m-t-8">
+            <span class="f-s-12">Cantidad a Verificar</span>
+            <h5 class="f-w-600 lh-sm f-s-14">
+                {{operation.typeOperation == '2' ? (operation.total | number :
+                '.2-2':'en'):(operation.monto | number :
+                '.2-2':'en')}} {{operation.typeOperation == '1' ? 'USD':'PEN'}}
+            </h5>
+        </div>
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+            <span class="f-s-12">Banco de Destino</span>
+            <div class="f-w-600 lh-sm f-s-14 d-flex align-items-center">
+                <img [src]="'data:image/jpeg;base64,' + operation.companyBank.bankIcon"
+                    class="m-r-8 icon-30 rounded-circle" alt="Banco" />
+                {{operation.companyBank.bankName}}
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+            <span class="f-s-12">Tipo de Cuenta</span>
+            <h5 class="f-w-600 lh-sm f-s-14">
+                {{operation.companyBank.type == '1' ? 'Ahorros':'Corriente'}}
+                {{operation.companyBank.coinCode ==
+                'PEN' ? 'soles':'dólares'}}
+            </h5>
+        </div>
+
+        <div class="col-lg-6 m-t-8">
+            <span class="f-s-12">Titular</span>
+            <h5 class="f-w-600 lh-sm f-s-14">
+                {{operation.companyBank.titular}}
+            </h5>
+        </div>
+
+        <div class="col-lg-6 m-t-8">
+            <span class="f-s-12">Número de Cuenta</span>
+            <h5 class="f-w-600 lh-sm f-s-14">
+                {{operation.companyBank.accountNumber}}
+            </h5>
+        </div>
+
+        <div class="col-12 m-t-8">
+            <span class="f-s-12">Cuenta de Origen</span>
+            <div class="lh-sm f-s-14 d-flex align-items-center">
+                <img [src]="'data:image/jpeg;base64,' + operation.profileBankClient1.bankIcon"
+                    class="m-r-8 icon-30 rounded-circle" alt="Banco" />
+                <span class="f-w-600">{{operation.profileBankClient1.bankName}}: </span>
+                @if(booleanNumber(operation.profileBankClient1.accountNumber)) {
+                <span class="m-l-2"> {{
+                    operation.profileBankClient1.accountNumber}}</span>
+                }
+                @if(booleanNumber(operation.profileBankClient1.accountNumberCci)) {
+                <span class="m-l-2"> CCI: {{
+                    operation.profileBankClient1.accountNumberCci}}</span>
+                }
+            </div>
+        </div>
+        @if(operation.codeOperation) {
+        <div class="col-12 m-t-8">
+            <span class="f-s-12">Número de Operación</span>
+            <div class="f-w-600 lh-sm f-s-14 d-flex align-items-center">
+                {{operation.codeOperation}}
+                @if(operation.operationImage) {
+                <button class="d-flex align-items-center justify-content-center" mat-icon-button
+                    (click)="vouchers.abrirVoucher(operation.id)">
+                    <i-tabler name="eye" class="icon-18 d-flex align-items-center text-primary"></i-tabler>
+                </button>
+                }
+            </div>
+        </div>
+        }
+
+    </div>
+
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button (click)="verPerfil()" class="b-1">
+        Ver perfil
+    </button>
+    <button mat-button mat-dialog-close class="b-1">
+        Cerrar
+    </button>
+    <button mat-flat-button color="primary" cdkFocusInitial (click)="confirmar()" [disabled]="isLoading()">
+        @if (isLoading()) {
+        <div class="d-flex align-items-center gap-8">
+            <mat-progress-spinner diameter="18" mode="indeterminate" strokeWidth="3">
+            </mat-progress-spinner>
+            <span>Confirmando...</span>
+        </div>
+        } @else {
+        <span>Confirmar</span>
+        }
+    </button>
+</mat-dialog-actions>

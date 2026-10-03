@@ -1,0 +1,234 @@
+<div class="cmp-panel">
+
+  @if (!abierto()) {
+
+  @if (resumen()?.ambiente === 0) {
+  <p class="fis-beta">
+    La facturación electrónica está en <strong>ambiente de pruebas (beta)</strong>: lo que se emite no tiene valor
+    tributario. Actívala en Configuración → Facturación electrónica.
+  </p>
+  }
+
+  @if (resumen(); as r) {
+  <div class="cmp-tarjetas">
+    <button type="button" class="cmp-tarjeta" [class.cmp-tarjeta--aviso]="r.pendientes > 0" (click)="filtrarPorEstado(0)">
+      <span class="cmp-tarjeta__cifra">{{ r.pendientes }}</span>
+      <span class="cmp-tarjeta__rotulo">Pendientes de envío</span>
+      <span class="cmp-tarjeta__pie">Se reintentan solos</span>
+    </button>
+    <button type="button" class="cmp-tarjeta" [class.cmp-tarjeta--aviso]="r.rechazados > 0" (click)="filtrarPorEstado(2)">
+      <span class="cmp-tarjeta__cifra">{{ r.rechazados }}</span>
+      <span class="cmp-tarjeta__rotulo">Rechazados por SUNAT</span>
+      <span class="cmp-tarjeta__pie">Corregir y reemitir</span>
+    </button>
+    <button type="button" class="cmp-tarjeta" (click)="filtrarPorEstado(6)">
+      <span class="cmp-tarjeta__cifra">{{ r.bajasEnProceso }}</span>
+      <span class="cmp-tarjeta__rotulo">Bajas en proceso</span>
+      <span class="cmp-tarjeta__pie">SUNAT las confirma en minutos</span>
+    </button>
+    <div class="cmp-tarjeta" [class.cmp-tarjeta--aviso]="r.porFacturar > 0">
+      <span class="cmp-tarjeta__cifra">{{ r.porFacturar }}</span>
+      <span class="cmp-tarjeta__rotulo">Operaciones por facturar</span>
+      <span class="cmp-tarjeta__pie">Ver la pestaña «Por facturar»</span>
+    </div>
+    <div class="cmp-tarjeta" [class.cmp-tarjeta--aviso]="r.anulacionesPorAprobar > 0">
+      <span class="cmp-tarjeta__cifra">{{ r.anulacionesPorAprobar }}</span>
+      <span class="cmp-tarjeta__rotulo">Anulaciones por aprobar</span>
+      <span class="cmp-tarjeta__pie">{{ r.aceptadosHoy }} aceptados hoy</span>
+    </div>
+  </div>
+  }
+
+  <div class="cmp-filtros">
+    <mat-form-field appearance="outline">
+      <mat-label>Desde</mat-label>
+      <input matInput [matDatepicker]="pDesde" [ngModel]="desde()" (ngModelChange)="desde.set($event); pagina.set(0); cargar()" />
+      <mat-datepicker-toggle matSuffix [for]="pDesde"></mat-datepicker-toggle>
+      <mat-datepicker #pDesde></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Hasta</mat-label>
+      <input matInput [matDatepicker]="pHasta" [ngModel]="hasta()" (ngModelChange)="hasta.set($event); pagina.set(0); cargar()" />
+      <mat-datepicker-toggle matSuffix [for]="pHasta"></mat-datepicker-toggle>
+      <mat-datepicker #pHasta></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Estado</mat-label>
+      <mat-select [ngModel]="estado()" (ngModelChange)="filtrarPorEstado($event)">
+        <mat-option [value]="null">Todos</mat-option>
+        @for (e of estados; track e.valor) { <mat-option [value]="e.valor">{{ e.nombre }}</mat-option> }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Tipo</mat-label>
+      <mat-select [ngModel]="tipo()" (ngModelChange)="tipo.set($event); pagina.set(0); cargar()">
+        <mat-option [value]="null">Todos</mat-option>
+        @for (t of tipos; track t.valor) { <mat-option [value]="t.valor">{{ t.nombre }}</mat-option> }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="cmp-filtros__buscar">
+      <mat-label>Número, cliente, documento o GM-…</mat-label>
+      <input matInput [ngModel]="texto()" (ngModelChange)="texto.set($event)" (keyup.enter)="cargar()" />
+    </mat-form-field>
+    <button mat-button type="button" (click)="limpiar()">Limpiar</button>
+  </div>
+
+  @if (cargando() && !comprobantes().length) {
+  <p class="cmp-nota">Cargando…</p>
+  } @else if (!comprobantes().length) {
+  <p class="cmp-nota">No hay comprobantes que cumplan el filtro.</p>
+  } @else {
+  <div class="cmp-tabla fis-tabla--comprobantes">
+    <div class="cmp-fila cmp-fila--cabecera">
+      <span>Comprobante</span><span>Emisión</span><span>Cliente</span>
+      <span class="cmp-numero">Total</span><span>Estado</span><span></span>
+    </div>
+    @for (c of comprobantes(); track c.id) {
+    <div class="cmp-fila" [class.cmp-fila--inactiva]="!c.esVigente">
+      <span>
+        <strong>{{ c.numeroCompleto }}</strong>
+        <small class="cmp-doc">{{ c.tipoNombre }} · {{ c.codigoOperacion }}
+          @if (c.documentoReferencia) { · modifica {{ c.documentoReferencia }} }
+          @if (c.ambiente === 0) { · BETA }
+        </small>
+      </span>
+      <span>{{ c.fechaEmision | date:'dd/MM/yyyy HH:mm' }}</span>
+      <span>
+        {{ c.clienteNombre || '—' }}
+        <small class="cmp-doc">{{ c.clienteDocNumero }}</small>
+      </span>
+      <span class="cmp-numero">{{ c.moneda === 'USD' ? '$' : 'S/' }} {{ c.total | number:'1.2-2' }}</span>
+      <span>
+        <span class="cmp-chip" [ngClass]="claseEstado(c.estado)">{{ c.estadoNombre }}</span>
+        @if (c.estado === 0 || c.estado === 2) {
+        <small class="fis-motivo" [class.fis-motivo--error]="c.estado === 2">{{ c.mensajeSunat }}</small>
+        }
+        @if (c.cdrPendiente) { <small class="fis-motivo">Constancia de SUNAT pendiente de archivar</small> }
+      </span>
+      <span>
+        <button mat-icon-button type="button" [matMenuTriggerFor]="menu" [disabled]="ocupado() === c.id" aria-label="Acciones">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="abrir(c)">Ver detalle e historial</button>
+          <button mat-menu-item (click)="pdf(c, 'A4')">PDF A4</button>
+          <button mat-menu-item (click)="pdf(c, 'Ticket')">PDF ticket</button>
+          <button mat-menu-item (click)="xml(c)">XML firmado</button>
+          @if (c.tieneCdr) { <button mat-menu-item (click)="cdr(c)">Constancia (CDR)</button> }
+          @if (puedeGestionar) {
+            @if (c.puedeEnviar) { <button mat-menu-item (click)="enviar(c)">Enviar a SUNAT ahora</button> }
+            @if (c.puedeReemitir) { <button mat-menu-item (click)="reemitir(c)">Reemitir con número nuevo</button> }
+            @if (c.puedeDeclararResumen) { <button mat-menu-item (click)="declararResumen(c)">Declarar en resumen diario</button> }
+            @if (c.puedeVerificarBaja) { <button mat-menu-item (click)="verificarBaja(c)">Verificar la baja</button> }
+          }
+          @if (puedeAnular && c.puedeAnular) { <button mat-menu-item (click)="abrir(c)">Solicitar anulación</button> }
+        </mat-menu>
+      </span>
+    </div>
+    }
+  </div>
+  <mat-paginator [length]="total()" [pageIndex]="pagina()" [pageSize]="tamano()" [pageSizeOptions]="[20, 50, 100]"
+                 (page)="cambiarPagina($event)"></mat-paginator>
+  }
+
+  } @else if (abierto(); as c) {
+
+  <div class="cmp-detalle-cabecera">
+    <button mat-button type="button" (click)="cerrar()">← Volver</button>
+    <h3>{{ c.numeroCompleto }} <small>{{ c.tipoNombre }} · {{ c.codigoOperacion }}</small></h3>
+    <span class="cmp-chip" [ngClass]="claseEstado(c.estado)">{{ c.estadoNombre }}</span>
+    @if (c.ambiente === 0) { <span class="cmp-chip cmp-chip--media">BETA</span> }
+  </div>
+
+  <div class="fis-acciones">
+    <button mat-stroked-button type="button" (click)="pdf(c, 'A4')">PDF A4</button>
+    <button mat-stroked-button type="button" (click)="pdf(c, 'Ticket')">PDF ticket</button>
+    <button mat-stroked-button type="button" (click)="xml(c)">XML</button>
+    @if (c.tieneCdr) { <button mat-stroked-button type="button" (click)="cdr(c)">CDR</button> }
+    @if (puedeGestionar && c.puedeEnviar) { <button mat-flat-button color="primary" type="button" (click)="enviar(c)">Enviar a SUNAT ahora</button> }
+    @if (puedeGestionar && c.puedeReemitir) { <button mat-flat-button color="primary" type="button" (click)="reemitir(c)">Reemitir</button> }
+    @if (puedeGestionar && c.puedeVerificarBaja) { <button mat-flat-button color="primary" type="button" (click)="verificarBaja(c)">Verificar la baja</button> }
+  </div>
+
+  <div class="cmp-detalle">
+    <section class="cmp-bloque">
+      <h4>Datos del comprobante</h4>
+      <dl class="fis-datos">
+        <dt>Fecha de emisión</dt><dd>{{ c.fechaEmision | date:'dd/MM/yyyy HH:mm:ss' }}</dd>
+        <dt>Cliente</dt><dd>{{ c.clienteNombre }} ({{ c.clienteDocNumero }})</dd>
+        <dt>Importe</dt><dd>{{ c.moneda === 'USD' ? '$' : 'S/' }} {{ c.total | number:'1.2-2' }}</dd>
+        @if (c.documentoReferencia) { <dt>Modifica a</dt><dd>{{ c.documentoReferencia }}</dd> }
+        <dt>Respuesta de SUNAT</dt>
+        <dd>@if (c.codigoRespuestaSunat) { [{{ c.codigoRespuestaSunat }}] } {{ c.mensajeSunat || '—' }}</dd>
+        @if (observaciones(c).length) {
+        <dt>Observaciones</dt>
+        <dd><ul class="fis-lista">@for (o of observaciones(c); track o) { <li>{{ o }}</li> }</ul></dd>
+        }
+        @if (c.estado === 0) {
+        <dt>Envíos intentados</dt>
+        <dd>{{ c.intentosEnvio }}@if (c.proximoIntentoAt) { · próximo {{ c.proximoIntentoAt | date:'dd/MM HH:mm' }} }</dd>
+        }
+        <dt>Enviado al cliente</dt>
+        <dd>{{ c.ambiente === 0 ? 'No aplica (pruebas)' : c.notificadoClienteAt ? (c.notificadoClienteAt | date:'dd/MM/yyyy HH:mm') : 'Todavía no' }}</dd>
+      </dl>
+    </section>
+
+    @if (puedeAnular && c.puedeAnular) {
+    <section class="cmp-bloque">
+      <h4>Solicitar anulación</h4>
+      <p class="cmp-bajada">
+        La solicitud la aprueba otra persona con permiso. La <strong>baja</strong> solo procede hasta 7 días después
+        de la emisión; pasado ese plazo, se anula con <strong>nota de crédito</strong>.
+      </p>
+      <div class="fis-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Cómo anular</mat-label>
+          <mat-select [ngModel]="accion()" (ngModelChange)="accion.set($event)">
+            <mat-option value="baja" [disabled]="!c.puedeDarDeBaja">Baja ante SUNAT{{ c.puedeDarDeBaja ? '' : ' (plazo vencido)' }}</mat-option>
+            <mat-option value="notacredito">Nota de crédito</mat-option>
+          </mat-select>
+        </mat-form-field>
+        @if (accion() === 'notacredito') {
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo de nota</mat-label>
+          <mat-select [ngModel]="codigoNota()" (ngModelChange)="codigoNota.set($event)">
+            @for (m of motivosNc(); track m.codigo) { <mat-option [value]="m.codigo">{{ m.codigo }} · {{ m.descripcion }}</mat-option> }
+          </mat-select>
+        </mat-form-field>
+        }
+        <mat-form-field appearance="outline" class="fis-form__ancho">
+          <mat-label>Motivo</mat-label>
+          <textarea matInput rows="2" maxlength="500" [ngModel]="motivo()" (ngModelChange)="motivo.set($event)"></textarea>
+        </mat-form-field>
+        <mat-checkbox class="fis-form__ancho" [ngModel]="reemitirTrasAnular()" (ngModelChange)="reemitirTrasAnular.set($event)">
+          Emitir un comprobante nuevo después de anular (por ejemplo, para corregir los datos del cliente)
+        </mat-checkbox>
+      </div>
+      <button mat-flat-button color="primary" type="button" [disabled]="solicitando()" (click)="solicitarAnulacion()">
+        {{ solicitando() ? 'Enviando…' : 'Solicitar anulación' }}
+      </button>
+    </section>
+    }
+
+    <section class="cmp-bloque">
+      <h4>Historial de la operación</h4>
+      @if (!historial().length) {
+      <p class="cmp-nota">Sin movimientos registrados.</p>
+      } @else {
+      <div class="cmp-tabla fis-tabla--historial">
+        <div class="cmp-fila cmp-fila--cabecera"><span>Fecha</span><span>Acción</span><span>Detalle</span><span>Quién</span></div>
+        @for (h of historial(); track $index) {
+        <div class="cmp-fila">
+          <span>{{ h.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+          <span>{{ nombreAccion(h.accion) }}</span>
+          <span>{{ h.detalle }}</span>
+          <span>{{ h.usuario }}</span>
+        </div>
+        }
+      </div>
+      }
+    </section>
+  </div>
+
+  }
+</div>

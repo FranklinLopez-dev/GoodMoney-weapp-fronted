@@ -1,0 +1,45 @@
+// Listas propias del oficial. La base (tabla, tarjetas, formularios) viene de _compartido.scss.
+
+.lpr-tabla .cmp-fila { grid-template-columns: 130px 1.6fr 1.6fr 110px 1.3fr 120px; }
+
+.lpr-fila--baja { color: var(--gm-plomo-400, #7b7979); }
+
+// Las tarjetas de arriba son el selector de lista.
+.lpr-tarjeta {
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: none;
+  cursor: pointer;
+  transition: border-color .15s, background-color .15s;
+
+  &:hover { border-color: var(--gm-amarillo-400); }
+}
+
+.lpr-tarjeta--activa {
+  border-color: var(--gm-amarillo-500);
+  background: var(--gm-amarillo-100);
+}
+
+.lpr-panel {
+  margin-top: 12px;
+  border: 1px solid var(--gm-gris-300);
+  border-radius: 12px;
+}
+
+.lpr-activo { border-color: var(--gm-amarillo-500) !important; }
+
+.lpr-archivo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 13px;
+
+  input[type='file'] { display: none; }
+}
+
+@media (max-width: 767px) {
+  .lpr-tabla .cmp-fila--cabecera { display: none; }
+  .lpr-tabla .cmp-fila { grid-template-columns: 1fr; gap: 4px; }
+}

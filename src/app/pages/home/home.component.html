@@ -1,0 +1,18 @@
+<!-- Sin saludo con el nombre: la barra superior ya lo dice y la tarjeta lo repetía en la misma pantalla. -->
+<div class="inicio-saludo">
+    <p class="inicio-saludo__texto">
+        Consulta el tipo de cambio del día y registra tu operación cuando te convenga.
+    </p>
+
+    <button mat-flat-button class="inicio-saludo__cta" [routerLink]="['/operations/create']">
+        Cambiar dólares
+    </button>
+</div>
+
+<!-- Mockup "Estadísticas - Por Capital" (frame 440): una tarjeta con los filtros arriba y el gráfico debajo. -->
+<mat-card class="cardWithShadow estadisticas-card">
+    <mat-card-content>
+        <app-dashboard-filters />
+        <dashboard-exchange-rate />
+    </mat-card-content>
+</mat-card>

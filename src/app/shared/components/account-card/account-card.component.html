@@ -1,0 +1,52 @@
+<div class="cuenta" [class.cuenta--vacia]="!account">
+
+  <div class="cuenta__cabecera">
+    <span class="cuenta__moneda">{{ currency === 'PEN' ? 'Soles · PEN' : 'Dólares · USD' }}</span>
+
+    @if (account) {
+    <button type="button" class="cuenta__editar" (click)="edit.emit()">Editar</button>
+    } @else {
+    <span class="cuenta__estado">Pendiente</span>
+    }
+  </div>
+
+  @if (!account) {
+
+  <p class="cuenta__vacia-texto">
+    Registra la cuenta donde quieres recibir tus
+    {{ currency === 'PEN' ? 'soles' : 'dólares' }}.
+  </p>
+
+  <button type="button" class="cuenta__agregar" (click)="add.emit()">
+    <mat-icon>add</mat-icon>
+    Agregar cuenta
+  </button>
+
+  } @else {
+
+  <div class="cuenta__banco">
+    @if (account.bankIcon) {
+    <img class="cuenta__logo" [src]="account.bankIcon" [alt]="account.bankName">
+    } @else {
+    <span class="cuenta__logo cuenta__logo--sin">
+      <mat-icon>account_balance</mat-icon>
+    </span>
+    }
+
+    <span class="cuenta__banco-nombre">{{ account.bankName }}</span>
+  </div>
+
+  <dl class="cuenta__datos">
+    <div>
+      <dt>Número</dt>
+      <dd class="cuenta__numero">{{ displayAccountNumber }}</dd>
+    </div>
+    <div>
+      <dt>Tipo</dt>
+      <dd>{{ account.typeAccount == '1' ? 'Ahorro' : 'Corriente' }}</dd>
+    </div>
+  </dl>
+
+  }
+
+</div>

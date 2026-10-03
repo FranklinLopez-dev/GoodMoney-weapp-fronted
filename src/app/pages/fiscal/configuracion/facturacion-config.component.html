@@ -1,0 +1,200 @@
+<mat-card>
+  <mat-card-content class="cmp-panel fis-config">
+
+  @if (config(); as c) {
+
+  <!-- Estado -->
+  <section class="cmp-bloque">
+    <h4>Estado de la facturación electrónica</h4>
+    <div class="cmp-estado-mes">
+      @if (c.ambiente === 1) {
+      <span class="cmp-chip cmp-chip--ok">PRODUCCIÓN</span>
+      <span>Los comprobantes se emiten con valor tributario ante SUNAT.</span>
+      } @else {
+      <span class="cmp-chip cmp-chip--media">PRUEBAS (BETA)</span>
+      <span>Lo que se emite no tiene valor tributario.</span>
+      }
+    </div>
+
+    @if (!c.servidorPermiteProduccion) {
+    <p class="fis-beta">Este servidor es de desarrollo: no puede emitir en producción aunque se active aquí.</p>
+    }
+    @if (c.operacionesPorFacturar > 0) {
+    <p class="fis-beta">{{ c.operacionesPorFacturar }} operación(es) esperan su comprobante y se emitirán al pasar a producción.</p>
+    }
+
+    @if (c.ambiente === 0) {
+      @if (c.faltaParaProduccion.length) {
+      <p class="cmp-bajada">Para emitir en producción falta:</p>
+      <ul class="fis-lista">@for (f of c.faltaParaProduccion; track f) { <li>{{ f }}</li> }</ul>
+      } @else {
+      <p class="fis-listo">Todo listo para emitir en producción.</p>
+      }
+      @if (puedeEditar) {
+      <div class="fis-acciones">
+        <button mat-flat-button color="primary" type="button" [disabled]="c.faltaParaProduccion.length > 0 || guardando()" (click)="pasarAProduccion()">
+          Pasar a producción
+        </button>
+      </div>
+      }
+    } @else if (puedeEditar) {
+    <div class="fis-acciones">
+      <button mat-stroked-button type="button" [disabled]="guardando()" (click)="volverABeta()">Volver a pruebas (beta)</button>
+    </div>
+    }
+  </section>
+
+  <!-- Emisor -->
+  <section class="cmp-bloque">
+    <h4>Emisor</h4>
+    <dl class="fis-datos">
+      <dt>RUC</dt><dd>{{ c.ruc }}</dd>
+      <dt>Razón social</dt><dd>{{ c.razonSocial }}</dd>
+    </dl>
+    <div class="fis-form" style="margin-top: 14px">
+      <mat-form-field appearance="outline">
+        <mat-label>Código de establecimiento</mat-label>
+        <input matInput maxlength="4" [ngModel]="establecimiento()" (ngModelChange)="establecimiento.set($event)" [disabled]="!puedeEditar" />
+        <mat-hint>El anexo de la ficha RUC; 0000 = domicilio fiscal</mat-hint>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Ubigeo del domicilio fiscal</mat-label>
+        <input matInput maxlength="6" [ngModel]="ubigeo()" (ngModelChange)="ubigeo.set($event)" [disabled]="!puedeEditar" placeholder="150122" />
+        <mat-hint>Código INEI de 6 dígitos del distrito</mat-hint>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Boletas</mat-label>
+        <mat-select [ngModel]="modoBoletas()" (ngModelChange)="modoBoletas.set($event)" [disabled]="!puedeEditar">
+          <mat-option [value]="0">Una por una</mat-option>
+          <mat-option [value]="1">Resumen diario (22:00)</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    @if (puedeEditar) {
+    <button mat-flat-button color="primary" type="button" [disabled]="guardando()" (click)="guardar()">
+      {{ guardando() ? 'Guardando…' : 'Guardar' }}
+    </button>
+    }
+  </section>
+
+  <!-- Certificado -->
+  <section class="cmp-bloque">
+    <h4>Certificado digital</h4>
+    @if (c.certificado; as cert) {
+    <dl class="fis-datos">
+      <dt>Certificado activo</dt><dd>{{ cert.alias }}</dd>
+      <dt>RUC</dt><dd>{{ cert.ruc || '—' }}</dd>
+      <dt>Vence</dt>
+      <dd [class.cmp-vencido]="cert.diasParaVencer <= 30">{{ cert.venceEl | date:'dd/MM/yyyy' }} ({{ cert.diasParaVencer }} días)</dd>
+    </dl>
+    } @else {
+    <p class="cmp-nota">Todavía no hay certificado. En beta no hace falta: se usa uno de demostración.</p>
+    }
+    @if (puedeEditar) {
+    <div class="fis-form" style="margin-top: 14px">
+      <div class="fis-form__ancho fis-archivo">
+        <input #pfx type="file" accept=".pfx,.p12" (change)="alElegirPfx($event)" />
+        <button mat-stroked-button type="button" (click)="pfx.click()">Elegir archivo .pfx</button>
+        <span>{{ archivo()?.name || 'Ningún archivo elegido' }}</span>
+      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Contraseña del .pfx</mat-label>
+        <input matInput type="password" autocomplete="new-password" [ngModel]="passwordPfx()" (ngModelChange)="passwordPfx.set($event)" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre (opcional)</mat-label>
+        <input matInput maxlength="100" [ngModel]="alias()" (ngModelChange)="alias.set($event)" />
+      </mat-form-field>
+    </div>
+    <button mat-flat-button color="primary" type="button" [disabled]="subiendo() || !archivo()" (click)="subirCertificado()">
+      {{ subiendo() ? 'Verificando…' : (c.certificado ? 'Reemplazar certificado' : 'Cargar certificado') }}
+    </button>
+    }
+    @if (certificados().length > 1) {
+    <p class="cmp-bajada" style="margin-top: 12px">Anteriores (se conservan para verificar lo firmado con ellos):
+      @for (h of certificados(); track h.id) { @if (h.estado !== 'Activo') { {{ h.alias }} (venció {{ h.venceEl | date:'dd/MM/yyyy' }}) · } }
+    </p>
+    }
+  </section>
+
+  <!-- SOL -->
+  <section class="cmp-bloque">
+    <h4>Usuario SOL secundario</h4>
+    <p class="cmp-bajada">
+      El usuario secundario con perfil de emisión electrónica, sin el RUC adelante. Al guardarlo se verifica con SUNAT
+      (sin emitir nada) y la clave se guarda cifrada.
+      @if (c.solVerificadoAt) { <span class="fis-listo">Verificado el {{ c.solVerificadoAt | date:'dd/MM/yyyy HH:mm' }}.</span> }
+    </p>
+    @if (puedeEditar) {
+    <div class="fis-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Usuario SOL</mat-label>
+        <span matTextPrefix>{{ c.ruc }}&nbsp;</span>
+        <input matInput autocomplete="off" [ngModel]="solUsuario()" (ngModelChange)="solUsuario.set($event)" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Clave SOL</mat-label>
+        <input matInput type="password" autocomplete="new-password" [ngModel]="solClave()" (ngModelChange)="solClave.set($event)"
+               [placeholder]="c.solConfigurado ? '•••••••• (guardada)' : ''" />
+      </mat-form-field>
+    </div>
+    <button mat-flat-button color="primary" type="button" [disabled]="verificandoSol()" (click)="guardarSol()">
+      {{ verificandoSol() ? 'Verificando con SUNAT…' : 'Guardar y verificar' }}
+    </button>
+    }
+  </section>
+
+  <!-- Prueba -->
+  <section class="cmp-bloque">
+    <h4>Prueba en SUNAT beta</h4>
+    <p class="cmp-bajada">
+      Envía a SUNAT beta una boleta de prueba (serie B999) con los datos reales del emisor. No consume ningún
+      número de las series ni crea operaciones.
+      @if (c.validadoEnBeta) { <span class="fis-listo">Aceptada el {{ c.fechaValidacionBeta | date:'dd/MM/yyyy HH:mm' }}.</span> }
+    </p>
+    @if (puedeEditar) {
+    <button mat-stroked-button type="button" [disabled]="probando()" (click)="probarBeta()">
+      {{ probando() ? 'Enviando a SUNAT beta…' : 'Enviar boleta de prueba' }}
+    </button>
+    }
+  </section>
+
+  <!-- SIRE / validador -->
+  @if (puedeEditar) {
+  <section class="cmp-bloque">
+    <h4>Credenciales de API de SUNAT (opcional)</h4>
+    <p class="cmp-bajada">
+      Para el Registro de Ventas (SIRE) y la consulta de comprobantes. Se generan en SUNAT Operaciones en Línea →
+      Credenciales de API. Se guardan cifradas; un campo vacío no cambia lo guardado.
+    </p>
+    <div class="fis-form">
+      <mat-form-field appearance="outline">
+        <mat-label>SIRE · client_id</mat-label>
+        <input matInput autocomplete="off" [ngModel]="valorSire('sire.client_id')" (ngModelChange)="cambiarSire('sire.client_id', $event)" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>SIRE · client_secret</mat-label>
+        <input matInput type="password" autocomplete="new-password" [ngModel]="valorSire('sire.client_secret')" (ngModelChange)="cambiarSire('sire.client_secret', $event)" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>SIRE · usuario SOL</mat-label>
+        <input matInput autocomplete="off" [ngModel]="valorSire('sire.sol_usuario')" (ngModelChange)="cambiarSire('sire.sol_usuario', $event)" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>SIRE · clave SOL</mat-label>
+        <input matInput type="password" autocomplete="new-password" [ngModel]="valorSire('sire.sol_clave')" (ngModelChange)="cambiarSire('sire.sol_clave', $event)" />
+      </mat-form-field>
+    </div>
+    <button mat-stroked-button type="button" [disabled]="guardandoCredenciales()" (click)="guardarCredenciales()">Guardar credenciales</button>
+  </section>
+  }
+
+  } @else {
+  <p class="cmp-nota">Cargando…</p>
+  }
+
+  </mat-card-content>
+</mat-card>
+
+<!-- Las series siguen aquí: son parte de la facturación. -->
+<company-series-tab></company-series-tab>

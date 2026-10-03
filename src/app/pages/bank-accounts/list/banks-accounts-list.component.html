@@ -1,0 +1,151 @@
+<div class="accounts-container">
+
+    <!-- Sobria a proposito: el aviso amarillo a pantalla completa gritaba mas de lo que informaba. -->
+    @if (modoOnboarding()) {
+    <section class="cuentas-alta">
+
+      <div class="cuentas-alta__cabecera">
+        <div>
+          <h2 class="cuentas-alta__titulo">Cuentas para recibir tu dinero</h2>
+          <p class="cuentas-alta__bajada">
+            Registra una cuenta en soles y otra en dólares a tu nombre. Es donde
+            depositamos el importe de cada operación. Solo se hace una vez.
+          </p>
+        </div>
+
+        @if (puedeOperar() && volverA()) {
+        <button mat-flat-button class="cuentas-alta__cta" (click)="continuarAOperar()">
+          Continuar con mi cambio
+        </button>
+        }
+      </div>
+
+      <div class="cuentas-alta__progreso">
+        <div class="cuentas-alta__barra" [style.width.%]="(tienePen() ? 50 : 0) + (tieneUsd() ? 50 : 0)"></div>
+      </div>
+      <p class="cuentas-alta__contador">
+        {{ (tienePen() ? 1 : 0) + (tieneUsd() ? 1 : 0) }} de 2 cuentas registradas
+      </p>
+
+      <div class="cuentas-ranuras">
+        <app-account-card
+          currency="PEN"
+          [account]="cuentaPen()"
+          (add)="addAccount('PEN')"
+          (edit)="editAccount(cuentaPen()!)">
+        </app-account-card>
+
+        <app-account-card
+          currency="USD"
+          [account]="cuentaUsd()"
+          (add)="addAccount('USD')"
+          (edit)="editAccount(cuentaUsd()!)">
+        </app-account-card>
+      </div>
+
+      <p class="cuentas-alta__nota">
+        Los datos bancarios se usan únicamente para depositarte. Good Money nunca
+        realiza cargos a las cuentas registradas.
+      </p>
+
+    </section>
+    }
+
+    @if (!modoOnboarding()) {
+    <!-- Filtro del mockup (frames 438/439): TODOS / PEN / USD, la activa es la píldora verde. -->
+    <div class="accounts-header">
+        <div class="accounts-tabs">
+            <button class="accounts-tab" [class.active]="coinFilter() === null" (click)="setFilter(null)">
+                TODOS
+            </button>
+            <button class="accounts-tab" [class.active]="coinFilter() === 'PEN'" (click)="setFilter('PEN')">
+                PEN
+            </button>
+            <button class="accounts-tab" [class.active]="coinFilter() === 'USD'" (click)="setFilter('USD')">
+                USD
+            </button>
+        </div>
+    </div>
+
+    <!-- En el mockup (frame 439) el vacío no lleva mensaje; se reserva para un filtro sin resultados. -->
+    @if (filteredAccounts().length === 0 && coinFilter() !== null) {
+    <div class="empty">
+        <i-tabler name="credit-card"></i-tabler>
+        <p>No hay cuentas en esta moneda</p>
+    </div>
+    }
+
+    <div class="accounts-grid">
+        @for (acc of filteredAccounts(); track acc.id) {
+
+        <mat-card class="account-card" [class.favorite]="acc.isCheck">
+
+            <div class="card-header">
+                <div class="bank">
+                    <img fallbackImg="default" [src]="'data:image/jpeg;base64,' + acc.bankIcon" />
+
+                    <div class="bank-info">
+                        <div class="bank-title">
+                            <strong>{{ acc.bankName }}</strong>
+                            <span class="meta">
+                                {{ acc.typeAccount == '1' ? 'Ahorro' : 'Corriente' }} · {{ acc.coinId }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-actions">
+                    <tabler-icon name="star-filled" class="favorite-star" [class.active]="acc.isCheck">
+                    </tabler-icon>
+
+                    <button mat-icon-button class="delete-btn" (click)="deleteAccount(acc)">
+                        <tabler-icon name="trash"></tabler-icon>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="info-row">
+                    <span class="label">{{ getDisplayAccountName(acc) }}</span>
+                    <span class="value mono">{{ getDisplayAccount(acc) }}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="label">Titular</span>
+                    <span class="value">{{ acc.name }} {{ acc.lastName }}</span>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <div class="d-flex align-items-center justify-content-center w-100">
+                    <span class="f-s-14">
+                        Usar como cuenta principal
+                    </span>
+                    <mat-slide-toggle class="m-l-auto" [checked]="acc.isCheck" (change)="toggleUse(acc, $event)">
+                    </mat-slide-toggle>
+                </div>
+            </div>
+
+        </mat-card>
+        }
+
+        <!-- Tarjeta "Agregar cuenta" del mockup; conserva el menú para elegir la moneda. -->
+        <button type="button" class="account-card account-card--agregar" [matMenuTriggerFor]="menuAddAccount">
+            <img src="assets/images/iconos3d/mas-3d.webp" alt="" />
+            <strong>Agregar cuenta</strong>
+        </button>
+
+        <mat-menu #menuAddAccount="matMenu">
+            <button mat-menu-item (click)="addAccount('PEN')">Soles (PEN)</button>
+            <button mat-menu-item (click)="addAccount('USD')">Dólares (USD)</button>
+        </mat-menu>
+    </div>
+    }
+
+</div>
+
+@if (isLoading()) {
+<div class="loading-overlay">
+    <mat-spinner diameter="56"></mat-spinner>
+</div>
+}

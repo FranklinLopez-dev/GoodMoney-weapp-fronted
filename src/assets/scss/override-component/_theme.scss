@@ -1,0 +1,21 @@
+@use "sass:map";
+@use "@angular/material" as mat;
+@use "../variables" as *;
+
+html {
+  @include mat.theme(
+    (
+      color: mat.$azure-palette,
+      typography: "Poppins",
+    )
+  );
+
+  // El mapeo de la marca vive en themecolors/_blue_theme.scss, que gana por especificidad. Aqui, lo que no es marca.
+  @include mat.theme-overrides(
+    (
+      body-medium-size: 16px,
+      body-large-size: 16px,
+      outline-variant: #e0e6eb
+    )
+  );
+}

@@ -1,0 +1,77 @@
+<mat-card class="cardWithShadow">
+    <mat-card-content>
+
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-12 m-b-16">
+            <div>
+                <h3 class="m-0 f-s-18 f-w-700">Logos de temporada</h3>
+                <p class="m-0 f-s-13 text-muted">
+                    Mientras la fecha de hoy caiga dentro del rango de uno activo, reemplaza al logo de
+                    siempre. Para Fiestas Patrias, día mundial del cáncer, Navidad.
+                </p>
+            </div>
+            <button mat-flat-button color="primary" (click)="nuevo()">
+                <div class="d-flex align-items-center justify-content-center">
+                    <i-tabler name="plus" class="m-r-4"></i-tabler>
+                    <span>Nuevo logo</span>
+                </div>
+            </button>
+        </div>
+
+        <div class="table-responsive tabla-tarjetas">
+            <table mat-table [dataSource]="logos()" class="w-100">
+
+                <ng-container matColumnDef="imagen">
+                    <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let l" data-label="Logo">
+                        <img [src]="'data:image/png;base64,' + l.image" alt=""
+                            style="max-width:64px;max-height:36px;object-fit:contain;" />
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                    <td mat-cell *matCellDef="let l" class="td-cabecera">{{ l.name }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="rango">
+                    <th mat-header-cell *matHeaderCellDef>Vigencia</th>
+                    <td mat-cell *matCellDef="let l" data-label="Vigencia">{{ l.from | date:'d MMM y' }} — {{ l.to | date:'d MMM y' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="isActive">
+                    <th mat-header-cell *matHeaderCellDef>Estado</th>
+                    <td mat-cell *matCellDef="let l" data-label="Estado">
+                        <span class="gm-chip" [class.text-success]="l.isActive" [class.text-error]="!l.isActive">
+                            {{ l.isActive ? 'Activo' : 'Inactivo' }}
+                        </span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="acciones">
+                    <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let l" class="text-end td-acciones">
+                        <button mat-icon-button (click)="editar(l)" aria-label="Editar">
+                            <i-tabler name="pencil" class="icon-18"></i-tabler>
+                        </button>
+                        <button mat-icon-button (click)="eliminar(l)" aria-label="Eliminar">
+                            <i-tabler name="trash" class="icon-18"></i-tabler>
+                        </button>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+                <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+            </table>
+
+            @if (!logos().length) {
+            <div class="gm-vacio">
+                <div class="gm-vacio__icono"><i-tabler name="photo"></i-tabler></div>
+                <h4 class="m-0">Aún no hay logos de temporada</h4>
+                <p class="m-0 text-muted">Crea el primero para Fiestas Patrias, Navidad o la fecha que toque.</p>
+                <button mat-flat-button color="primary" (click)="nuevo()">Nuevo logo</button>
+            </div>
+            }
+        </div>
+
+    </mat-card-content>
+</mat-card>

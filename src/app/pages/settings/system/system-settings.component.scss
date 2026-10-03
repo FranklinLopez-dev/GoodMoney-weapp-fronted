@@ -1,0 +1,163 @@
+// Tres bloques (WhatsApp, correo, IA), cada uno con su estado calculado por el servidor.
+
+.sys-bloque { margin-bottom: 18px; }
+
+.sys-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.sys-titulo {
+  margin: 0 0 2px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.sys-bajada {
+  margin: 0;
+  max-width: 70ch;
+  font-size: 13px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+// El estado lo dice el servidor, no la casilla: gris salvo que de verdad haya con qué funcionar.
+.sys-chip {
+  flex: 0 0 auto;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--gm-plomo-050, #f0f0f0);
+  color: var(--gm-plomo-400, #7b7979);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sys-chip--ok {
+  background: var(--gm-verde-050, #eef7e3);
+  color: var(--gm-verde-600, #4f9a1f);
+}
+
+.sys-conexion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--gm-plomo-100, #e6e6e6);
+  border-radius: 12px;
+  font-size: 13px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+.sys-conexion--ok {
+  border-color: var(--gm-verde-200, #cde8ab);
+  color: var(--gm-verde-600, #4f9a1f);
+}
+
+// El botón de vincular baja de línea en pantallas estrechas, en vez de aplastar el texto del estado.
+.sys-conexion { flex-wrap: wrap; }
+.sys-conexion > span { flex: 1 1 260px; }
+
+// Vinculación por QR
+
+.sys-qr {
+  margin-bottom: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--gm-plomo-100, #e6e6e6);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.sys-qr__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+}
+
+.sys-qr__titulo {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.sys-qr__pasos {
+  margin: 4px 0 14px;
+  font-size: 13px;
+  text-align: left;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+// Tamaño fijo: el PNG de Evolution viene pequeño, y el lector del teléfono necesita contraste, no nitidez.
+.sys-qr__imagen {
+  width: 232px;
+  height: 232px;
+  image-rendering: pixelated;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.sys-qr__codigo {
+  margin: 8px 0;
+  font-family: monospace;
+  font-size: 15px;
+  word-break: break-all;
+}
+
+.sys-qr__nota {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+.sys-qr__caducado {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--gm-color-error, #ca4444);
+}
+
+.sys-interruptor { margin: 6px 0 16px; }
+
+.sys-rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0 18px;
+}
+
+.sys-ancho { width: 100%; }
+
+.sys-aviso {
+  margin: 2px 0 14px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--gm-dorado-500, #f9b410);
+  background: var(--gm-crema, #f5f5f5);
+  border-radius: 0 8px 8px 0;
+  font-size: 12.5px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+.sys-prueba {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sys-prueba__campo { flex: 1 1 220px; max-width: 320px; }
+
+.sys-acciones {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.sys-nota {
+  margin: 12px 0;
+  font-size: 13px;
+  color: var(--gm-plomo-400, #7b7979);
+}

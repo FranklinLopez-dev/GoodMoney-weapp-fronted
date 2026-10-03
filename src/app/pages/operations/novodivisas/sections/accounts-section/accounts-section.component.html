@@ -1,0 +1,316 @@
+<mat-card>
+  <mat-card-content>
+    <form [formGroup]="form" class="create-step">
+
+      <section class="accounts-section">
+        <div class="account-block">
+          <div class="account-header">
+            <h4>¿Desde dónde transfieres?</h4>
+            <p>Enviarás {{ quote?.typeOperation === 'BUY' ? 'dólares' : 'soles' }} desde aquí.</p>
+          </div>
+
+          <div class="account-card">
+            <div class="account-info">
+              <img class="bank-icon" fallbackImg="default"
+                [src]="'data:image/png;base64,' + form.value.originAccount?.bankIcon" alt="Banco" />
+
+              <div class="account-text">
+                <strong>
+                  {{ form.value?.originAccount?.bankName ?? 'Banco' }}
+                  @if(form.value.originAccount?.coinId) {
+                  {{ form.value.originAccount?.coinId === 'USD' ? 'Dólares' : 'Soles' }}
+                  } @else {
+                  {{ quote?.typeOperation === 'BUY' ? 'Dólares' : 'Soles' }}
+                  }
+
+                </strong>
+                <span>
+                  {{ getDisplayAccount(form.value.originAccount) }}
+                </span>
+              </div>
+            </div>
+
+            <button mat-stroked-button color="primary" (click)="openDrawer()">
+              Cambiar
+            </button>
+          </div>
+        </div>
+
+        <div class="account-block">
+
+          <div class="account-header">
+            <h4>¿A dónde enviamos el monto cambiado?</h4>
+            <p>Enviaremos el monto cambiado aquí.</p>
+          </div>
+
+          @if (store.table()?.company?.isOneAccount && destinationList.length) {
+          <div class="d-flex align-items-center w-100 m-b-12">
+            <span class="f-s-14">
+              ¿Deseas recibir tu dinero por partes?
+            </span>
+            <mat-slide-toggle formControlName="receiveByParts" class="m-l-auto">
+            </mat-slide-toggle>
+          </div>
+          }
+
+          @for (dest of destinationList; track dest.account.id; let i = $index) {
+          <div class="account-card">
+
+            <div class="account-info">
+              <img class="bank-icon" [src]="'data:image/png;base64,' + dest.account.bankIcon" alt="Banco" />
+
+              <div class="account-text">
+                <strong>
+                  {{ dest.account.bankName }}
+                  {{ dest.account.coinId === 'USD' ? 'Dólares' : 'Soles' }}
+                </strong>
+
+                <div class="d-flex justify-content-center  align-items-center" >
+                  <span>
+                    {{ getDisplayAccount(dest.account) }}
+                  </span>
+
+                  <button mat-icon-button class="copy-btn" matTooltip="Copiar número"
+                    (click)="copy(getDisplayAccountNumber(dest.account), 'account')">
+                    <tabler-icon name="copy"></tabler-icon>
+                  </button>
+                </div>
+
+                @if(canSelectMultiple()) {
+                <div class="account-amount">
+                  <span class="amount-label">
+                    Monto a recibir:
+                  </span>
+
+                  <strong class="total-value">
+                    {{ quote?.typeOperation === 'BUY' ? 'S/' : '$' }}
+                    {{ dest.amount | number:'1.2-2' }}
+                  </strong>
+
+                  @if (form.value.receiveByParts) {
+                  <button mat-icon-button class="d-flex justify-content-center" (click)="editAmount(dest)">
+                    <i-tabler class="d-flex icon-20" [name]="'edit'"></i-tabler>
+                  </button>
+                  }
+                </div>
+                }
+
+              </div>
+            </div>
+
+            <div class="account-actions">
+
+              <button mat-stroked-button color="primary" (click)="openDestinationReplace(i)">
+                Cambiar
+              </button>
+
+              @if (form.value.receiveByParts && destinationList.length > 1) {
+              <button mat-icon-button color="warn" aria-label="Eliminar cuenta" (click)="removeDestination(i)">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+              }
+
+            </div>
+
+          </div>
+          }
+
+          @if ((form.value.receiveByParts && getUsdAmount() < getTotalToReceive() || !destinationList.length)) { <button
+            mat-stroked-button color="primary" (click)="destinationAdd()">
+            <div class="d-flex justify-content-center align-items-center">
+              <i-tabler name="plus"></i-tabler>
+              <span>Agregar otra cuenta</span>
+            </div>
+            </button>
+            }
+
+            @if (form.value.receiveByParts && isSplitInvalid()) {
+            <div class="split-warning">
+              <mat-icon color="warn">info</mat-icon>
+              <span>
+                {{ getSplitMessage() }}
+              </span>
+            </div>
+            }
+        </div>
+
+      </section>
+
+    </form>
+
+  </mat-card-content>
+</mat-card>
+
+
+<ng-template #originDrawer>
+
+  <div class="drawer-container">
+
+    <div class="drawer-header">
+      <span class="drawer-breadcrumb">• ORIGEN</span>
+      <button mat-icon-button (click)="layout.closeGlobalDrawer()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <h3 class="drawer-title">Elige la cuenta origen</h3>
+
+    <div class="drawer-list">
+
+      @for (acc of originAccounts(); track acc.id) {
+
+      @if (isCurrentOrigin(acc)) {
+      <div class="drawer-account disabled">
+
+        <div class="account-left">
+          <img class="bank-icon" [src]="'data:image/png;base64,' + acc.bankIcon" />
+
+          <div class="account-text">
+            <strong>
+              {{ acc.bankName }} –
+              {{ acc.coinId === 'USD' ? 'USD ($)' : 'PEN (S/)' }}
+            </strong>
+            <span>{{ getDisplayAccount(acc) }}</span>
+          </div>
+        </div>
+
+        <mat-icon class="text-muted">check_circle</mat-icon>
+
+      </div>
+
+      } @else {
+
+      <div class="drawer-account" [class.selected]="tempOriginAccount?.id === acc.id" (click)="selectTempOrigin(acc)">
+
+        <div class="account-left">
+          <img class="bank-icon" [src]="'data:image/png;base64,' + acc.bankIcon" />
+
+          <div class="account-text">
+            <strong>
+              {{ acc.bankName }} –
+              {{ acc.coinId === 'USD' ? 'USD ($)' : 'PEN (S/)' }}
+            </strong>
+            <span>{{ getDisplayAccount(acc) }}</span>
+          </div>
+        </div>
+
+        <mat-radio-button [checked]="tempOriginAccount?.id === acc.id" (click)="$event.stopPropagation()">
+        </mat-radio-button>
+
+      </div>
+
+      }
+
+      }
+
+    </div>
+    <div class="drawer-footer">
+
+      <mat-divider class="m-y-16"></mat-divider>
+
+      <button (click)="openOriginAdd()" mat-stroked-button color="primary">
+        <div class="d-flex justify-content-center align-items-center">
+          <i-tabler name="plus"></i-tabler>
+          <span>Agregar nueva cuenta</span>
+        </div>
+      </button>
+
+      <button mat-flat-button color="primary" [disabled]="!tempOriginAccount" (click)="confirmOrigin()">
+        Confirmar cuenta
+      </button>
+    </div>
+
+  </div>
+
+</ng-template>
+
+<ng-template #destinationDrawer>
+
+  <div class="drawer-container">
+
+    <div class="drawer-header">
+      <span class="drawer-breadcrumb">• DESTINO</span>
+      <button mat-icon-button (click)="layout.closeGlobalDrawer()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <h3 class="drawer-title">Elige la cuenta destino</h3>
+
+    <div class="drawer-list">
+
+      @for (acc of destinationAccounts(); track acc.id) {
+
+      @if (isDestinationAlreadyAdded(acc)) {
+
+      <div class="drawer-account disabled">
+
+        <div class="account-info">
+          <img class="bank-icon" [src]="'data:image/png;base64,' + acc.bankIcon" />
+
+          <div class="account-text">
+            <strong>
+              {{ acc.bankName }} –
+              {{ acc.coinId === 'USD' ? 'USD ($)' : 'PEN (S/)' }}
+            </strong>
+            <span>{{ getDisplayAccount(acc) }}</span>
+          </div>
+        </div>
+
+        <mat-icon class="text-muted">check_circle</mat-icon>
+
+      </div>
+
+      }
+      @else {
+
+      <div class="drawer-account" [class.selected]="isTempDestinationSelected(acc)" (click)="selectDestination(acc)">
+
+        <div class="account-info">
+          <img class="bank-icon" [src]="'data:image/png;base64,' + acc.bankIcon" />
+
+          <div class="account-text">
+            <strong>
+              {{ acc.bankName }} –
+              {{ acc.coinId === 'USD' ? 'USD ($)' : 'PEN (S/)' }}
+            </strong>
+            <span>{{ getDisplayAccount(acc) }}</span>
+          </div>
+        </div>
+
+        <mat-radio-button [checked]="isTempDestinationSelected(acc)" (click)="$event.stopPropagation()">
+        </mat-radio-button>
+
+      </div>
+
+      }
+
+      }
+
+    </div>
+
+    <div class="drawer-footer">
+
+      <mat-divider class="m-y-16"></mat-divider>
+
+      <button (click)="openDestinationAdd()" mat-stroked-button color="primary">
+        <div class="d-flex justify-content-center align-items-center">
+          <i-tabler name="plus"></i-tabler>
+          <span>Agregar nueva cuenta</span>
+        </div>
+      </button>
+
+      <button mat-flat-button color="primary" [disabled]="!tempDestinationAccounts.length"
+        (click)="confirmDestination()">Confirmar cuenta</button>
+
+    </div>
+
+  </div>
+
+</ng-template>
+
+@if (isLoading()) {
+<div class="loading-overlay">
+  <mat-spinner diameter="60"></mat-spinner>
+</div>
+}

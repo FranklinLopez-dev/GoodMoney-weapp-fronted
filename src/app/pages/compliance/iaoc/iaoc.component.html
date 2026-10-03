@@ -1,0 +1,111 @@
+<div class="cmp-panel">
+  <p class="cmp-bajada">
+    Las cifras del año para el <strong>Informe Anual del Oficial de Cumplimiento</strong>, mes a mes y con el mismo
+    corte que el Registro de Operaciones: filas del archivo del portal (las que llegan solas al umbral individual),
+    operaciones múltiples, alertas de operación inusual, coincidencias confirmadas en listas y si el RO de cada mes
+    se remitió en plazo. No entran las operaciones excluidas del registro.
+  </p>
+
+  <div class="cmp-filtros">
+    <mat-form-field appearance="outline">
+      <mat-label>Año</mat-label>
+      <mat-select [ngModel]="anio()" (ngModelChange)="anio.set($event); cargar()">
+        @for (a of anios; track a) { <mat-option [value]="a">{{ a }}</mat-option> }
+      </mat-select>
+    </mat-form-field>
+    <button mat-stroked-button type="button" [disabled]="exportando() || !datos()" (click)="exportar()">
+      {{ exportando() ? 'Generando…' : 'Exportar a Excel' }}
+    </button>
+  </div>
+
+  @if (cargando() && !datos()) {
+  <p class="cmp-nota">Calculando…</p>
+  } @else if (datos(); as d) {
+  <div class="cmp-tarjetas">
+    <div class="cmp-tarjeta">
+      <span class="cmp-tarjeta__cifra">{{ d.totales.operacionesRo | number }}</span>
+      <span class="cmp-tarjeta__rotulo">Filas del RO</span>
+      <span class="cmp-tarjeta__pie">USD {{ d.totales.montoRoUsd | number:'1.0-0' }}</span>
+    </div>
+    <div class="cmp-tarjeta">
+      <span class="cmp-tarjeta__cifra">{{ d.totales.operacionesMultiples | number }}</span>
+      <span class="cmp-tarjeta__rotulo">Operaciones múltiples</span>
+      <span class="cmp-tarjeta__pie">{{ d.totales.personasMultiples | number }} persona(s) en el año</span>
+    </div>
+    <div class="cmp-tarjeta">
+      <span class="cmp-tarjeta__cifra">{{ d.totales.alertasInusuales | number }}</span>
+      <span class="cmp-tarjeta__rotulo">Alertas de operación inusual</span>
+    </div>
+    <div class="cmp-tarjeta">
+      <span class="cmp-tarjeta__cifra">{{ d.totales.coincidenciasConfirmadas | number }}</span>
+      <span class="cmp-tarjeta__rotulo">Coincidencias confirmadas en listas</span>
+    </div>
+    @if (d.incluyeRos) {
+    <div class="cmp-tarjeta">
+      <span class="cmp-tarjeta__cifra">{{ d.totales.rosRemitidos | number }}</span>
+      <span class="cmp-tarjeta__rotulo">ROS remitidos</span>
+      <span class="cmp-tarjeta__pie">{{ d.totales.rosAbiertos | number }} expediente(s) abierto(s) en el año</span>
+    </div>
+    }
+    <div class="cmp-tarjeta" [class.cmp-tarjeta--aviso]="fueraDePlazo() > 0">
+      <span class="cmp-tarjeta__cifra">{{ fueraDePlazo() }}</span>
+      <span class="cmp-tarjeta__rotulo">Meses con el RO fuera de plazo</span>
+      <span class="cmp-tarjeta__pie">enviado tarde o vencido sin enviar</span>
+    </div>
+  </div>
+
+  <div class="cmp-tabla iaoc-tabla" [class.iaoc-tabla--ros]="d.incluyeRos">
+    <div class="cmp-fila cmp-fila--cabecera">
+      <span>Mes</span><span class="cmp-numero">Filas del RO</span><span class="cmp-numero">Múltiples</span>
+      <span class="cmp-numero">Alertas</span><span class="cmp-numero">Listas</span>
+      @if (d.incluyeRos) { <span class="cmp-numero">ROS</span> }
+      <span>Remisión del RO</span>
+    </div>
+    @for (m of d.meses; track m.mes) {
+    <div class="cmp-fila" [class.iaoc-futuro]="!m.cerrado && !m.operacionesRo && !m.operacionesMultiples"
+         [class.cmp-fila--vencida]="m.roEnPlazo === false || m.roVencido">
+      <span data-label="Mes"><strong>{{ nombreMes(m.mes) }}</strong></span>
+      <span data-label="Filas del RO" class="cmp-numero">{{ m.operacionesRo | number }}
+        <small class="cmp-doc">USD {{ m.montoRoUsd | number:'1.2-2' }}</small></span>
+      <span data-label="Múltiples" class="cmp-numero">{{ m.operacionesMultiples | number }}
+        <small class="cmp-doc">USD {{ m.montoMultiplesUsd | number:'1.2-2' }} · {{ m.personasMultiples }} persona(s)</small></span>
+      <span data-label="Alertas" class="cmp-numero">{{ m.alertasInusuales | number }}</span>
+      <span data-label="Coincidencias confirmadas" class="cmp-numero">{{ m.coincidenciasConfirmadas | number }}</span>
+      @if (d.incluyeRos) {
+      <span data-label="ROS" class="cmp-numero">{{ m.rosRemitidos }} remitido(s)
+        <small class="cmp-doc">{{ m.rosAbiertos }} abierto(s)</small></span>
+      }
+      <span data-label="Remisión del RO">
+        @if (m.estadoRo === null) {
+        <small class="cmp-doc">{{ sinFilas(d.year, m.mes, m.cerrado) }}</small>
+        } @else {
+        <span class="cmp-chip" [ngClass]="claseRemision(m)">{{ rotuloRemision(m) }}</span>
+        <small class="cmp-doc">Límite {{ m.roFechaLimite | date:'dd/MM/yyyy' }}
+          @if (m.roEnviadoAt) { · enviado {{ m.roEnviadoAt | date:'dd/MM/yyyy' }} }</small>
+        }
+      </span>
+    </div>
+    }
+    <div class="cmp-fila iaoc-total">
+      <span data-label="Mes">Total {{ d.year }}</span>
+      <span data-label="Filas del RO" class="cmp-numero">{{ d.totales.operacionesRo | number }}
+        <small class="cmp-doc">USD {{ d.totales.montoRoUsd | number:'1.2-2' }}</small></span>
+      <span data-label="Múltiples" class="cmp-numero">{{ d.totales.operacionesMultiples | number }}
+        <small class="cmp-doc">USD {{ d.totales.montoMultiplesUsd | number:'1.2-2' }} · {{ d.totales.personasMultiples }} persona(s)</small></span>
+      <span data-label="Alertas" class="cmp-numero">{{ d.totales.alertasInusuales | number }}</span>
+      <span data-label="Coincidencias confirmadas" class="cmp-numero">{{ d.totales.coincidenciasConfirmadas | number }}</span>
+      @if (d.incluyeRos) {
+      <span data-label="ROS" class="cmp-numero">{{ d.totales.rosRemitidos }} remitido(s)
+        <small class="cmp-doc">{{ d.totales.rosAbiertos }} abierto(s)</small></span>
+      }
+      <span></span>
+    </div>
+  </div>
+  <p class="cmp-nota">
+    Umbral individual USD {{ d.umbralIndividualUsd | number:'1.0-0' }} y acumulado mensual USD
+    {{ d.umbralAcumuladoUsd | number:'1.0-0' }}: son los de hoy, y el reparto entre filas del RO y múltiples se hace con
+    ellos (si se cambiaron durante el año, un mes ya remitido puede verse distinto). Las personas del total son
+    distintas en el año, no la suma de los meses.
+  </p>
+  }
+</div>

@@ -1,0 +1,72 @@
+<mat-card class="cardWithShadow">
+    <mat-card-content>
+
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-12 m-b-16">
+            <div>
+                <h3 class="m-0 f-s-18 f-w-700">Asistente virtual</h3>
+                <p class="m-0 f-s-13 text-muted">
+                    Las preguntas activas son las que ofrece y responde el chat. Las 4
+                    primeras (por orden) aparecen como sugerencias.
+                </p>
+            </div>
+            <button mat-flat-button color="primary" (click)="nueva()">
+                <div class="d-flex align-items-center justify-content-center">
+                    <i-tabler name="plus" class="m-r-4"></i-tabler>
+                    <span>Nueva pregunta</span>
+                </div>
+            </button>
+        </div>
+
+        <div class="table-responsive tabla-tarjetas">
+            <table mat-table [dataSource]="faqs()" class="w-100">
+
+                <ng-container matColumnDef="displayOrder">
+                    <th mat-header-cell *matHeaderCellDef>Orden</th>
+                    <td mat-cell *matCellDef="let f" data-label="Orden">{{ f.displayOrder }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="question">
+                    <th mat-header-cell *matHeaderCellDef>Pregunta</th>
+                    <td mat-cell *matCellDef="let f" class="td-cabecera">
+                        <strong class="d-block">{{ f.question }}</strong>
+                        <span class="f-s-12 text-muted">{{ f.answer | slice:0:90 }}{{ f.answer.length > 90 ? '…' : '' }}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="isActive">
+                    <th mat-header-cell *matHeaderCellDef>Estado</th>
+                    <td mat-cell *matCellDef="let f" data-label="Estado">
+                        <span class="gm-chip" [class.text-success]="f.isActive" [class.text-error]="!f.isActive">
+                            {{ f.isActive ? 'Activa' : 'Inactiva' }}
+                        </span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="acciones">
+                    <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let f" class="text-end td-acciones">
+                        <button mat-icon-button (click)="editar(f)" aria-label="Editar">
+                            <i-tabler name="pencil" class="icon-18"></i-tabler>
+                        </button>
+                        <button mat-icon-button (click)="eliminar(f)" aria-label="Eliminar">
+                            <i-tabler name="trash" class="icon-18"></i-tabler>
+                        </button>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+                <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+            </table>
+
+            @if (!faqs().length) {
+            <div class="gm-vacio">
+                <div class="gm-vacio__icono"><i-tabler name="message-chatbot"></i-tabler></div>
+                <h4 class="m-0">Aún no hay preguntas</h4>
+                <p class="m-0 text-muted">Crea la primera para que el asistente tenga qué responder.</p>
+                <button mat-flat-button color="primary" (click)="nueva()">Nueva pregunta</button>
+            </div>
+            }
+        </div>
+
+    </mat-card-content>
+</mat-card>

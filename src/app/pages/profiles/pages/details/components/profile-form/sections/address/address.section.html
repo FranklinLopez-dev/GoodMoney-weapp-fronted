@@ -1,0 +1,74 @@
+<mat-card class="cardWithShadow">
+    <mat-card-content>
+        <mat-card-title>Ubicación</mat-card-title>
+        <mat-card-subtitle class="f-s-14">Dirección fiscal, ingrese su dirección completa incluyendo calle, número y ciudad.</mat-card-subtitle>
+        <form class="row m-t-24" [formGroup]="form">
+            <div class="col-md-6 col-lg-4">
+                <app-select-search-async class="w-100" label="País" [items]="filteredCountries" valueKey="cca2"
+                    labelKey="name.common" imageKey="flags.svg" imageAltKey="name.common" [control]="countryControl"
+                    (search)="loadCountries($event)">
+                </app-select-search-async>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <mat-form-field class="w-100" appearance="outline">
+                    <mat-label>Departamento</mat-label>
+                    <mat-select formControlName="departament" placeholder="Selecciona el departamento">
+                        @for (d of departments(); track d.code) {
+                        <mat-option [value]="d.code">{{ d.departament }}</mat-option>
+                        }
+                    </mat-select>
+                    @if(control['departament'].touched && control['departament'].invalid) {
+                    <mat-hint class="su-error">
+                        Departamento es obligatorio
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <mat-form-field class="w-100" appearance="outline">
+                    <mat-label>Provincia</mat-label>
+                    <mat-select formControlName="province" placeholder="Selecciona la provincia">
+                        @for (p of provinces(); track p.code) {
+                        @if(p.code) {
+                        <mat-option [value]="p.code">{{ p.province }}</mat-option>
+                        }
+                        }
+                    </mat-select>
+                    @if(control['province'].touched && control['province'].invalid) {
+                    <mat-hint class="su-error">
+                        Provincia es obligatorio
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <mat-form-field class="w-100" appearance="outline">
+                    <mat-label>Distrito</mat-label>
+                    <mat-select formControlName="district" placeholder="Selecciona el distrito">
+                        @for (d of districts(); track d.code) {
+                        @if(d.code) {
+                        <mat-option [value]="d.code">{{ d.district }}</mat-option>
+                        }
+                        }
+                    </mat-select>
+                    @if(control['district'].touched && control['district'].invalid) {
+                    <mat-hint class="su-error">
+                        Distrito es obligatorio
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+            <div class="col-lg-8">
+                <mat-form-field class="w-100" appearance="outline">
+                    <mat-label>Dirección</mat-label>
+                    <textarea maxlength="300" matInput cdkTextareaAutosize formControlName="address"></textarea>
+                    @if(control['address'].touched && control['address'].invalid) {
+                    <mat-hint class="su-error">
+                        Dirección es obligatorio
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+        </form>
+    </mat-card-content>
+</mat-card>

@@ -1,0 +1,59 @@
+<div class="auth-screen">
+
+    <div class="auth-screen__main">
+        <div class="verify-card">
+
+            <div class="verify-card-inner">
+                <div class="verify-icon">
+                    <mat-icon>mail_outline</mat-icon>
+                </div>
+
+                <div class="verify-body">
+                    <h1 class="verify-title">Revisa tu correo</h1>
+
+                    <p class="verify-text">Te enviamos un enlace de verificación a:</p>
+
+                    <div class="verify-email-row">
+                        <p class="verify-email">{{ email || '—' }}</p>
+                        <button mat-icon-button aria-label="Copiar correo" [matTooltip]="isCopied() ? 'Copiado' : 'Copiar'" (click)="copyEmail()" [class.copied]="isCopied()">
+                            <mat-icon>{{ isCopied() ? 'check_circle' : 'content_copy' }}</mat-icon>
+                        </button>
+                    </div>
+
+                    <p class="verify-hint">
+                        Para proteger tu cuenta y permitirte operar con total seguridad en
+                        <strong>Good Money</strong>, necesitamos que confirmes tu dirección de
+                        correo electrónico.Haz clic en el enlace para activar tu cuenta y continuar.
+                    </p>
+
+                    <div class="verify-actions">
+                        <button mat-flat-button class="gm-btn gm-btn--accent" (click)="goToSupport()">
+                            <mat-icon>contact_phone</mat-icon>
+                            Soporte
+                        </button>
+
+                        <button mat-stroked-button class="gm-btn" (click)="goEmail()">
+                            <mat-icon>mail_outline</mat-icon>
+                            Abrir mi correo
+                        </button>
+                    </div>
+
+                    <p class="su-login m-t-16">
+                        ¿Ya tienes una cuenta?
+                        <a [routerLink]="['/authentication/login']">Inicia sesión</a>
+                    </p>
+
+                    <div class="verify-footer">¿No ves el correo? Revisa tu carpeta de spam o espera unos minutos.</div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <app-auth-aside
+        title="¿Ya tienes una cuenta en Good Money?"
+        text="Ingresa con tu cuenta y continúa operando de forma segura"
+        cta="Iniciar sesión"
+        link="/authentication/login" />
+</div>

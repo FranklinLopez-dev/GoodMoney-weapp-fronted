@@ -1,0 +1,80 @@
+.feriados-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.feriados-titulo {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.feriados-bajada {
+  margin: 0;
+  max-width: 70ch;
+  font-size: 13px;
+  color: var(--gm-plomo-400);
+}
+
+.feriados-anio {
+  width: 140px;
+  flex-shrink: 0;
+}
+
+/* Alta y edición en una línea: tres campos no justifican un diálogo. */
+.feriados-form {
+  display: grid;
+  grid-template-columns: 200px minmax(220px, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--gm-radius-xl);
+  background: var(--gm-color-fondo-crema);
+}
+
+.feriados-form__acciones {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.feriados-form ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.feriados-ayuda {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 12px 2px 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--gm-plomo-400);
+
+  i-tabler {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: var(--gm-color-text-info);
+  }
+}
+
+.feriados-vacio {
+  margin: 24px 0 8px;
+  text-align: center;
+  color: var(--gm-plomo-400);
+}
+
+@media (max-width: 1000px) {
+  .feriados-form {
+    grid-template-columns: 1fr;
+  }
+
+  .feriados-form__acciones {
+    justify-content: flex-start;
+  }
+}

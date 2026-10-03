@@ -1,0 +1,14 @@
+// Solo las doce medidas que se usan: la plantilla generaba .icon-1 a .icon-60 y ninguno se arma en runtime.
+$sizes: 6, 10, 14, 16, 18, 20, 24, 30, 35, 40, 45, 48;
+
+@mixin icon_size {
+  @each $i in $sizes {
+    .icon-#{$i} {
+      height: #{$i}px !important;
+      width: #{$i}px !important;
+      line-height: #{$i + 8}px !important;
+    }
+  }
+}
+
+@include icon_size;

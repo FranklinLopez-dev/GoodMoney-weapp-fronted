@@ -1,0 +1,247 @@
+<div class="cmp-panel">
+
+  @if (!abierta()) {
+  <p class="cmp-bajada">
+    Personas cuyo movimiento se sale de lo normal: varias operaciones pequeñas que
+    juntas cruzan el umbral, volumen acumulado alto o importes que rozan el umbral
+    sin llegar. Se calcula <strong>por persona</strong>, así que un cliente con
+    varias cuentas suma como uno solo.
+  </p>
+
+  <div class="cmp-filtros">
+    <mat-form-field appearance="outline">
+      <mat-label>Estado</mat-label>
+      <mat-select [ngModel]="filtroEstado()" (ngModelChange)="filtroEstado.set($event); cargar()" placeholder="Selecciona el estado">
+        <mat-option value="">Todos</mat-option>
+        <mat-option value="Pendiente">Pendiente</mat-option>
+        <mat-option value="Revisado">Revisado</mat-option>
+        <mat-option value="Justificado">Justificado</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Regla</mat-label>
+      <mat-select [ngModel]="filtroRegla()" (ngModelChange)="filtroRegla.set($event); cargar()" placeholder="Selecciona la regla">
+        <mat-option value="">Todas</mat-option>
+        <mat-option value="Fraccionamiento">Fraccionamiento</mat-option>
+        <mat-option value="Acumulacion">Acumulación</mat-option>
+        <mat-option value="Cercania">Cercanía al umbral</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Severidad</mat-label>
+      <mat-select [ngModel]="filtroSeveridad()" (ngModelChange)="filtroSeveridad.set($event); cargar()" placeholder="Selecciona la severidad">
+        <mat-option value="">Todas</mat-option>
+        <mat-option value="Alta">Alta</mat-option>
+        <mat-option value="Media">Media</mat-option>
+        <mat-option value="Baja">Baja</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="cmp-filtros__buscar">
+      <mat-label>Documento o nombre</mat-label>
+      <input matInput [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)"
+             (keyup.enter)="cargar()" />
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" type="button" (click)="cargar()">Buscar</button>
+    <button mat-button type="button" (click)="limpiar()">Limpiar</button>
+    @if (puedeRevisar) {
+    <button mat-stroked-button type="button" [disabled]="recalculando()" (click)="recalcular()">
+      {{ recalculando() ? 'Recalculando…' : 'Recalcular' }}
+    </button>
+    }
+  </div>
+
+  @if (cargando()) {
+  <p class="cmp-nota">Cargando…</p>
+  } @else if (!alertas().length) {
+  <p class="cmp-nota">No hay alertas que cumplan el filtro.</p>
+  } @else {
+  <div class="cmp-tabla cmp-tabla--alertas">
+    <div class="cmp-fila cmp-fila--cabecera">
+      <span>Persona</span><span>Regla</span><span>Movido (USD)</span>
+      <span>Operaciones</span><span>Estado</span><span></span>
+    </div>
+    @for (a of alertas(); track a.id) {
+    <div class="cmp-fila">
+      <span>
+        <strong>{{ a.fullName || '—' }}</strong>
+        <small class="cmp-doc">{{ a.documentNumber }}</small>
+      </span>
+      <span>
+        <span class="cmp-chip" [ngClass]="claseSeveridad(a.severity)">{{ a.severity }}</span>
+        <small class="cmp-regla">{{ a.ruleType }}</small>
+      </span>
+      <span class="cmp-numero">{{ a.accumulatedAmountUsd | number:'1.2-2' }}</span>
+      <span>{{ a.operationsCount }} en {{ a.windowDays }} días</span>
+      <span>
+        <span class="cmp-chip" [ngClass]="claseEstado(a.status)">{{ a.status }}</span>
+        @if (a.hasSuspiciousReport) { <small class="cmp-regla">con expediente</small> }
+      </span>
+      <span><button mat-button type="button" (click)="abrir(a)">Ver</button></span>
+    </div>
+    }
+  </div>
+  }
+
+  } @else if (abierta(); as a) {
+
+  <!-- detalle de alerta -->
+  <div class="cmp-detalle-cabecera">
+    <button mat-button type="button" (click)="cerrar()">← Volver</button>
+    <h3>{{ a.fullName || 'Sin nombre' }} <small>{{ a.documentNumber }}</small></h3>
+    <span class="cmp-chip" [ngClass]="claseSeveridad(a.severity)">{{ a.severity }}</span>
+    <span class="cmp-chip" [ngClass]="claseEstado(a.status)">{{ a.status }}</span>
+  </div>
+
+  <div class="cmp-detalle">
+
+    <section class="cmp-bloque">
+      <h4>Por qué se levantó</h4>
+      <p>
+        <strong>{{ a.ruleType }}</strong> — {{ a.operationsCount }} operaciones por
+        USD {{ a.accumulatedAmountUsd | number:'1.2-2' }} en los últimos {{ a.windowDays }} días
+        ({{ a.periodStart | date:'dd/MM/yyyy' }} – {{ a.periodEnd | date:'dd/MM/yyyy' }}).
+      </p>
+
+      @if (riesgo(); as r) {
+      <div class="cmp-riesgo">
+        <span class="cmp-chip" [ngClass]="claseNivel(r.level)">Riesgo {{ r.level }} · {{ r.score }}/100</span>
+        @if (r.regimen) {
+        <span class="cmp-chip" [ngClass]="claseNivel(r.riesgoLaft === 'Alto' ? 'Rojo' : r.riesgoLaft === 'Medio' ? 'Ambar' : 'Verde')">
+          Debida diligencia {{ r.regimen }} · riesgo LAFT {{ r.riesgoLaft }}
+        </span>
+        @if (r.motivosRegimen?.length) {
+        <p class="cmp-nota">Reforzado por:
+          @for (m of r.motivosRegimen; track m.etiqueta; let ultimo = $last) {
+          <strong>{{ m.etiqueta }}</strong>@if (m.detalle) { ({{ m.detalle }}) }@if (!ultimo) { · }
+          }
+        </p>
+        }
+        }
+        <ul class="cmp-factores">
+          @for (f of r.factors; track f.etiqueta) {
+          @if (f.aplica) {
+          <li><strong>+{{ f.puntos }}</strong> {{ f.etiqueta }}
+            @if (f.detalle) { <small>— {{ f.detalle }}</small> }
+          </li>
+          }
+          }
+        </ul>
+        @if (!r.factors.length) { <p class="cmp-nota">Sin factores de riesgo.</p> }
+      </div>
+      }
+    </section>
+
+    <section class="cmp-bloque">
+      <h4>Operaciones de la ventana</h4>
+      @if (!operaciones().length) {
+      <p class="cmp-nota">Sin operaciones en el periodo.</p>
+      } @else {
+      <div class="cmp-tabla cmp-tabla--ops">
+        <div class="cmp-fila cmp-fila--cabecera">
+          <span>Fecha</span><span>Tipo</span><span>USD</span><span>Soles</span><span>En el RO</span>
+        </div>
+        @for (o of operaciones(); track o.id) {
+        <div class="cmp-fila">
+          <span>{{ o.dateCreation | date:'dd/MM/yyyy' }}</span>
+          <span>
+            {{ o.typeOperation === '1' ? 'Compra' : 'Venta' }}
+            @if (o.porCuentaDeTerceros) { <small class="cmp-regla">por cuenta de terceros</small> }
+          </span>
+          <span class="cmp-numero">{{ o.montoUsd | number:'1.2-2' }}</span>
+          <span class="cmp-numero">{{ o.totalPen | number:'1.2-2' }}</span>
+          <span>{{ o.isRecordedForSBS ? 'Sí' : 'No' }}</span>
+        </div>
+        }
+      </div>
+      }
+    </section>
+
+    @if (puedeRevisar) {
+    <section class="cmp-bloque">
+      <h4>Revisión</h4>
+      <div class="cmp-formulario">
+        <mat-form-field appearance="outline">
+          <mat-label>Resultado</mat-label>
+          <mat-select [ngModel]="resultadoRevision()" (ngModelChange)="resultadoRevision.set($event)" placeholder="Selecciona el resultado">
+            <mat-option value="Pendiente">Pendiente</mat-option>
+            <mat-option value="Revisado">Revisado</mat-option>
+            <mat-option value="Justificado">Justificado</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+          <mat-label>Nota de la revisión</mat-label>
+          <textarea matInput rows="2" [ngModel]="notaRevision()"
+                    (ngModelChange)="notaRevision.set($event)"></textarea>
+        </mat-form-field>
+      </div>
+      <div class="cmp-acciones">
+        <button mat-flat-button color="primary" type="button"
+                [disabled]="guardandoRevision()" (click)="guardarRevision()">
+          {{ guardandoRevision() ? 'Guardando…' : 'Guardar revisión' }}
+        </button>
+        @if (puedeVerRos && !a.hasSuspiciousReport) {
+        <button mat-stroked-button type="button" (click)="derivarARos()">
+          Abrir expediente de operación sospechosa
+        </button>
+        }
+      </div>
+      <p class="cmp-aviso">
+        Cada cambio de estado queda en la bitácora con su autor y su fecha. La nota
+        de arriba se pisa en la siguiente revisión; la bitácora no.
+      </p>
+    </section>
+    }
+
+    <section class="cmp-bloque">
+      <h4>Bitácora</h4>
+
+      @if (puedeRevisar) {
+      <div class="cmp-formulario">
+        <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+          <mat-label>Comentario</mat-label>
+          <textarea matInput rows="2" [ngModel]="comentario()"
+                    (ngModelChange)="comentario.set($event)"></textarea>
+        </mat-form-field>
+      </div>
+      <div class="cmp-acciones">
+        <input type="file" id="cmp-archivo" class="cmp-archivo"
+               accept=".pdf,.png,.jpg,.jpeg,.webp" (change)="alElegirArchivo($event)" />
+        <label for="cmp-archivo" class="cmp-archivo__rotulo">
+          {{ adjunto()?.nombre || 'Adjuntar documento (PDF o imagen, máx. 10 MB)' }}
+        </label>
+        <button mat-flat-button color="primary" type="button"
+                [disabled]="guardandoComentario()" (click)="agregarComentario()">
+          {{ guardandoComentario() ? 'Guardando…' : 'Añadir' }}
+        </button>
+      </div>
+      }
+
+      @if (!bitacora().length) {
+      <p class="cmp-nota">Sin movimientos todavía.</p>
+      } @else {
+      <ul class="cmp-bitacora">
+        @for (e of bitacora(); track e.id) {
+        <li>
+          <span class="cmp-chip cmp-chip--baja">{{ e.type }}</span>
+          <span class="cmp-bitacora__texto">{{ e.text || '—' }}</span>
+          @if (e.hasFile) {
+          <button mat-button type="button" (click)="descargarEvidencia(e)">
+            {{ e.originalName }} ({{ e.bytes / 1024 | number:'1.0-0' }} kB)
+          </button>
+          }
+          <small class="cmp-bitacora__firma">
+            {{ e.createdByName || '—' }} · {{ e.createdAt | date:'dd/MM/yy HH:mm' }}
+          </small>
+        </li>
+        }
+      </ul>
+      }
+    </section>
+  </div>
+  }
+</div>

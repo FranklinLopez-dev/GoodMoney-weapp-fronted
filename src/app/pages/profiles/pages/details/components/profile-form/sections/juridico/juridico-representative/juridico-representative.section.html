@@ -1,0 +1,109 @@
+<form [formGroup]="form" class="row">
+    <div class="col-md-6 col-lg-4">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Tipo de documento</mat-label>
+            <mat-select formControlName="documentTypeRepId" (selectionChange)="setDocumentType($event.value)" placeholder="Selecciona el tipo de documento">
+                @for (type of documentTypes(); track type.id) {
+                <mat-option [value]="type.id">
+                    {{ type.name }}
+                </mat-option>
+                }
+            </mat-select>
+
+            @if(control['documentTypeRepId'].touched &&
+            control['documentTypeRepId'].invalid) {
+            <mat-hint class="su-error">
+                @if( control['documentTypeRepId'].errors &&
+                control['documentTypeRepId'].errors['required'])
+                {
+                Tipo de documento es obligatorio
+                }
+            </mat-hint>
+            }
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Número de {{documentType()?.name ? documentType()?.name:'documento'}}</mat-label>
+            <input matInput formControlName="documentNumberRep" [maxLengthValue]="documentType()?.sizeMax!"
+                [appInputMask]="documentType()?.isNumeric ? 'numeric' : 'text'" />
+            @if(control['documentNumberRep'].touched && control['documentNumberRep'].invalid) {
+            <mat-hint class="su-error">
+                {{ validatorsService.getErrorMessage(
+                control['documentNumberRep'],
+                'Número de ' + (documentType()?.name ?? 'documento')) }}
+            </mat-hint>
+            }
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Nombres</mat-label>
+            <input matInput formControlName="namesRep" maxlength="300" />
+            @if(control['namesRep'].touched && control['namesRep'].invalid) {
+            <mat-hint class="su-error">
+                @if(control['namesRep'].errors && control['namesRep'].errors['required'])
+                {
+                Nombres es obligatorio
+                }
+            </mat-hint>
+            }
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Apellido Paterno</mat-label>
+            <input matInput formControlName="lastNamePaternoRep" maxlength="300" />
+            @if(control['lastNamePaternoRep'].touched &&
+            control['lastNamePaternoRep'].invalid) {
+            <mat-hint class="su-error">
+                @if(control['lastNamePaternoRep'].errors &&
+                control['lastNamePaternoRep'].errors['required']) {
+                Apellido Paterno es obligatorio
+                }
+            </mat-hint>
+            }
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Apellido Materno</mat-label>
+            <input matInput formControlName="lastNameMaternoRep" maxlength="300" />
+            @if(control['lastNameMaternoRep'].touched &&
+            control['lastNameMaternoRep'].invalid) {
+            <mat-hint class="su-error">
+                @if(control['lastNameMaternoRep'].errors &&
+                control['lastNameMaternoRep'].errors['required']) {
+                Apellido Materno es obligatorio
+                }
+            </mat-hint>
+            }
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Fecha de nacimiento</mat-label>
+            <input [max]="maxBirthDate" matInput appDateMask maxlength="10" placeholder="dd/mm/yyyy" formControlName="dateOfBirth"
+                [matDatepicker]="picker">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            @if(control['dateOfBirth'].touched && control['dateOfBirth'].invalid) {
+            <mat-hint class="su-error">
+                Fehca de nacimiento inválida
+            </mat-hint>
+            }
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-12 col-lg-6">
+        <app-select-search-async class="w-100" label="Ocupación y/o profesión" [items]="filteredPositions" valueKey="id"
+            labelKey="description" [control]="position" (search)="loadPositions($event)">
+        </app-select-search-async>
+    </div>
+
+</form>

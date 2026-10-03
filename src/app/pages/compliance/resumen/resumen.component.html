@@ -1,0 +1,82 @@
+<div class="cmp-panel">
+  <p class="cmp-bajada">
+    Lo que hay que mirar hoy. El Registro de Operaciones se remite a la UIF por el
+    portal PLAFT dentro de los 15 días hábiles siguientes al cierre de cada mes.
+  </p>
+
+  @if (cargando()) {
+  <p class="cmp-nota">Cargando…</p>
+  } @else if (resumen(); as r) {
+
+  <div class="cmp-tarjetas">
+    <div class="cmp-tarjeta" [class.cmp-tarjeta--aviso]="r.alertasPendientes > 0">
+      <span class="cmp-tarjeta__cifra">{{ r.alertasPendientes }}</span>
+      <span class="cmp-tarjeta__rotulo">Alertas sin revisar</span>
+      @if (r.alertasAltas > 0) {
+      <span class="cmp-tarjeta__pie">{{ r.alertasAltas }} de severidad alta</span>
+      }
+    </div>
+
+    <div class="cmp-tarjeta">
+      <span class="cmp-tarjeta__cifra">{{ r.roMesFilas }}</span>
+      <span class="cmp-tarjeta__rotulo">En el registro de este mes</span>
+      <span class="cmp-tarjeta__pie">
+        <span class="cmp-chip" [ngClass]="claseEstado(r.roMesEstado)">{{ r.roMesEstado }}</span>
+        @if (r.roMesIncompletas > 0) {
+        <span class="cmp-tarjeta__falta">{{ r.roMesIncompletas }} incompletas</span>
+        }
+      </span>
+    </div>
+
+    @if (puedeVerRos) {
+    <div class="cmp-tarjeta" [class.cmp-tarjeta--aviso]="r.rosPorRemitir > 0">
+      <span class="cmp-tarjeta__cifra">{{ r.rosAbiertos + r.rosPorRemitir }}</span>
+      <span class="cmp-tarjeta__rotulo">Expedientes en curso</span>
+      @if (r.rosPorRemitir > 0) {
+      <span class="cmp-tarjeta__pie">{{ r.rosPorRemitir }} calificados, 24 h para remitir</span>
+      }
+    </div>
+    }
+
+    <div class="cmp-tarjeta">
+      <span class="cmp-tarjeta__cifra">{{ r.personasSinDocumento }}</span>
+      <span class="cmp-tarjeta__rotulo">Clientes sin documento real</span>
+      <span class="cmp-tarjeta__pie">Validados con el DNI de relleno 00000000</span>
+    </div>
+
+    <div class="cmp-tarjeta">
+      <span class="cmp-tarjeta__cifra">{{ r.respaldosPendientes }}</span>
+      <span class="cmp-tarjeta__rotulo">Terceros sin carta poder</span>
+      <span class="cmp-tarjeta__pie">Autorizaciones vigentes sin respaldo documental</span>
+    </div>
+  </div>
+
+  <h3 class="cmp-titulo">Meses cerrados sin remitir</h3>
+
+  @if (!r.mesesPendientes.length) {
+  <p class="cmp-nota">Nada pendiente: todos los meses con operaciones reportables están remitidos.</p>
+  } @else {
+  <div class="cmp-tabla cmp-tabla--meses">
+    <div class="cmp-fila cmp-fila--cabecera">
+      <span>Mes</span><span>Filas</span><span>Estado</span><span>Fecha límite</span><span></span>
+    </div>
+    @for (m of r.mesesPendientes; track m.year * 100 + m.month) {
+    <div class="cmp-fila" [class.cmp-fila--vencida]="m.vencido">
+      <span>{{ nombreMes(m.month) }} {{ m.year }}</span>
+      <span>{{ m.filas }}</span>
+      <span><span class="cmp-chip" [ngClass]="claseEstado(m.status)">{{ m.status }}</span></span>
+      <span>
+        {{ m.fechaLimite | date:'dd/MM/yyyy' }}
+        @if (m.vencido) {
+        <strong class="cmp-vencido">vencido hace {{ -m.diasParaVencer }} días</strong>
+        } @else {
+        <span class="cmp-plazo">quedan {{ m.diasParaVencer }} días</span>
+        }
+      </span>
+      <span><button mat-button type="button" (click)="irAlMes(m.year, m.month)">Abrir</button></span>
+    </div>
+    }
+  </div>
+  }
+  }
+</div>

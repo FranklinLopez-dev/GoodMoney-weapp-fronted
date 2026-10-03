@@ -1,0 +1,217 @@
+@if (cargaFallida()) {
+<mat-card>
+  <mat-card-content>
+    <p class="alerta-vacio">No se pudieron cargar tus alertas. Recarga la página para intentarlo de nuevo.</p>
+  </mat-card-content>
+</mat-card>
+} @else {
+
+<mat-card class="alerta-tarjeta">
+  <mat-card-content class="alerta-tarjeta__cuerpo">
+
+    <section class="alerta-form">
+      <h2 class="alerta-form__titulo">¿QUÉ QUIERES HACER?</h2>
+
+      <!-- Selector COMPRA / VENTA con el tipo de cambio vivo debajo de cada uno -->
+      <div class="alerta-tipos" role="group" aria-label="Tipo de alerta">
+        <button type="button"
+                class="alerta-tipo"
+                [class.alerta-tipo--activo]="tipo() === 'COMPRA'"
+                (click)="cambiarTipo('COMPRA')">
+          <span class="alerta-tipo__nombre">Vender mis dólares</span>
+          <span class="alerta-tipo__valor">{{ tipoCambio()?.priceCompra | number:'1.3-3' }}</span>
+          <span class="alerta-tipo__pie">Compra · lo que te pagamos hoy</span>
+        </button>
+        <button type="button"
+                class="alerta-tipo"
+                [class.alerta-tipo--activo]="tipo() === 'VENTA'"
+                (click)="cambiarTipo('VENTA')">
+          <span class="alerta-tipo__nombre">Comprar dólares</span>
+          <span class="alerta-tipo__valor">{{ tipoCambio()?.priceVenta | number:'1.3-3' }}</span>
+          <span class="alerta-tipo__pie">Venta · lo que te cuesta hoy</span>
+        </button>
+      </div>
+
+      <div class="alerta-precio">
+        <button type="button" class="alerta-precio__paso" (click)="ajustar(PASO)" aria-label="Subir el precio">+</button>
+        <div class="alerta-precio__centro">
+          <input class="alerta-precio__input"
+                 type="number"
+                 step="0.001"
+                 min="0"
+                 [ngModel]="precio()"
+                 (ngModelChange)="precio.set($event)"
+                 aria-label="Precio de la alerta" />
+          <span class="alerta-precio__etiqueta">
+            {{ tipo() === 'COMPRA' ? 'Avísame cuando nos lo paguen a' : 'Avísame cuando cueste' }}
+          </span>
+        </div>
+        <button type="button" class="alerta-precio__paso" (click)="ajustar(-PASO)" aria-label="Bajar el precio">−</button>
+      </div>
+
+      <!-- Sin esto el cliente no sabe si poner el precio por encima o por debajo. -->
+      <p class="alerta-form__ayuda">
+        @if (tipo() === 'COMPRA') {
+        Quieres <strong>vender</strong> tus dólares, así que te conviene que te paguen
+        <strong>más</strong>. Te avisamos cuando nuestra compra <strong>suba</strong> hasta tu precio.
+        } @else {
+        Quieres <strong>comprar</strong> dólares, así que te conviene que cuesten
+        <strong>menos</strong>. Te avisamos cuando nuestra venta <strong>baje</strong> hasta tu precio.
+        }
+      </p>
+
+      <!-- Cuánto se aparta del precio de hoy; sin esto escribe un número a ciegas. -->
+      @if (diferencia(); as d) {
+      @if (!objetivoSinSentido()) {
+      <p class="alerta-form__distancia">
+        <i-tabler name="trending-up" class="icon-14"></i-tabler>
+        {{ d > 0 ? '+' : '' }}{{ d | number:'1.3-3' }} respecto al precio de hoy
+        ({{ precioBase() | number:'1.3-3' }}).
+      </p>
+      }
+      }
+
+      <!-- Objetivo del lado que no mejora: se avisa y se deja guardar. -->
+      @if (objetivoSinSentido()) {
+      <p class="alerta-form__alerta">
+        <i-tabler name="alert-triangle" class="icon-14"></i-tabler>
+        @if (tipo() === 'COMPRA') {
+        Hoy ya te pagamos {{ precioBase() | number:'1.3-3' }}, así que con este precio te
+        avisaríamos de inmediato. Ponlo <strong>{{ ladoQueMejora() }}</strong> para que la
+        alerta te sirva.
+        } @else {
+        Hoy ya cuesta {{ precioBase() | number:'1.3-3' }}, así que con este precio te
+        avisaríamos de inmediato. Ponlo <strong>{{ ladoQueMejora() }}</strong> para que la
+        alerta te sirva.
+        }
+      </p>
+      }
+
+      <!-- Hasta cuándo esperar. Por defecto un mes: ver el componente. -->
+      <div class="alerta-vigencia">
+        <span class="alerta-vigencia__rotulo">¿Hasta cuándo te avisamos?</span>
+        <div class="alerta-vigencia__opciones" role="group" aria-label="Vigencia de la alerta">
+          @for (o of OPCIONES_DIAS; track o.valor) {
+          <button type="button"
+                  class="alerta-vigencia__opcion"
+                  [class.alerta-vigencia__opcion--activa]="dias() === o.valor"
+                  (click)="dias.set(o.valor)">{{ o.texto }}</button>
+          }
+        </div>
+        <span class="alerta-vigencia__pie">{{ textoVencimiento() }}</span>
+      </div>
+
+      <textarea class="alerta-comentario"
+                rows="4"
+                placeholder="Comentario (para acordarte de por qué la pusiste)"
+                maxlength="300"
+                [ngModel]="comentario()"
+                (ngModelChange)="comentario.set($event)"></textarea>
+
+      <div class="alerta-form__acciones">
+        <button mat-flat-button class="alerta-boton" type="button"
+                [disabled]="guardando()" (click)="guardar()">
+          {{ editandoId() == null ? 'Establecer alerta' : 'Guardar cambios' }}
+        </button>
+        @if (editandoId() != null) {
+        <button mat-button type="button" (click)="nueva()">Cancelar</button>
+        }
+      </div>
+    </section>
+
+    <section class="alerta-lista">
+      <div class="alerta-lista__barra">
+        <button mat-icon-button
+                [disabled]="!hayAlgoSeleccionado()"
+                (click)="borrarSeleccionadas()"
+                matTooltip="Eliminar las seleccionadas">
+          <i-tabler name="trash" class="icon-18"></i-tabler>
+        </button>
+
+        <mat-checkbox [checked]="todoSeleccionado()" (change)="alternarTodo()">
+          Marcar todo
+        </mat-checkbox>
+      </div>
+
+      <div class="alerta-lista__buscador">
+        <mat-form-field appearance="outline" class="alerta-lista__buscar">
+          <input matInput placeholder="Buscar"
+                 [ngModel]="busqueda()"
+                 (ngModelChange)="buscar($event)" />
+        </mat-form-field>
+
+        <mat-paginator [length]="total()"
+                       [pageSize]="porPagina()"
+                       [pageIndex]="pagina() - 1"
+                       [pageSizeOptions]="[5, 10, 25]"
+                       (page)="irAPagina($event)">
+        </mat-paginator>
+      </div>
+
+      @if (cargando()) {
+      <p class="alerta-vacio">Cargando…</p>
+      } @else if (filas().length === 0) {
+      <p class="alerta-vacio">
+        Todavía no tienes avisos. Dinos a qué precio te interesa cambiar y te escribimos
+        cuando el tipo de cambio llegue ahí — no hace falta que estés mirando.
+      </p>
+      } @else {
+      <ul class="alerta-filas">
+        @for (a of filas(); track a.id) {
+        <li class="alerta-fila" [class.alerta-fila--disparada]="!a.isActive">
+          <mat-checkbox [checked]="seleccion().has(a.id)" (change)="alternar(a.id)"></mat-checkbox>
+
+          <div class="alerta-fila__que">
+            <span class="alerta-fila__tipo">
+              {{ a.type === 'COMPRA' ? 'Vender mis dólares' : 'Comprar dólares' }}
+            </span>
+            <span class="alerta-fila__nota">{{ a.comment || resumenFila(a) }}</span>
+            @if (a.isActive) {
+            <span class="alerta-fila__vigencia">
+              @if (diasQueQuedan(a) === null) { Sin vencimiento }
+              @else if (diasQueQuedan(a) === 0) { Vence hoy }
+              @else { Quedan {{ diasQueQuedan(a) }} día(s) }
+            </span>
+            }
+          </div>
+
+          <div class="alerta-fila__precio"
+               [class.alerta-fila__precio--compra]="a.type === 'COMPRA'"
+               [class.alerta-fila__precio--venta]="a.type === 'VENTA'">
+            <span class="alerta-fila__etiqueta">{{ etiquetaPrecio(a) }}</span>
+            <span class="alerta-fila__valor">{{ a.targetPrice | number:'1.2-3' }}</span>
+          </div>
+
+          <div class="alerta-fila__acciones">
+            <button mat-icon-button (click)="editar(a)" matTooltip="Editar">
+              <i-tabler name="edit" class="icon-18"></i-tabler>
+            </button>
+            <button mat-icon-button (click)="borrar(a)" matTooltip="Eliminar">
+              <i-tabler name="trash" class="icon-18"></i-tabler>
+            </button>
+          </div>
+
+          <img class="alerta-fila__tendencia"
+               [src]="a.type === 'COMPRA'
+                        ? 'assets/images/iconos3d/compra.svg'
+                        : 'assets/images/iconos3d/venta.svg'"
+               [alt]="a.type === 'COMPRA'
+                        ? 'El tipo de cambio de compra sube hasta tu precio'
+                        : 'El tipo de cambio de venta baja hasta tu precio'" />
+
+          @if (!a.isActive) {
+          <span class="alerta-fila__estado">Ya te avisamos — crea otra si sigues esperando</span>
+          }
+        </li>
+        }
+      </ul>
+      }
+
+      <div class="alerta-lista__pie">
+        <button mat-flat-button class="alerta-boton" type="button" (click)="nueva()">Añadir nuevo</button>
+      </div>
+    </section>
+
+  </mat-card-content>
+</mat-card>
+}

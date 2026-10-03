@@ -1,0 +1,110 @@
+<div class="drawer-container">
+    <div class="drawer-header">
+        <span class="drawer-breadcrumb">• Documento de identidad</span>
+        <button mat-icon-button (click)="close.emit()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+    <h3 class="drawer-title">{{ data ? 'Editar documento' : 'Nuevo documento' }}</h3>
+    <div class="drawer-list">
+        <form class="col m-t-16" [formGroup]="form">
+
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Nombre</mat-label>
+                <input matInput formControlName="name" maxlength="200" />
+                @if(control['name'].touched && control['name'].invalid) {
+                <mat-hint class="su-error">
+                    @if(control['name'].errors?.['required']) {
+                    Nombre es obligatorio
+                    }
+                    @if(control['name'].errors?.['repetido']) {
+                    Ya existe un tipo de documento con este nombre
+                    }
+                </mat-hint>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Código</mat-label>
+                <input matInput formControlName="code" maxlength="10" />
+                @if(control['code'].touched && control['code'].invalid) {
+                <mat-hint class="su-error">
+                    @if(control['code'].errors?.['required']) {
+                    Código es obligatorio
+                    }
+                    @if(control['code'].errors?.['repetido']) {
+                    Ya existe un tipo de documento con este código
+                    }
+                </mat-hint>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Tamaño mínimo</mat-label>
+                <input matInput formControlName="sizeMin" type="number" />
+                @if(control['sizeMin'].touched && control['sizeMin'].invalid) {
+                <mat-hint class="su-error">
+                    @if(control['sizeMin'].errors && control['sizeMin'].errors['required']) {
+                    Tamaño mínimo es obligatorio
+                    }
+                </mat-hint>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Tamaño máximo</mat-label>
+                <input matInput formControlName="sizeMax" [min]="control['sizeMin'].value" type="number" />
+                @if(control['sizeMax'].touched && control['sizeMax'].invalid) {
+                <mat-hint class="su-error">
+                    @if(control['sizeMax'].errors && control['sizeMax'].errors['required']) {
+                    Tamaño máximo es obligatorio
+                    }
+                </mat-hint>
+                }
+            </mat-form-field>
+
+            <div class="col w-100">
+                <div class="f-s-12 f-w-500 d-block">
+                    ¿P. natural o jurídica?
+                </div>
+                <mat-radio-group formControlName="isNatural">
+                    <mat-card class="b-1 rounded d-flex gap-8 align-items-center flex-row">
+                        <mat-radio-button color="primary" [value]="true">
+                            P. Natural
+                        </mat-radio-button>
+                        <mat-radio-button color="primary" [value]="false">
+                            P. Juridica
+                        </mat-radio-button>
+                    </mat-card>
+                </mat-radio-group>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <mat-checkbox formControlName="isNumeric">Numérico</mat-checkbox>
+                </div>
+                <div class="col-md-6">
+                    <mat-checkbox formControlName="isExact">Exacto</mat-checkbox>
+                </div>
+                <div class="col-md-6">
+                    <mat-checkbox formControlName="isDefault">Por defecto</mat-checkbox>
+                </div>
+                <div class="col-md-6">
+                    <mat-checkbox formControlName="status">Estado</mat-checkbox>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="drawer-footer">
+
+        <mat-divider class="m-y-16"></mat-divider>
+
+        <div class="drawer-botones">
+            <button mat-flat-button class="boton-pildora" (click)="close.emit()">Cancelar</button>
+
+            <button mat-flat-button class="boton-pildora" (click)="save()" [disabled]="form.invalid || loading()">
+                {{ loading() ? 'Guardando...' : 'Guardar' }}
+            </button>
+        </div>
+    </div>
+</div>

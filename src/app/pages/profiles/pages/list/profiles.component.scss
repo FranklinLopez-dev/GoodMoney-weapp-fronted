@@ -1,0 +1,144 @@
+/* Frame 583: tarjetas blancas con sombra suave, sin borde; el perfil activo se distingue solo por el toggle. */
+.profile-card {
+  height: 100%;
+  cursor: pointer;
+  border: none !important;
+  border-radius: var(--gm-radius-2xl, 16px);
+  box-shadow: var(--gm-shadow-md) !important;
+  padding: 26px 18px 18px;
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.profile-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 10%) !important;
+}
+
+.profile-photo img {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 14px;
+}
+
+.profile-name {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+.profile-type {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 20px;
+  border-radius: 999px;
+  background: var(--gm-color-marca-acento);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.profile-doc {
+  font-size: 13px;
+  margin-top: 10px;
+
+  strong {
+    font-weight: 700;
+  }
+}
+
+.profile-address {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--gm-color-texto-principal, #000);
+  margin-top: 6px;
+
+  i-tabler {
+    width: 14px;
+    height: 14px;
+    color: var(--gm-color-marca-acento);
+    flex-shrink: 0;
+  }
+}
+
+/* Fila "Administrar": sol dorado + toggle, juntos al centro como en la lámina. */
+.profile-actions {
+  margin-top: auto;
+  padding-top: 14px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+
+  /* Material 21 renombró los tokens del switch a --mat-slide-toggle-*; sin esto queda el M3 por defecto (52×32). */
+  mat-slide-toggle {
+    --mat-slide-toggle-track-width: 38px;
+    --mat-slide-toggle-track-height: 18px;
+    --mat-slide-toggle-state-layer-size: 28px;
+    --mat-slide-toggle-touch-target-size: 38px;
+    --mat-slide-toggle-unselected-handle-size: 14px;
+    --mat-slide-toggle-selected-handle-size: 14px;
+    --mat-slide-toggle-pressed-handle-size: 14px;
+    --mat-slide-toggle-with-icon-handle-size: 14px;
+    --mat-slide-toggle-unselected-handle-horizontal-margin: 0 2px;
+    --mat-slide-toggle-unselected-with-icon-handle-horizontal-margin: 0 2px;
+    --mat-slide-toggle-unselected-pressed-handle-horizontal-margin: 0 2px;
+    --mat-slide-toggle-selected-handle-horizontal-margin: 0 22px;
+    --mat-slide-toggle-selected-with-icon-handle-horizontal-margin: 0 22px;
+    --mat-slide-toggle-selected-pressed-handle-horizontal-margin: 0 22px;
+  }
+}
+
+.administrar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--gm-font-family);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gm-color-texto-principal, #000);
+
+  img {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    color: var(--gm-color-marca-acento);
+  }
+}
+
+.add-profile {
+  justify-content: center;
+}
+
+.add-profile:hover {
+  box-shadow: 0 0 0 1px var(--gm-color-marca-acento), 0 8px 20px rgb(0 0 0 / 10%) !important;
+}
+
+.add-profile-img {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 14px;
+}
+
+.add-profile-text {
+  font-size: 15px;
+  font-weight: 700;
+}

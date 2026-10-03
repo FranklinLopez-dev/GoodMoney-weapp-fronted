@@ -1,0 +1,140 @@
+.dosp-cabecera {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.dosp-cabecera__icono {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--gm-estado-pending-100);
+  color: var(--gm-plomo-700);
+}
+
+.dosp-cabecera__icono--activa {
+  background: var(--gm-estado-success-500);
+  color: var(--gm-color-text-success);
+}
+
+.dosp-titulo {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.dosp-bajada {
+  margin: 0;
+  max-width: 80ch;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--gm-plomo-400);
+}
+
+/* El punto de color se lee de un vistazo; el rótulo está para quien no distingue los colores. */
+.dosp-estado {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--gm-estado-pending-100);
+  font-size: 13px;
+}
+
+.dosp-estado--activa {
+  background: var(--gm-estado-success-300);
+}
+
+.dosp-estado__punto {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--gm-estado-pending-500);
+}
+
+.dosp-estado--activa .dosp-estado__punto {
+  background: var(--gm-color-text-success);
+}
+
+.dosp-estado__texto {
+  font-weight: 600;
+}
+
+.dosp-estado__correo {
+  color: var(--gm-plomo-400);
+}
+
+/* Cada paso reemplaza al anterior en el mismo hueco: nunca hay dos formularios pidiendo cosas distintas. */
+.dosp-paso {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid var(--gm-gris-300);
+  border-radius: 12px;
+}
+
+.dosp-paso--aviso {
+  border-color: var(--gm-estado-error-500);
+  background: var(--gm-estado-error-100);
+}
+
+.dosp-paso__titulo {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dosp-paso__ayuda {
+  margin: 0 0 16px;
+  max-width: 80ch;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--gm-plomo-400);
+}
+
+.dosp-campo {
+  width: 100%;
+  max-width: 340px;
+}
+
+/* El código se lee dígito a dígito: ancho corto y espaciado para no confundir un 8 con un 6. */
+.dosp-campo--codigo {
+  max-width: 180px;
+
+  input {
+    letter-spacing: 6px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+}
+
+.dosp-error {
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  color: var(--gm-color-text-error);
+}
+
+.dosp-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+/* Relleno a mano y no `.mat-warn`: esta versión de Material ya no lee `--mdc-filled-button-*`. */
+.dosp-acciones .mat-mdc-unelevated-button.mat-warn:not(:disabled) {
+  background-color: var(--gm-color-text-error);
+  color: var(--gm-blanco-500);
+}
+
+.dosp-cargando {
+  margin: 24px 0;
+  text-align: center;
+  color: var(--gm-plomo-400);
+}

@@ -1,0 +1,309 @@
+<mat-card>
+    <mat-card-content>
+        <div class="d-flex align-items-center justify-content-between p-x-24 p-y-16">
+            <h5 class="f-w-600 f-s-18">Crear cuenta</h5>
+            <button mat-stroked-button color="primary" (click)="cancel()">
+                <div class="d-flex align-items-center justify-content-center">
+                    <i-tabler name="arrow-back-up" class="icon-18 d-flex align-items-center m-r-4"></i-tabler>
+                    <span>Volver</span>
+                </div>
+            </button>
+        </div>
+        <mat-divider></mat-divider>
+        <div class="m-t-16"></div>
+        <form [formGroup]="form" class="row p-24">
+            <div class="col-md-6 col-lg-4">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Correo electrónico</mat-label>
+                    <input type="email" matInput formControlName="email" />
+                    @if (control['email'].touched && control['email'].invalid) {
+                    <mat-hint class="su-error">
+                        @if (control['email'].errors?.['required']) {
+                        El correo electrónico es obligatorio.
+                        }
+                        @if (control['email'].errors?.['email']) {
+                        Ingresa un correo electrónico válido.
+                        }
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Tu contraseña</mat-label>
+                    <input matInput formControlName="password" autocomplete="off"
+                        [type]="hidePassword() ? 'password' : 'text'" />
+
+                    <button mat-icon-button matSuffix type="button" (click)="hidePassword.set(!hidePassword())">
+                        <mat-icon class="op-5">
+                            {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+                        </mat-icon>
+                    </button>
+
+                    @if (control['password'].touched && control['password'].invalid) {
+                    <mat-hint class="su-error">
+                        @if (control['password'].errors?.['required']) {
+                        Contraseña es obligatoria
+                        }
+                        @if (control['password'].errors?.['minlength']) {
+                        Mínimo 6 caracteres
+                        }
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Confirmar contraseña</mat-label>
+                    <input matInput formControlName="passwordConfirm" autocomplete="off"
+                        [type]="hidePasswordConfirm() ? 'password' : 'text'" />
+
+                    <button mat-icon-button matSuffix type="button"
+                        (click)="hidePasswordConfirm.set(!hidePasswordConfirm())">
+                        <mat-icon class="op-5">
+                            {{ hidePasswordConfirm() ? 'visibility_off' : 'visibility' }}
+                        </mat-icon>
+                    </button>
+
+                    @if (control['passwordConfirm'].touched && control['passwordConfirm'].invalid) {
+                    <mat-hint class="su-error">
+                        @if (control['passwordConfirm'].errors?.['required']) {
+                        Confirmación obligatoria
+                        }
+                        @if (control['passwordConfirm'].errors?.['mustMatch']) {
+                        Las contraseñas deben coincidir
+                        }
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+
+            <div class="col-12">
+                <div class="d-flex align-items-center">
+                    <div class="w-100">
+                        <div class="d-flex align-items-center justify-content-center w-100">
+                            <h5>El representante legal es el mismo ejecutante</h5>
+                            <mat-slide-toggle formControlName="isMe" class="m-l-auto"></mat-slide-toggle>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <mat-divider class="col-12 m-y-16"></mat-divider>
+
+            @if(!form.value.isMe) {
+            <div class="col-md-6 col-lg-4">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Tipo de documento</mat-label>
+                    <mat-select formControlName="documentTypeBenefId" (selectionChange)="setDocumentType($event.value)" placeholder="Selecciona el tipo de documento">
+                        @for(option of documentTypes(); track option.code) {
+                        <mat-option [value]="option.id">{{ option.name
+                            }}</mat-option>
+                        }
+                    </mat-select>
+                    @if(control['documentTypeBenefId'].touched &&
+                    control['documentTypeBenefId'].invalid) {
+                    <mat-hint class="su-error">
+                        @if( control['documentTypeBenefId'].errors &&
+                        control['documentTypeBenefId'].errors['required'])
+                        {
+                        Tipo de documento es obligatorio
+                        }
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Número de {{documentType()?.name ? documentType()?.name:'documento'}}</mat-label>
+                    <input matInput formControlName="documentNumberBenef" [maxLengthValue]="documentType()?.sizeMax!"
+                        [appInputMask]="documentType()?.isNumeric ? 'numeric' : 'text'" />
+                    @if(control['documentNumberBenef'].touched && control['documentNumberBenef'].invalid) {
+                    <mat-hint class="su-error">
+                        {{ validatorsService.getErrorMessage(
+                        control['documentNumberBenef'],
+                        'Número de ' + (documentType()?.name ?? 'documento')) }}
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Nombres</mat-label>
+                    <input matInput formControlName="namesBenef" maxlength="300" />
+                    @if(control['namesBenef'].touched && control['namesBenef'].invalid) {
+                    <mat-hint class="su-error">
+                        @if(control['namesBenef'].errors && control['namesBenef'].errors['required'])
+                        {
+                        Nombres es obligatorio
+                        }
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Apellido Paterno</mat-label>
+                    <input matInput formControlName="lastNamePaternoBenef" maxlength="300" />
+                    @if(control['lastNamePaternoBenef'].touched &&
+                    control['lastNamePaternoBenef'].invalid) {
+                    <mat-hint class="su-error">
+                        @if(control['lastNamePaternoBenef'].errors &&
+                        control['lastNamePaternoBenef'].errors['required']) {
+                        Apellido Paterno es obligatorio
+                        }
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Apellido Materno</mat-label>
+                    <input matInput formControlName="lastNameMaternoBenef" maxlength="300" />
+                    @if(control['lastNameMaternoBenef'].touched &&
+                    control['lastNameMaternoBenef'].invalid) {
+                    <mat-hint class="su-error">
+                        @if(control['lastNameMaternoBenef'].errors &&
+                        control['lastNameMaternoBenef'].errors['required']) {
+                        Apellido Materno es obligatorio
+                        }
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+            }
+
+            <div class="col-md-6 col-lg-4">
+                <app-select-search-async class="w-100" label="País" [items]="filteredCountries" valueKey="cca2"
+                    labelKey="name.common" imageKey="flags.svg" imageAltKey="name.common" [control]="countryControl"
+                    (search)="loadCountries($event)">
+                </app-select-search-async>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <mat-form-field class="w-100" appearance="outline">
+                    <mat-label>Departamento</mat-label>
+                    <mat-select formControlName="departamentBenef" placeholder="Selecciona el departamento">
+                        @for (d of departments(); track d.code) {
+                        <mat-option [value]="d.code">{{ d.departament }}</mat-option>
+                        }
+                    </mat-select>
+                    @if(control['departamentBenef'].touched && control['departamentBenef'].invalid) {
+                    <mat-hint class="su-error">
+                        Departamento es obligatorio
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <mat-form-field class="w-100" appearance="outline">
+                    <mat-label>Provincia</mat-label>
+                    <mat-select formControlName="provinceBenef" placeholder="Selecciona la provincia">
+                        @for (p of provinces(); track p.code) {
+                        @if(p.code) {
+                        <mat-option [value]="p.code">{{ p.province }}</mat-option>
+                        }
+                        }
+                    </mat-select>
+                    @if(control['provinceBenef'].touched && control['provinceBenef'].invalid) {
+                    <mat-hint class="su-error">
+                        Provincia es obligatorio
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <mat-form-field class="w-100" appearance="outline">
+                    <mat-label>Distrito</mat-label>
+                    <mat-select formControlName="districtBenef" placeholder="Selecciona el distrito">
+                        @for (d of districts(); track d.code) {
+                        @if(d.code) {
+                        <mat-option [value]="d.code">{{ d.district }}</mat-option>
+                        }
+                        }
+                    </mat-select>
+                    @if(control['districtBenef'].touched && control['districtBenef'].invalid) {
+                    <mat-hint class="su-error">
+                        Distrito es obligatorio
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+            <div class="col-lg-8">
+                <mat-form-field class="w-100" appearance="outline">
+                    <mat-label>Dirección</mat-label>
+                    <textarea maxlength="300" matInput cdkTextareaAutosize formControlName="addressBenef"></textarea>
+                    @if(control['addressBenef'].touched && control['addressBenef'].invalid) {
+                    <mat-hint class="su-error">
+                        Dirección es obligatorio
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+
+            <div class="col-md-6">
+                <input #fileFrontInput type="file" [multiple]="false" hidden accept="image/*"
+                    (change)="setFileFront($event)" />
+                @if(!frontFile()) {
+                <div class="border-dropzone" (click)="fileFrontInput.click()">
+                    <div class="dropzone-content preview flex-col">
+                        <img src="./assets/images/dni-frontal.png" alt="Imagen" class="upload-icon m-b-4"
+                            style="max-height: 200px !important;" />
+                        <span class="f-s-14 text-center">Seleccione una foto frontal
+                            de tu documento</span>
+                    </div>
+                </div>
+                } @else {
+                <div class="border-dropzone" (click)="removeFileFront()">
+                    <div class="dropzone-content preview">
+                        <img [src]="frontFile()" alt="Imagen" class="upload-icon m-b-4" />
+                    </div>
+                </div>
+                }
+            </div>
+            <div class="col-md-6">
+                <input #fileReverseInput type="file" [multiple]="false" hidden accept="image/*"
+                    (change)="setFileReverse($event)" />
+                @if(!backFile()) {
+                <div class="border-dropzone" (click)="fileReverseInput.click()">
+                    <div class="dropzone-content preview flex-col">
+                        <img src="./assets/images/dni-reverse.png" alt="Imagen" class="upload-icon m-b-4"
+                            style="max-height: 200px !important;" />
+                        <span class="f-s-14 text-center">Seleccione una foto frontal
+                            de tu documento</span>
+                    </div>
+                </div>
+                } @else {
+                <div class="border-dropzone" (click)="removeFileReverse()">
+                    <div class="dropzone-content preview">
+                        <img [src]="backFile()" alt="Imagen" class="upload-icon m-b-4" />
+                    </div>
+                </div>
+                }
+            </div>
+
+        </form>
+
+        <mat-divider class="m-t-16"></mat-divider>
+
+        <div class="d-flex justify-content-end gap-12 m-t-16">
+            <button mat-button (click)="cancel()">
+                Cancelar
+            </button>
+
+            <button mat-flat-button color="primary" [disabled]="form.invalid || loading()" (click)="save()">
+
+                @if (loading()) {
+                <mat-spinner diameter="18"></mat-spinner>
+                } @else {
+                Guardar
+                }
+            </button>
+        </div>
+    </mat-card-content>
+</mat-card>

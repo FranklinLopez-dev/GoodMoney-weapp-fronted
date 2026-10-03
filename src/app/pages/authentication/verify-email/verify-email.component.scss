@@ -1,0 +1,144 @@
+.verify-card {
+  width: 100%;
+  text-align: center;
+}
+
+.verify-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--gm-amarillo-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.verify-icon mat-icon {
+  font-size: 25px;
+  color: var(--gm-color-texto-principal);
+}
+
+.verify-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gm-color-texto-principal);
+  margin-bottom: 12px;
+}
+
+.verify-text {
+  font-size: 14px;
+  color: var(--gm-plomo-400);
+  margin-bottom: 6px;
+}
+
+.verify-email {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gm-color-texto-principal);
+  margin-bottom: 12px;
+  word-break: break-all;
+}
+
+.verify-hint {
+  font-size: 13px;
+  color: var(--gm-plomo-400);
+  margin-bottom: 24px;
+}
+
+.verify-actions {
+  display: flex;
+
+  .verify-email-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 3rem 2rem;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    animation: slideUp 0.6s ease-out;
+  }
+
+  .verify-actions {
+    display: flex;
+    gap: 1rem;
+    margin: 2rem 0;
+    flex-direction: column;
+  }
+
+  flex-direction: column;
+  gap: 12px;
+}
+
+.verify-footer {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--gm-plomo-400);
+}
+
+@media (max-width: 480px) {
+  .verify-card {
+    padding: 28px 20px;
+  }
+
+  .verify-title {
+    font-size: 20px;
+  }
+}
+
+.verify-card-inner {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.verify-body {
+  width: 100%;
+}
+
+.verify-email-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.verify-email-row button mat-icon {
+  font-size: 18px;
+}
+
+.verify-email-row button.copied mat-icon {
+  color: var(--gm-color-marca-acento);
+  animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.verify-email {
+  background: var(--gm-color-fondo-crema);
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--gm-gris-300);
+}
+
+.verify-actions button[mat-flat-button] {
+  min-width: 170px;
+}
+
+.verify-actions {
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+}

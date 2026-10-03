@@ -1,0 +1,73 @@
+<mat-card class="sys-bloque">
+  <mat-card-content>
+    <header class="sys-cabecera">
+      <div>
+        <h2 class="sys-titulo">cuantoestaeldolar.pe</h2>
+        <p class="sys-bajada">
+          Cada vez que se guarda un tipo de cambio se publica en el portal. El acceso es con el correo y la clave de
+          la cuenta de la casa; el portal da un permiso que vence cada pocas horas y se renueva solo.
+        </p>
+      </div>
+      @if (estado(); as e) {
+      <span class="sys-chip" [class.sys-chip--ok]="e.habilitado && e.activo && e.ultimoOk !== false">
+        {{ !e.habilitado ? 'No habilitada en este servidor' : !e.activo ? 'Apagada' : e.ultimoOk === false ? 'Con fallas' : 'Activa' }}
+      </span>
+      }
+    </header>
+
+    @if (estado(); as e) {
+    @if (!e.habilitado) {
+    <p class="sys-nota">
+      Este servidor no publica ni prueba contra el portal: se habilita en su configuración
+      (<code>CuantoEstaElDolar:Habilitado</code>), para que un entorno de pruebas nunca publique precios reales.
+    </p>
+    }
+
+    <div class="sys-interruptor">
+      <mat-slide-toggle [ngModel]="activo()" (ngModelChange)="activo.set($event)" [disabled]="!puedeEditar">
+        Publicar al guardar el tipo de cambio
+      </mat-slide-toggle>
+    </div>
+
+    <div class="sys-rejilla">
+      <mat-form-field appearance="outline">
+        <mat-label>Correo de la cuenta</mat-label>
+        <input matInput type="email" autocomplete="off" [ngModel]="correo()" (ngModelChange)="correo.set($event)" [disabled]="!puedeEditar" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ e.tieneClave ? 'Clave (déjala vacía para no cambiarla)' : 'Clave' }}</mat-label>
+        <input matInput type="password" autocomplete="new-password" [ngModel]="clave()" (ngModelChange)="clave.set($event)" [disabled]="!puedeEditar" />
+      </mat-form-field>
+    </div>
+
+    <div class="sys-conexion" [class.sys-conexion--ok]="e.ultimoOk === true">
+      <span>
+        @if (e.ultimoEnvioAt) {
+        <strong>Último intento:</strong> {{ e.ultimoEnvioAt | date:'dd/MM/yyyy HH:mm' }} — {{ e.ultimoResultado }}
+        } @else { Todavía no se ha publicado nada. }
+        @if (e.ultimaCompra !== null) {
+        <br /><small>Último precio aceptado por el portal: compra {{ e.ultimaCompra | number:'1.3-4' }} · venta {{ e.ultimaVenta | number:'1.3-4' }}</small>
+        }
+        @if (e.tokenVence) { <br /><small>El acceso actual vence el {{ e.tokenVence | date:'dd/MM/yyyy HH:mm' }}.</small> }
+      </span>
+    </div>
+
+    @if (puedeEditar) {
+    <div class="sys-acciones">
+      <button mat-flat-button color="primary" type="button" [disabled]="ocupado() !== null" (click)="guardar()">
+        {{ ocupado() === 'guardar' ? 'Guardando…' : 'Guardar' }}
+      </button>
+      <button mat-stroked-button type="button" [disabled]="ocupado() !== null || !e.tieneClave || !!clave()" (click)="probar()"
+              [matTooltip]="clave() ? 'Guarda primero la clave nueva: la prueba usa la guardada' : ''">
+        {{ ocupado() === 'probar' ? 'Probando…' : 'Probar acceso' }}
+      </button>
+      <button mat-stroked-button type="button" [disabled]="ocupado() !== null || (!e.tieneClave && !e.tieneToken)" (click)="publicar()">
+        {{ ocupado() === 'publicar' ? 'Publicando…' : 'Publicar ahora' }}
+      </button>
+    </div>
+    }
+    } @else {
+    <p class="sys-nota">No se pudo cargar el estado de la publicación.</p>
+    }
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,53 @@
+<div class="bm" [class.danger]="tone==='danger'" [class.warning]="tone==='warning'" [class.info]="tone==='info'">
+
+  <div class="bm-header">
+    <div class="bm-icon">
+      <mat-icon>{{ iconName }}</mat-icon>
+    </div>
+
+    <div class="bm-title">
+      <h2>{{ data.title }}</h2>
+      @if (data.subtitle) {
+        <p class="bm-subtitle">{{ data.subtitle }}</p>
+      }
+    </div>
+
+    @if (data.showClose !== false) {
+      <button mat-icon-button class="bm-close" (click)="close('close')" aria-label="Cerrar">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+  </div>
+
+  <div class="bm-body">
+    <p class="bm-message">{{ data.message }}</p>
+
+    @if (data.bullets?.length) {
+      <ul class="bm-list">
+        @for (b of data.bullets; track b) {
+          <li>{{ b }}</li>
+        }
+      </ul>
+    }
+
+    @if (data.footerNote) {
+      <div class="bm-note">
+        <mat-icon>info</mat-icon>
+        <span>{{ data.footerNote }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="bm-actions">
+    @if (data.secondaryText) {
+      <button mat-stroked-button type="button" (click)="close('secondary')">
+        {{ data.secondaryText }}
+      </button>
+    }
+
+    <button mat-flat-button color="primary" type="button" (click)="close('primary')">
+      {{ data.primaryText || 'Entendido' }}
+    </button>
+  </div>
+
+</div>

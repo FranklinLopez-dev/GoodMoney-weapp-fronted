@@ -1,0 +1,129 @@
+<mat-card>
+    <mat-card-content>
+        <div class="d-flex align-items-center justify-content-between p-x-24 p-y-16">
+            <h5 class="f-w-600 f-s-18">{{ title() }}</h5>
+            @if (isView()) {
+            <button mat-stroked-button color="primary" (click)="edit()">
+                <div class="d-flex align-items-center justify-content-center">
+                    <i-tabler name="pencil" class="icon-18 d-flex align-items-center m-r-4"></i-tabler>
+                    <span>Editar</span>
+                </div>
+            </button>
+            }
+            @if (!isView()) {
+            <button mat-stroked-button color="primary" (click)="cancel()">
+                <div class="d-flex align-items-center justify-content-center">
+                    <i-tabler name="arrow-back-up" class="icon-18 d-flex align-items-center m-r-4"></i-tabler>
+                    <span>Volver</span>
+                </div>
+            </button>
+            }
+        </div>
+        <mat-divider></mat-divider>
+        @if (isView()) {
+        <app-profile-readonly [context]="'client'" />
+        }
+
+        @if (!isView()) {
+        <div class="m-t-16"></div>
+        <app-profile-form #pf [context]="'client'" [mode]="mode()" [profile]="profile()" (cancel)="cancel()" (saved)="onSaved($event)">
+            <div juridico>
+                <mat-accordion class="example-headers-align perfil-secciones" multi>
+                    <mat-expansion-panel [expanded]="step() === 0" (opened)="setStep(0)">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title> Datos personales </mat-panel-title>
+                        </mat-expansion-panel-header>
+
+                        <app-juridico-identidad-section [form]="pf.juridicoForm">
+                        </app-juridico-identidad-section>
+
+                        <app-address-section [form]="pf.juridicoForm">
+                        </app-address-section>
+
+                    </mat-expansion-panel>
+
+                    <mat-expansion-panel [expanded]="step() === 1" (opened)="setStep(1)">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title> Representante legal </mat-panel-title>
+                        </mat-expansion-panel-header>
+
+                        <app-juridico-representative-section
+                            [form]="pf.juridicoForm"></app-juridico-representative-section>
+
+                    </mat-expansion-panel>
+
+                    <mat-expansion-panel [expanded]="step() === 2" (opened)="setStep(2)">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title> Datos de contacto </mat-panel-title>
+                        </mat-expansion-panel-header>
+
+                        <app-contact-section [form]="pf.juridicoForm"></app-contact-section>
+
+                    </mat-expansion-panel>
+
+                    @if(isCreate()) {
+                        <mat-expansion-panel [expanded]="step() === 3" (opened)="setStep(3)">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title> Documentación </mat-panel-title>
+                        </mat-expansion-panel-header>
+
+                        <app-documentation-section [form]="pf.activeForm" [isAdmin]="false"
+                            [isNatural]="pf.isNatural()"></app-documentation-section>
+
+                    </mat-expansion-panel>
+                    }
+
+                </mat-accordion>
+            </div>
+
+            <div natural>
+                <mat-accordion class="example-headers-align perfil-secciones" multi>
+                    <mat-expansion-panel [expanded]="step() === 0" (opened)="setStep(0)">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title> Datos personales </mat-panel-title>
+                        </mat-expansion-panel-header>
+
+                        <app-natural-identidad-section [form]="pf.naturalForm">
+                        </app-natural-identidad-section>
+
+                        <app-address-section [form]="pf.naturalForm">
+                        </app-address-section>
+
+                    </mat-expansion-panel>
+
+                    <mat-expansion-panel [expanded]="step() === 1" (opened)="setStep(1)">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title> Información SBS </mat-panel-title>
+                        </mat-expansion-panel-header>
+
+                        <app-natural-pep-section [form]="pf.naturalForm"></app-natural-pep-section>
+
+                    </mat-expansion-panel>
+
+                    <mat-expansion-panel [expanded]="step() === 2" (opened)="setStep(2)">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title> Datos de contacto </mat-panel-title>
+                        </mat-expansion-panel-header>
+
+                        <app-contact-section [form]="pf.naturalForm"></app-contact-section>
+
+                    </mat-expansion-panel>
+
+                </mat-accordion>
+            </div>
+
+        </app-profile-form>
+
+        }
+
+    </mat-card-content>
+
+    @if (isView()) {
+    <mat-divider></mat-divider>
+
+    <div class="text-right p-24">
+        <button mat-button (click)="back()">Volver</button>
+    </div>
+    }
+
+</mat-card>

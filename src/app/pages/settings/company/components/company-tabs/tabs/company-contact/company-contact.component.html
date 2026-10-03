@@ -1,0 +1,63 @@
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <mat-card class="cardWithShadow">
+            <mat-card-content class="p-y-24">
+                <mat-card-title class="m-b-24">Datos de contacto</mat-card-title>
+                <form class="row" [formGroup]="form">
+                    <div class="col-md-6 m-b-16">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Correo electrónico</mat-label>
+                            <input matInput formControlName="emailAdress" />
+                            @if(control['emailAdress'].touched && control['emailAdress'].invalid) {
+                            <mat-hint class="su-error">
+                                @if(control['emailAdress'].errors &&
+                                control['emailAdress'].errors['pattern']) {
+                                Correo electrónico es inválido
+                                }
+                            </mat-hint>
+                            }
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-6 m-b-16">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Teléfono</mat-label>
+                            <input [appInputMask]="'numeric'" matInput formControlName="phone" />
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-6 m-b-16">
+                        <mat-form-field class="w-100" appearance="outline">
+                            <mat-label>Celular</mat-label>
+                            <input [appInputMask]="'numeric'" formControlName="cellPhone" matInput>
+                            <span class="m-r-4 gm-prefijo-pais" matPrefix>
+                                <span class="d-flex align-items-center m-l-16 m-r-8">
+                                    <img class="option-image" fallbackImg="default"
+                                        [src]="selectedCountry()?.flags?.svg" [alt]="selectedCountry()?.name?.common"
+                                        class="option-image">
+                                    <span
+                                        class="m-l-4 font-medium text-default">{{selectedCountry()?.idd?.root}}{{selectedCountry()?.idd?.suffixes?.[0]}}</span>
+                                </span>
+                            </span>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-6 m-b-16">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Url web</mat-label>
+                            <input type="url" matInput formControlName="webSite" />
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-6 m-b-16">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Url web API</mat-label>
+                            <input type="url" matInput formControlName="webSiteApp" />
+                        </mat-form-field>
+                    </div>
+
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

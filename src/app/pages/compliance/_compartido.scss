@@ -1,0 +1,296 @@
+// PLAFT: misma rejilla y mismas pastillas que soporte, para que no parezcan dos productos distintos.
+
+.cmp-panel { padding: 18px 4px 8px; }
+
+.cmp-bajada {
+  margin: 0 0 16px;
+  max-width: 92ch;
+  font-size: 13px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+.cmp-titulo {
+  margin: 26px 0 10px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.cmp-nota {
+  margin: 16px 0;
+  font-size: 13px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+// El tema da width:100% a mat-form-field: sin acotarlos, cada selector se come una fila entera.
+
+.cmp-filtros {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.cmp-filtros mat-form-field { flex: 0 0 auto; width: 190px; }
+.cmp-filtros__buscar { flex: 1 1 260px; width: auto !important; max-width: 440px; }
+
+// Tarjetas de la portada
+
+.cmp-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.cmp-tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 18px;
+  border: 1px solid var(--gm-gris-300);
+  border-radius: 14px;
+
+  &__cifra { font-size: 28px; font-weight: 700; line-height: 1.1; }
+  &__rotulo { font-size: 13px; font-weight: 600; }
+  &__pie { font-size: 11.5px; color: var(--gm-plomo-400, #7b7979); }
+  &__falta { margin-left: 6px; color: var(--gm-color-error, #ca4444); font-weight: 700; }
+}
+
+// Solo lo accionable se tiñe; si se tiñera todo, el color dejaría de significar "esto pide algo de ti".
+.cmp-tarjeta--aviso {
+  border-color: #f0c98a;
+  background: #fdf8ef;
+}
+
+// Tablas
+
+.cmp-tabla {
+  display: grid;
+  border: 1px solid var(--gm-gris-300);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cmp-fila {
+  display: grid;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--gm-gris-300);
+  font-size: 13px;
+}
+
+// :first-child y no :nth-of-type: las filas son divs hermanos que repinta el @for.
+.cmp-fila:first-child { border-top: 0; }
+
+.cmp-fila--cabecera {
+  background: var(--gm-color-fondo-crema);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.cmp-tabla--meses   .cmp-fila { grid-template-columns: 1.2fr 80px 130px 1.6fr 90px; }
+.cmp-tabla--candidatas   .cmp-fila { grid-template-columns: 1.2fr 2fr 110px 90px; }
+.cmp-tabla--exclusiones  .cmp-fila { grid-template-columns: 1.6fr 150px 2fr 130px 110px 90px; }
+.cmp-tabla--consulta     .cmp-fila { grid-template-columns: 90px 2fr 100px 1.4fr 1.4fr; }
+.cmp-tabla--coincidencias .cmp-fila { grid-template-columns: 1.5fr 1.8fr 90px 1.3fr 1.4fr 90px; }
+.cmp-tabla--alertas .cmp-fila { grid-template-columns: 1.8fr 1.2fr 130px 1.2fr 1.2fr 80px; }
+.cmp-tabla--ops     .cmp-fila { grid-template-columns: 120px 1.6fr 120px 120px 90px; }
+.cmp-tabla--ro      .cmp-fila { grid-template-columns: 140px 1.6fr 1.4fr 110px 1.3fr 1.4fr 110px; }
+.cmp-tabla--ros     .cmp-fila { grid-template-columns: 1.8fr 130px 120px 1.2fr 1fr 80px; }
+
+// Banda a la izquierda y no fondo entero: con media tabla incompleta el fondo deja de leerse.
+.cmp-fila--incompleta { box-shadow: inset 3px 0 0 #e0a63a; }
+
+// Una exclusion desactivada sigue en la lista —el historico es del expediente— pero apagada.
+.cmp-fila--inactiva { opacity: .55; }
+
+// El alta de una exclusion, separada del listado.
+.cmp-alta {
+  padding: 16px 18px;
+  margin-bottom: 8px;
+  border: 1px solid var(--gm-gris-300);
+  border-radius: 12px;
+  background: var(--gm-color-fondo-crema);
+}
+.cmp-fila--vencida    { box-shadow: inset 3px 0 0 var(--gm-color-error, #ca4444); }
+
+.cmp-numero { text-align: right; font-variant-numeric: tabular-nums; }
+
+.cmp-doc, .cmp-regla {
+  display: block;
+  font-size: 11.5px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+.cmp-faltantes {
+  padding: 6px 16px 10px;
+  border-top: 1px dashed var(--gm-gris-300);
+  font-size: 12px;
+  color: #b57614;
+  background: #fdf8ef;
+}
+
+.cmp-edicion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--gm-gris-300);
+  background: var(--gm-color-fondo-crema);
+
+  mat-form-field { flex: 1 1 220px; }
+  .cmp-aviso { flex: 1 1 100%; margin: 0; }
+}
+
+// Pastillas
+
+.cmp-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cmp-chip--alta      { background: #fdeaea; color: var(--gm-color-error, #ca4444); }
+.cmp-chip--media     { background: #fdf3e0; color: #b57614; }
+.cmp-chip--baja      { background: var(--gm-plomo-050, #f0f0f0); color: var(--gm-plomo-400, #7b7979); }
+.cmp-chip--pendiente { background: #fdf3e0; color: #b57614; }
+.cmp-chip--revisado  { background: #e8f0fb; color: #2f6fb5; }
+.cmp-chip--ok        { background: var(--gm-verde-050, #eef7e3); color: var(--gm-verde-600, #4f9a1f); }
+
+.cmp-vencido { color: var(--gm-color-error, #ca4444); font-weight: 700; }
+.cmp-plazo   { color: var(--gm-verde-600, #4f9a1f); }
+
+// Estado del mes
+
+.cmp-estado-mes {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 12px 0 14px;
+  font-size: 13px;
+}
+
+// Detalle
+
+.cmp-detalle-cabecera {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  h3 { margin: 0; font-size: 18px; font-weight: 700; }
+  h3 small { margin-left: 8px; font-size: 13px; font-weight: 500; color: var(--gm-plomo-400, #7b7979); }
+}
+
+.cmp-detalle { display: flex; flex-direction: column; gap: 22px; }
+
+.cmp-bloque {
+  h4 { margin: 0 0 10px; font-size: 14px; font-weight: 700; }
+  p { margin: 0 0 10px; font-size: 13px; }
+}
+
+.cmp-riesgo { margin-top: 12px; }
+
+.cmp-factores {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+
+  li { margin-bottom: 4px; }
+  small { color: var(--gm-plomo-400, #7b7979); }
+}
+
+.cmp-formulario {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  mat-form-field { flex: 0 0 auto; width: 230px; }
+  &__ancho { flex: 1 1 100% !important; width: auto !important; }
+}
+
+.cmp-acciones {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.cmp-aviso {
+  margin: 10px 0 0;
+  max-width: 90ch;
+  font-size: 12px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+.cmp-aviso--fuerte {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fdf8ef;
+  color: #8a5c10;
+}
+
+// El input nativo se esconde y el label hace de botón: el control de fábrica no se puede estilar.
+
+.cmp-archivo {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cmp-archivo__rotulo {
+  padding: 8px 14px;
+  border: 1px dashed var(--gm-gris-300);
+  border-radius: 10px;
+  font-size: 12.5px;
+  color: var(--gm-plomo-400, #7b7979);
+  cursor: pointer;
+}
+
+// Bitácora
+
+.cmp-bitacora {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--gm-gris-300);
+    font-size: 13px;
+  }
+
+  li:last-child { border-bottom: 0; }
+
+  &__texto { flex: 1 1 240px; word-break: break-word; }
+  &__firma { color: var(--gm-plomo-400, #7b7979); font-size: 11.5px; }
+}
+
+// El asistente flota fijo abajo a la derecha (58 px + 18 de margen): la barra de acciones le reserva sitio.
+.cmp-panel > .cmp-acciones:last-child { padding-bottom: 8px; }
+
+// Opinión de la IA sobre una coincidencia en listas.
+.lst-ia { display: inline-block; margin-top: 4px; }
+.lst-ia-bloque {
+  flex-basis: 100%;
+  padding: 12px 14px;
+  border: 1px dashed var(--gm-gris-300);
+  border-radius: 10px;
+}
+.lst-ia-cabecera { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.lst-ia-texto { margin: 10px 0 0; white-space: pre-line; font-size: 13px; line-height: 1.5; }

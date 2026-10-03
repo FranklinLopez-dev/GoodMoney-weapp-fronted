@@ -1,0 +1,19 @@
+<!-- Totales del mockup (frame 440): cajas con borde fino y la etiqueta en negrita sobre el trazo. -->
+<div class="totales-fila">
+    @for(stat of stats; track stat.id) {
+    @if(stat.enabled) {
+    <div class="total-caja">
+        <span class="total-caja__etiqueta">{{ stat.subtitle }}</span>
+        <span class="total-caja__valor">{{ stat.title }}</span>
+    </div>
+    }
+    }
+</div>
+
+@if(chartOptions) {
+<apx-chart [series]="series" [chart]="chartOptions.chart" [stroke]="chartOptions.stroke"
+    [xaxis]="chartOptions.xaxis" [yaxis]="chartOptions.yaxis"
+    [tooltip]="chartOptions.tooltip" [legend]="chartOptions.legend"
+    [colors]="chartOptions.colors" [markers]="chartOptions.markers">
+</apx-chart>
+}

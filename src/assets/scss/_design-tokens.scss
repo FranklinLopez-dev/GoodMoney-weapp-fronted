@@ -1,0 +1,103 @@
+// Los tonos derivados son opacidad sobre el color base, en rgb(... / %) y no hex aplanado, para no perder alfa.
+
+:root {
+  // Marca
+  --gm-amarillo-500: #F9B410;                       // color/marca/primario
+  --gm-amarillo-400: rgb(249 180 16 / 50%);         // primario-medio
+  --gm-amarillo-200: rgb(249 180 16 / 25%);         // primario-suave
+  --gm-amarillo-100: rgb(249 180 16 / 15%);         // primario-ghost
+
+  --gm-verde-500: #87BA30;                          // color/marca/acento
+  --gm-verde-400: rgb(135 186 48 / 50%);
+  --gm-verde-200: rgb(135 186 48 / 25%);
+  --gm-verde-100: rgb(135 186 48 / 15%);
+
+  --gm-plomo-700: #474545;                          // color/marca/terciario
+  --gm-plomo-400: rgb(71 69 69 / 50%);
+  --gm-plomo-200: rgb(71 69 69 / 25%);
+  --gm-plomo-100: rgb(71 69 69 / 15%);
+
+  // Alias semanticos: lo que se usa en los componentes.
+  --gm-color-marca-primario: var(--gm-amarillo-500);
+  --gm-color-marca-acento: var(--gm-verde-500);
+  --gm-color-marca-terciario: var(--gm-plomo-700);
+
+  // Secundarios
+  --gm-gris-500: #C8D0DC;                           // color/estado/deshabilitado
+  --gm-gris-300: rgb(200 208 220 / 50%);
+  --gm-gris-100: rgb(200 208 220 / 25%);
+
+  --gm-suave-500: #F5F5F5;                          // color/fondo/crema
+  --gm-blanco-500: #FFFFFF;                         // color/texto/contraste
+  --gm-blanco-300: rgb(255 255 255 / 50%);          // color/active/menu-select
+  --gm-negro-500: #000000;                          // color/texto/principal
+
+  --gm-color-estado-deshabilitado: var(--gm-gris-500);
+  --gm-color-fondo-crema: var(--gm-suave-500);
+  --gm-color-texto-contraste: var(--gm-blanco-500);
+  --gm-color-texto-principal: var(--gm-negro-500);
+  --gm-color-active-menu-select: var(--gm-blanco-300);
+
+  // Estados: color de TEXTO
+  --gm-aqua-500: #648B84;                           // color/text/success
+  --gm-celeste-500: #5B8EC1;                        // color/text/info
+  --gm-ambar-500: #A5782E;                          // color/text/warning
+  --gm-rojo-500: #CA4444;                           // color/text/error
+  // pending reusa el terciario de marca
+  --gm-color-text-success: var(--gm-aqua-500);
+  --gm-color-text-info: var(--gm-celeste-500);
+  --gm-color-text-warning: var(--gm-ambar-500);
+  --gm-color-text-error: var(--gm-rojo-500);
+  --gm-color-text-pending: var(--gm-plomo-700);
+
+  // Estados: color de FONDO. Son colores propios, no el de texto con opacidad.
+  --gm-estado-success-500: #D8E2E0;
+  --gm-estado-success-300: rgb(216 226 224 / 50%);
+  --gm-estado-success-100: rgb(216 226 224 / 25%);
+
+  --gm-estado-info-500: #D6E3EF;
+  --gm-estado-info-300: rgb(214 227 239 / 50%);
+  --gm-estado-info-100: rgb(214 227 239 / 25%);
+
+  --gm-estado-warning-500: #E8DDCB;
+  --gm-estado-warning-300: rgb(232 221 203 / 50%);
+  --gm-estado-warning-100: rgb(232 221 203 / 25%);
+
+  --gm-estado-error-500: #F6C4C4;
+  --gm-estado-error-300: rgb(246 196 196 / 50%);
+  --gm-estado-error-100: rgb(246 196 196 / 25%);
+
+  --gm-estado-pending-500: #A3A2A2;
+  --gm-estado-pending-300: rgb(163 162 162 / 50%);
+  --gm-estado-pending-100: rgb(163 162 162 / 25%);
+
+  // Tipografia: la biblioteca usa Poppins; el proyecto venia con Inter, de la plantilla.
+  --gm-font-family: "Poppins", sans-serif;
+
+  --gm-font-size-h1: 30px;   --gm-font-weight-h1: 700;
+  --gm-font-size-h2: 24px;   --gm-font-weight-h2: 700;
+  --gm-font-size-h3: 20px;   --gm-font-weight-h3: 600;
+  --gm-font-size-body: 16px; --gm-font-weight-body: 400;
+  --gm-font-size-sm: 14px;   --gm-font-weight-sm: 500;
+  --gm-font-size-xs: 12px;   --gm-font-weight-xs: 500;
+
+  // Espaciado: misma escala de Tailwind, el numero del token es el paso, no el px.
+  --gm-space-1: 0.25rem;   //  4px
+  --gm-space-2: 0.5rem;    //  8px
+  --gm-space-3: 0.75rem;   // 12px
+  --gm-space-4: 1rem;      // 16px
+  --gm-space-6: 1.5rem;    // 24px
+  --gm-space-8: 2rem;      // 32px
+  --gm-space-12: 3rem;     // 48px
+  --gm-space-16: 4rem;     // 64px
+
+  // Radios: cada uno tiene un uso asignado en la biblioteca.
+  --gm-radius-xl: 0.75rem;   // 12px — botones e inputs
+  --gm-radius-2xl: 1rem;     // 16px — cards
+  --gm-radius-3xl: 1.5rem;   // 24px — modales
+
+  // Sombras: valores de Tailwind, que es la escala que usa la biblioteca.
+  --gm-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --gm-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --gm-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}

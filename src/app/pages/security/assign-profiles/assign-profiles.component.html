@@ -1,0 +1,100 @@
+@if(mode() == 'profiles' ) {
+@if(isEdit()) {
+    <register-juridico-admi/>
+} @else {
+<mat-card>
+    <mat-card-content>
+
+        <div class="row justify-content-between gap-16">
+            <div class="col-lg-4">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Buscar perfiles</mat-label>
+                    <input matInput [formControl]="searchControl" (keydown.enter)="cargarData()" />
+                    <mat-icon matPrefix>search</mat-icon>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div class="table-responsive m-t-20 tabla-tarjetas">
+            @if(store.loading()) {
+            <div class="d-flex justify-content-center align-items-center">
+                <mat-spinner diameter="50"></mat-spinner>
+            </div>
+            } @else {
+            @if(store.items()?.length) {
+            <table mat-table [dataSource]="dataSource" class="w-100 f-w-500">
+                <ng-container matColumnDef="id">
+                    <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">#</th>
+                    <td mat-cell *matCellDef="let i = index" class="f-w-500">
+                        {{ (i + pageIndex() * pageSize()) + 1 }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="nombres">
+                    <th mat-header-cell *matHeaderCellDef> Nombres </th>
+                    <td mat-cell *matCellDef="let element" class="no-wrap-element td-cabecera">
+                        @if(element.isBlackListed)
+                        {
+                        <span class="bg-black f-s-12 f-w-500 p-x-10 p-y-4 rounded-pill text-white">
+                            LISTA NEGRA
+                        </span>
+                        }
+                        <div class="d-flex align-items-center gap-16">
+                            <img [fallbackImg]="element.documentTypeIsNatural ? 'person':'company'"
+                                class="rounded-circle" [src]="element.profilePhoto | archivoPrivado | async" width="45"
+                                height="45" />
+                            <div>
+                                <h6 class="f-w-600 f-s-16 m-t-0">
+                                    {{element.names }} {{element.lastNames }}
+                                </h6>
+                                <span class="f-s-14"> {{element.documentTypeName }}: {{element.documentNumber}}</span>
+                            </div>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="email">
+                    <th mat-header-cell *matHeaderCellDef> Correo </th>
+                    <td mat-cell *matCellDef="let element" data-label="Correo"> {{element.email}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="action" [stickyEnd]="true">
+                    <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600"></th>
+                    <td mat-cell *matCellDef="let element" class="action-link">
+                        <button [matMenuTriggerFor]="moredd" class="m-l-auto" mat-icon-button>
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <mat-menu #moredd="matMenu" x-position="before">
+                            <button (click)="changeProfile(element)" mat-menu-item>Información del perfil</button>
+                            <button (click)="create(element)" mat-menu-item>Crear cuenta</button>
+                            @if(!element.documentTypeIsNatural) {
+                            <button (click)="openDialog(element)" mat-menu-item>Asignar a cuenta</button>
+                            }
+                        </mat-menu>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+            } @else {
+            <div class="no-records" style="min-height: 400px">
+                <p>No hay registros de perfiles</p>
+            </div>
+            }
+            }
+
+        </div>
+
+        @if(store.items()?.length) {
+        <mat-paginator [length]="length()" [pageSize]="pageSize()" [pageSizeOptions]="pageSizeOptions"
+            [pageIndex]="pageIndex()" (page)="onPageChange($event)" showFirstLastButtons>
+        </mat-paginator>
+        }
+
+    </mat-card-content>
+</mat-card>
+}
+} @else {
+<app-assign-profile-detail></app-assign-profile-detail>
+}

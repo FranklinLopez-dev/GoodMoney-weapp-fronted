@@ -1,0 +1,113 @@
+<form [formGroup]="form" class="row">
+
+    @if (isNatural) {
+
+    <div class="col-md-6">
+        <input #fileFront type="file" [multiple]="false" hidden accept="image/*" (change)="uploadFile($event, 'front')" />
+        @if(!control['documentPhotoFrontName'].value) {
+        <div class="border-dropzone" (click)="fileFront.click()">
+            <div class="dropzone-content preview flex-col">
+                <img src="./assets/images/dni-frontal.png" alt="Imagen" class="upload-icon m-b-4"
+                    style="max-height: 200px !important;" />
+                <span class="f-s-14 text-center">Seleccione una foto frontal
+                    de tu documento</span>
+            </div>
+        </div>
+        } @else {
+        <div class="border-dropzone" (click)="remove('front')">
+            <div class="dropzone-content preview">
+                <img [src]="frontFile() | archivoPrivado | async" alt="Imagen" fallbackImg="default" class="upload-icon m-b-4" />
+            </div>
+        </div>
+        }
+    </div>
+    <div class="col-md-6">
+        <input #fileReverse type="file" [multiple]="false" hidden accept="image/*"
+            (change)="uploadFile($event, 'reverse')" />
+        @if(!backFile()) {
+        <div class="border-dropzone" (click)="fileReverse.click()">
+            <div class="dropzone-content preview flex-col">
+                <img src="./assets/images/dni-reverse.png" alt="Imagen" class="upload-icon m-b-4"
+                    style="max-height: 200px !important;" />
+                <span class="f-s-14 text-center">Seleccione una foto frontal
+                    de tu documento</span>
+            </div>
+        </div>
+        } @else {
+        <div class="border-dropzone" (click)="remove('reverse')">
+            <div class="dropzone-content preview">
+                <img [src]="backFile() | archivoPrivado | async" alt="Imagen" fallbackImg="default" class="upload-icon m-b-4" />
+            </div>
+        </div>
+        }
+    </div>
+    }
+
+    @if (!isNatural) {
+
+    <div class="col-md-6">
+        <div class="document-upload">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Ficha RUC</mat-label>
+                <input matInput formControlName="documentPhotoFrontName" placeholder="Subir archivo" readonly />
+                @if(!control['documentPhotoFrontName'].value) {
+                <ng-container matSuffix>
+                    <button mat-mini-fab class="bg-primary text-white rounded-right" type="button"
+                        (click)="fileFront.click()" matTooltip="Subir archivo PDF">
+                        <i-tabler name="upload" class="icon-20 d-flex"></i-tabler>
+                    </button>
+                </ng-container>
+                }
+
+                @if(control['documentPhotoFrontName'].value) {
+                <ng-container matSuffix>
+                    <button mat-mini-fab class="bg-error text-white rounded-none" type="button"
+                        (click)="remove('front')" matTooltip="Eliminar archivo">
+                        <i-tabler name="trash" class="icon-20 d-flex"></i-tabler>
+                    </button>
+                    <button mat-mini-fab class="bg-primary text-white rounded-right" type="button"
+                        (click)="openFront(true)" matTooltip="Ver archivo PDF">
+                        <i-tabler name="eye" class="icon-20 d-flex"></i-tabler>
+                    </button>
+                </ng-container>
+                }
+            </mat-form-field>
+            <input #fileFront type="file" [multiple]="false" hidden accept=".pdf"
+                (change)="uploadFile($event, 'front')" />
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="document-upload">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Documentación adicional (opcional)</mat-label>
+                <input matInput formControlName="documentPhotoReverseName" placeholder="Subir archivo" readonly />
+                @if(!control['documentPhotoReverseName'].value) {
+                <ng-container matSuffix>
+                    <button mat-mini-fab class="bg-primary text-white rounded-right" type="button"
+                        (click)="fileReverse.click()" matTooltip="Subir archivo PDF">
+                        <i-tabler name="upload" class="icon-20 d-flex"></i-tabler>
+                    </button>
+                </ng-container>
+                }
+
+                @if(control['documentPhotoReverseName'].value) {
+                <ng-container matSuffix>
+                    <button mat-mini-fab class="bg-error text-white rounded-none" type="button"
+                        (click)="remove('reverse')" matTooltip="Eliminar archivo">
+                        <i-tabler name="trash" class="icon-20 d-flex"></i-tabler>
+                    </button>
+                    <button mat-mini-fab class="bg-primary text-white rounded-right" type="button"
+                        (click)="openFront(false)" matTooltip="Ver archivo PDF">
+                        <i-tabler name="eye" class="icon-20 d-flex"></i-tabler>
+                    </button>
+                </ng-container>
+                }
+            </mat-form-field>
+            <input #fileReverse type="file" [multiple]="false" hidden accept=".pdf"
+                (change)="uploadFile($event, 'reverse')" />
+        </div>
+    </div>
+    }
+
+</form>

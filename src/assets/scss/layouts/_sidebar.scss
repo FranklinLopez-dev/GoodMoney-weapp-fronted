@@ -1,0 +1,528 @@
+@use "../variables" as *;
+
+.mat-drawer.sidebarNav {
+  width: $sidenav-desktop;
+  flex-shrink: 0;
+  transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: fixed;
+  overflow-x: hidden;
+  border-right-width: 0;
+}
+
+.branding {
+  padding: 12px 16px;
+  min-height: $header-height;
+  display: flex;
+  align-items: center;
+}
+
+// El branding trae ambos logos; el icono queda para el menú contraído (regla dentro de :not(:hover)).
+app-branding .logo-icon {
+  display: none;
+}
+
+// Los atributos width/height reservan el hueco, pero `height` entraria como alto fijo y deformaria los logos.
+app-branding img {
+  height: auto;
+}
+
+.sidebarNav-mini {
+  .sidebarNav {
+    width: $sidenav-mini;
+
+    // Todo el estado contraído va bajo :not(:hover): así el hover hereda el menú abierto sin restaurar regla a regla.
+    &:not(:hover) {
+      .profile-bar {
+        display: none;
+      }
+
+      .branding {
+        width: $sidenav-mini - 15px;
+        overflow: hidden;
+
+        // Contraído sin hover: solo el icono. En cualquier otro estado manda la regla global.
+        .logo-full {
+          display: none;
+        }
+        .logo-icon {
+          display: inline;
+        }
+      }
+
+      .sidebar-list {
+        width: $sidenav-mini;
+
+        &.mdc-list {
+          padding: 0 12px;
+
+          .mdc-list-group__subheader {
+            text-align: center;
+          }
+        }
+
+        .mdc-list-group__subheader {
+          .caption-icon {
+            display: inline;
+          }
+          .caption-text {
+            display: none;
+          }
+        }
+
+        // Contraído: círculo centrado en el riel. Con los márgenes del expandido quedaban 32px y el icono se salía.
+        .menu-list-item {
+          width: 48px;
+          height: 48px;
+          margin: 2px auto;
+          padding: 0 !important;
+          justify-content: center;
+          align-items: center;
+
+          .mdc-list-item__content {
+            display: none;
+          }
+
+          .mdc-list-item__start {
+            margin: 0 !important;
+            align-self: center !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+      }
+
+      // Del bloque de soporte solo queda el botón de ayuda, en versión icono.
+      .sidebar-soporte {
+        padding: 12px 8px 16px;
+
+        .sidebar-soporte__titulo,
+        .sidebar-soporte__horario {
+          display: none;
+        }
+
+        .sidebar-soporte__ayuda {
+          padding: 12px 0;
+          font-size: 0;
+          // El texto oculto (font-size: 0) sigue siendo un item del flex: con gap el icono quedaba corrido 4px.
+          gap: 0;
+
+          i-tabler {
+            width: 20px;
+            height: 20px;
+            font-size: initial;
+          }
+        }
+      }
+    }
+
+    &:hover {
+      width: $sidenav-desktop;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+    }
+  }
+
+  .hideMenu {
+    overflow: hidden;
+    width: $sidenav-mini;
+  }
+
+  .contentWrapper {
+    transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+}
+
+@media (min-width: 1024px) {
+  .sidebarNav-mini {
+    .contentWrapper {
+      margin-left: $sidenav-mini !important;
+    }
+  }
+}
+
+.customizerBtn {
+  position: fixed;
+  right: 10px;
+  bottom: 10px;
+  z-index: 9;
+}
+
+.sidebar-list {
+  &.mdc-list {
+    padding: 0 18px;
+    width: $sidenav-desktop;
+    .sub-item-icon {
+      width: 16px !important;
+      height: 16px !important;
+      opacity: 0.8;
+      margin-inline-end: 13px;
+    }
+
+    .mdc-list-group__subheader {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 7px 0;
+      line-height: 26px;
+
+      .caption-icon {
+        display: none;
+      }
+      .caption-text {
+        display: inline;
+      }
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      width: calc(100% - 18px);
+      display: block;
+      margin: 13px 0;
+      margin-left: 9px;
+      background-image: linear-gradient(
+          90deg,
+          transparent,
+          transparent 50%,
+          var(--mat-sys-surface) 50%,
+          var(--mat-sys-surface) 100%
+        ),
+        linear-gradient(
+          90deg,
+          $borderColor,
+          $borderColor,
+          $borderColor,
+          $borderColor,
+          $borderColor
+        );
+      background-size: 7px 3px, 100% 3px;
+
+      &.lg {
+        width: calc(100% - 32px);
+        margin-left: 16px;
+      }
+    }
+
+    .menu-list-item {
+      border-radius: $border-radius;
+      height: 45px;
+      padding: 11px 16px !important;
+      margin-bottom: 4px;
+      width: 100%;
+      &.twoline {
+        height: 60px;
+        align-items: center;
+      }
+
+      &:before,
+      &:focus {
+        z-index: -1;
+      }
+
+      &.disabled {
+        opacity: 0.38;
+      }
+
+      .item-chip {
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+      }
+
+      &.activeMenu {
+        //  box-shadow: 0 17px 20px -8px rgba(77, 91, 236, 0.231372549);
+
+        .mdc-list-item__primary-text {
+          color: var(--mat-sys-secondary) !important;
+        }
+
+        .mat-mdc-list-item-icon {
+          color: var(--mat-sys-secondary) !important;
+        }
+      }
+
+      .mdc-list-item__start {
+        margin-right: 10px;
+        margin-left: 0 !important;
+        width: 18px;
+        height: 18px;
+        line-height: 0px;
+        fill: transparent !important;
+        color: #fff;
+      }
+
+      .mdc-list-item__primary-text {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #fff;
+        white-space: normal;
+
+        .arrow-icon {
+          display: flex;
+
+          .mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+      }
+    }
+  }
+}
+
+// El grupo que contiene la pantalla abierta solo se ilumina: con la píldora parecían dos sitios a la vez.
+.sidebar-list .top-parent .menu-list-item.activemenu {
+  background-color: rgba(255, 255, 255, 0.10);
+
+  .mdc-list-item__primary-text {
+    color: var(--gm-color-marca-primario) !important;
+  }
+
+  .mat-mdc-list-item-icon {
+    color: var(--gm-color-marca-primario) !important;
+  }
+}
+
+.flex-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
+  // El menu va en el plomo terciario: el verde es el color de ACCION y de fondo dejaba el boton de ayuda invisible.
+  background: var(--gm-color-marca-terciario) !important;
+}
+
+.inner-sidebar {
+  width: calc(100% - 80px);
+  margin-left: 80px;
+}
+
+.iconMenu {
+  position: absolute;
+  height: 100%;
+  background-color: $layout-bg;
+  width: 80px;
+}
+
+.sidebar-list .menu-list-item.depth-1 {
+  padding-left: 35px !important;
+}
+
+mat-sidenav .bg-light-primary {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+mat-sidenav .menu-list-item:hover {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+}
+// Menú lateral medido sobre la captura. `.mat-drawer.sidebarNav` delante para ganar al color que deriva del tema.
+
+.mat-drawer.sidebarNav {
+  background: var(--gm-color-marca-terciario);
+  color: var(--gm-color-texto-contraste);
+
+  .mat-mdc-list-item,
+  .menu-list-item {
+    color: var(--gm-color-texto-contraste);
+    border-radius: 999px;
+    margin: 2px 12px;
+    width: auto;
+    transition: background-color 0.18s ease, color 0.18s ease;
+
+    .mdc-list-item__primary-text {
+      color: inherit;
+      font-size: var(--gm-font-size-sm);
+      font-weight: var(--gm-font-weight-sm);
+    }
+
+    i-tabler,
+    .mat-icon {
+      color: inherit;
+    }
+  }
+
+  // Hover: apenas un velo, para no competir con el activo.
+  .mat-mdc-list-item:hover:not(.activeMenu),
+  .menu-list-item:hover:not(.activeMenu) {
+    background-color: rgb(255 255 255 / 10%);
+  }
+
+  // Activo: píldora perfilada en amarillo. Rellena de blanco al 25% era una mancha que pesaba más que el propio texto.
+  .activeMenu,
+  .mdc-list-item--activated,
+  .mat-mdc-list-item.active {
+    background-color: rgb(255 255 255 / 8%) !important;
+    border: 1px solid var(--gm-color-marca-primario);
+    color: var(--gm-color-marca-primario) !important;
+
+    .mdc-list-item__primary-text,
+    i-tabler,
+    .mat-icon {
+      color: var(--gm-color-marca-primario) !important;
+    }
+  }
+
+  // Subniveles: sangrados y un punto de tamaño menor, como en el diseño.
+  .childBox .mat-mdc-list-item {
+    font-size: var(--gm-font-size-sm);
+    padding-left: 28px;
+  }
+
+  .branding {
+    padding: 20px 16px 12px;
+  }
+}
+
+// Bloque inferior: horario y ayuda
+
+.sidebar-soporte {
+  margin-top: auto;
+  padding: 20px 16px 24px;
+  color: var(--gm-color-texto-contraste);
+  text-align: center;
+}
+
+.sidebar-soporte__titulo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: var(--gm-font-size-sm);
+  font-weight: 600;
+  margin-bottom: 6px;
+
+  i-tabler {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.sidebar-soporte__horario {
+  margin: 0;
+  font-size: var(--gm-font-size-xs);
+  line-height: 1.7;
+  color: rgb(255 255 255 / 80%);
+}
+
+.sidebar-soporte__ayuda {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: var(--gm-radius-xl);
+  background: var(--gm-color-marca-acento);
+  color: var(--gm-color-texto-contraste);
+  font-size: var(--gm-font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.18s ease;
+
+  i-tabler {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    filter: brightness(0.95);
+  }
+}
+
+// Orden del menú: los textos largos saltaban a dos líneas con interlineado de una y los hijos no se distinguían.
+
+.mat-drawer.sidebarNav {
+
+  .mat-mdc-list-item {
+    min-height: 44px;
+    padding-inline: 14px;
+
+    // El icono se alinea con la primera línea, no con el centro del bloque.
+    .mat-mdc-list-item-icon,
+    i-tabler {
+      align-self: flex-start;
+      margin-top: 2px;
+    }
+  }
+
+  .mdc-list-item__primary-text {
+    line-height: 1.35;
+    white-space: normal;
+  }
+
+  // Hijos: se leen como subordinados —cuerpo menor, tono apagado y un carril que agrupa el bloque abierto—.
+  .childBox {
+    position: relative;
+    margin: 2px 0 6px;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset-block: 4px;
+      left: 26px;
+      width: 1px;
+      background: rgb(255 255 255 / 18%);
+    }
+
+    .mat-mdc-list-item {
+      min-height: 40px;
+      padding-left: 40px;
+
+      .mdc-list-item__primary-text {
+        font-size: 13px;
+        color: rgb(255 255 255 / 80%);
+      }
+    }
+
+    .activeMenu .mdc-list-item__primary-text {
+      color: var(--gm-color-marca-primario);
+    }
+  }
+
+  // El grupo abierto se marca sin llenarse de fondo: solo el texto en amarillo.
+  .mat-mdc-list-item.activeMenu-dropdown,
+  .mat-mdc-list-item[aria-expanded="true"] {
+    background-color: rgb(255 255 255 / 8%);
+  }
+
+  // Rótulos de sección: en versalitas apagadas, ordenan la lista sin competir con las opciones, que son lo que se pulsa.
+  .nav-caption,
+  .mdc-list-group__subheader {
+    padding: 0 14px;
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.6;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: rgb(255 255 255 / 55%);
+  }
+
+  // La plantilla traía una línea a rayas hecha con degradado; basta un filete tenue que marque el corte.
+  .sidebar-divider {
+    height: 1px;
+    width: calc(100% - 28px);
+    margin: 16px 14px 10px;
+    background: rgb(255 255 255 / 14%);
+    background-image: none;
+  }
+}
+
+// Plegado a iconos no hay sitio para el rótulo: el filete es lo que sigue marcando dónde acaba un bloque.
+.sidebarNav.mat-drawer.mat-drawer-side:not(.mat-drawer-opened),
+#main-wrapper[data-sidebar-position="fixed"] .sidebarNav-mini {
+
+  .nav-caption,
+  .mdc-list-group__subheader {
+    display: none;
+  }
+}

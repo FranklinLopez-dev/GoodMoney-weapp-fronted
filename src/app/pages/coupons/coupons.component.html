@@ -1,0 +1,105 @@
+<!-- Beneficios (frame 453): el banner amarillo corre de borde a borde al pie, como en el flujo de operaciones. -->
+
+<div class="coupons-grid">
+
+  @for (coupon of filteredCoupons; track coupon.id) {
+
+  <mat-card class="coupon-card" [ngClass]="getStatusClass(coupon)">
+
+    <div class="coupon-header">
+      <div>
+        <h3>{{ coupon.code }}</h3>
+        <span class="status">{{ coupon.statusText }}</span>
+      </div>
+
+      <button mat-icon-button matTooltip="Copiar cupón" (click)="copy(coupon.code)">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </div>
+
+    <p class="description">{{ coupon.description }}</p>
+
+    <mat-chip-set>
+      @if (coupon.isCompra) {
+      <mat-chip color="primary" selected>Compra</mat-chip>
+      }
+      @if (coupon.isVenta) {
+      <mat-chip color="accent" selected>Venta</mat-chip>
+      }
+      @if (coupon.isUsers) {
+      <mat-chip selected>Global</mat-chip>
+      } @else {
+      <mat-chip selected>Personal</mat-chip>
+      }
+    </mat-chip-set>
+
+    <div class="metrics">
+      <div>
+        <span>Descuento</span>
+        <strong>{{ coupon.discount | number:'.4-4' }}</strong>
+      </div>
+
+      <div>
+        <span>Usados</span>
+        <strong>{{ coupon.usedCount }}</strong>
+      </div>
+
+      <div>
+        <span>Restantes</span>
+        <strong>{{ coupon.remainingCount }}</strong>
+      </div>
+
+      <div>
+        <span>Total</span>
+        <strong>{{ coupon.numOperationsGlobal }}</strong>
+      </div>
+    </div>
+
+    <div class="footer">
+      <small>
+        Vigente desde {{ coupon.dateStart | date:'dd/MM/yyyy hh:mm a' }}
+        hasta {{ coupon.dameEnd | date:'dd/MM/yyyy hh:mm a' }}
+      </small>
+
+      <span class="operations">
+        {{ coupon.pendingCount }} ops
+      </span>
+    </div>
+
+  </mat-card>
+
+  } @empty {
+
+  <!-- Estado vacío del mockup: tarjeta blanca centrada, ilustración 3D y una sola acción verde. -->
+  <div class="cupones-vacio">
+
+    <img class="cupones-vacio__ilustracion" src="assets/images/promos/cupones-vacio.webp"
+      alt="Cupones Good Money" />
+
+    <h3 class="cupones-vacio__titulo">Aún no tienes cupones disponibles</h3>
+
+    <p class="cupones-vacio__texto">
+      Realiza tus operaciones con Good Money y próximamente podrás acceder
+      a mejores beneficios y tipos de cambio preferenciales.
+    </p>
+
+    <a mat-flat-button color="primary" class="cupones-vacio__cta" [routerLink]="['/operations/create']">
+      Nueva cotización
+    </a>
+
+  </div>
+
+  }
+
+</div>
+
+<!-- Banner de cupones del mockup, de borde a borde al pie de la vista. -->
+<div class="banner-promo">
+  <div class="banner-promo__texto">
+    <p class="banner-promo__titulo">¡GANA Y CAMBIA CON<br /><span>GOOD MONEY!</span></p>
+    <p class="banner-promo__detalle">
+      Aplica tu cupón y obtén un mejor tipo de cambio en tus operaciones.
+    </p>
+  </div>
+  <img class="banner-promo__ilustracion" src="assets/images/promos/banner-cupon.webp" alt="" />
+</div>

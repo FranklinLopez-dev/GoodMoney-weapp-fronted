@@ -1,0 +1,108 @@
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <mat-card class="cardWithShadow">
+            <mat-card-content class="p-y-24">
+                <mat-card-title>Aplicaciones y publicidad</mat-card-title>
+                <mat-card-subtitle class="f-s-14">Enlaces a las tiendas y el aviso que ve el visitante</mat-card-subtitle>
+
+                <p class="f-s-13 text-muted m-t-8 m-b-0">
+                    Los minutos de la cotización, los montos y la disponibilidad del servicio se
+                    administran en
+                    <a routerLink="/settings/reglas" class="text-primary">Reglas de operación</a>.
+                </p>
+                <form class="row m-t-24" [formGroup]="form">
+
+<div class="col-md-6 m-b-16">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Enlace App iOS</mat-label>
+                            <input matInput type="url" formControlName="appIosUrl" placeholder="https://apps.apple.com/..."/>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-6 m-b-16">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Enlace App Android</mat-label>
+                            <input matInput type="url"  formControlName="appAndroidUrl" placeholder="https://play.google.com/store/..."/>
+                        </mat-form-field>
+                    </div>
+
+                    
+<div class="col-12 d-flex align-items-center m-t-24 m-b-16">
+                        <button mat-mini-fab class="bg-light-primary shadow-none rounded icon-48">
+                            <i-tabler name="bell-ringing-2" class="icon-20 d-flex text-primary"></i-tabler>
+                        </button>
+                        <div class="m-l-16 w-100">
+                            <h5 class="f-s-16 f-w-600 m-0 m-b-4">Publicidad</h5>
+                            <div class="d-flex align-items-center justify-content-center w-100">
+                                <span class="f-s-14">¿Desea habilitar el modal de publicidad en la página web?</span>
+                                <mat-slide-toggle formControlName="isModalPublic" class="m-l-auto"></mat-slide-toggle>
+                            </div>
+                        </div>
+                    </div>
+                    @if(control['isModalPublic'].value) {
+                    <div class="col-md-6 m-b-16">
+                        <input #fileImagePc type="file" [multiple]="false" hidden accept="image/*"
+                            (change)="setFilePc($event)" />
+                        @if(!photoPublicPc()) {
+                        <div class="border-dropzone" (click)="fileImagePc.click()">
+                            <div class="dropzone-content preview flex-col">
+                                <img src="./assets/images/publicidad.png" fallbackImg="default" alt="Imagen"
+                                    class="upload-icon m-b-4" style="max-height: 200px !important;" />
+                                <span class="f-s-14 text-center">Seleccione imagen de publicidad para pc</span>
+                            </div>
+                        </div>
+                        } @else {
+                        <div class="border-dropzone" (click)="removeFilePc()">
+                            <div class="dropzone-content preview">
+                                <img [src]="photoPublicPc()" alt="Imagen" fallbackImg="default"
+                                    class="upload-icon m-b-4" />
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    <div class="col-md-6 m-b-16">
+                        <input #fileImageTablet type="file" [multiple]="false" hidden accept="image/*"
+                            (change)="setFileTablet($event)" />
+                        @if(!photoPublicTablet()) {
+                        <div class="border-dropzone" (click)="fileImageTablet.click()">
+                            <div class="dropzone-content preview flex-col">
+                                <img src="./assets/images/publicidad.png" fallbackImg="default" alt="Imagen"
+                                    class="upload-icon m-b-4" style="max-height: 200px !important;" />
+                                <span class="f-s-14 text-center">Seleccione imagen de publicidad para tablet</span>
+                            </div>
+                        </div>
+                        } @else {
+                        <div class="border-dropzone" (click)="removeFileTablet()">
+                            <div class="dropzone-content preview">
+                                <img [src]="photoPublicTablet()" alt="Imagen" fallbackImg="default"
+                                    class="upload-icon m-b-4" />
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    <div class="col-md-6">
+                        <input #fileImagePhone type="file" [multiple]="false" hidden accept="image/*"
+                            (change)="setFilePhone($event)" />
+                        @if(!photoPublicPhone()) {
+                        <div class="border-dropzone" (click)="fileImagePhone.click()">
+                            <div class="dropzone-content preview flex-col">
+                                <img src="./assets/images/publicidad.png" fallbackImg="default" alt="Imagen"
+                                    class="upload-icon m-b-4" style="max-height: 200px !important;" />
+                                <span class="f-s-14 text-center">Seleccione imagen de publicidad para celular</span>
+                            </div>
+                        </div>
+                        } @else {
+                        <div class="border-dropzone" (click)="removeFilePhone()">
+                            <div class="dropzone-content preview">
+                                <img [src]="photoPublicPhone()" alt="Imagen" fallbackImg="default"
+                                    class="upload-icon m-b-4" />
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    }
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

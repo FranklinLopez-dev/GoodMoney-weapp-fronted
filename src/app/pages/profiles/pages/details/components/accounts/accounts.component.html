@@ -1,0 +1,104 @@
+<div class="accounts-container m-t-16">
+    <div class="accounts-header">
+        <div class="accounts-filters">
+            <button class="filter-chip" [class.active]="coinFilter() === 'PEN'" (click)="toggleFilter('PEN')">
+                Soles
+            </button>
+
+            <button class="filter-chip" [class.active]="coinFilter() === 'USD'" (click)="toggleFilter('USD')">
+                Dólares
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+
+            @if (filteredAccounts().length === 0) {
+            <div class="empty">
+                <tabler-icon name="credit-card"></tabler-icon>
+                <p>No tienes cuentas bancarias registradas</p>
+            </div>
+            }
+
+            @if (filteredAccounts().length > 0) {
+            <div class="table-responsive w-100">
+                <table mat-table [dataSource]="filteredAccounts()" class="m-t-0 v-middle w-100">
+                    <ng-container matColumnDef="id">
+                        <th mat-header-cell *matHeaderCellDef>#</th>
+                        <td mat-cell *matCellDef="let i = index">
+                            {{i+1}}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="banco">
+                        <th mat-header-cell *matHeaderCellDef>Banco
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            <div class="d-flex align-items-center">
+                                <img class="bank-icon m-r-4" fallbackImg="default"
+                                    [src]="'data:image/png;base64,' + element?.bankIcon" alt="Banco" />
+                                <span>{{element.bankName}}</span>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="tipo">
+                        <th mat-header-cell *matHeaderCellDef>Tipo
+                        </th>
+                        <td mat-cell *matCellDef="let element" class="no-wrap">
+                            {{element.typeAccount == '1' ?
+                            'Ahorros':'Corriente'}}
+                            {{element.coinId == 'PEN' ?
+                            'soles':'dólares'}}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="titular">
+                        <th mat-header-cell *matHeaderCellDef>Titular
+                        </th>
+                        <td mat-cell *matCellDef="let element" class="no-wrap">
+                            {{element.name}}
+                            {{element.lastName}}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="number">
+                        <th mat-header-cell *matHeaderCellDef> Número </th>
+
+                        <td mat-cell *matCellDef="let element" class="no-wrap">
+                            <div class="account-number">
+
+                                <span class="number-text mono">
+                                    {{ getDisplayAccountName(element) }}
+                                    {{ getDisplayAccount(element) }}
+                                </span>
+
+                                <button mat-icon-button class="copy-btn" matTooltip="Copiar número"
+                                    (click)="copy(getDisplayAccount(element), 'account')">
+                                    <tabler-icon name="copy"></tabler-icon>
+                                </button>
+
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="delete" [stickyEnd]="true">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let element">
+                            <a (click)="delete(element)" class="m-r-10 text-error cursor-pointer"><i-tabler name="trash"
+                                    class="icon-18"></i-tabler></a>
+                        </td>
+                    </ng-container>
+                    <tr mat-header-row
+                        *matHeaderRowDef="['id', 'banco', 'tipo', 'titular', 'number', 'delete']; sticky: true">
+                    </tr>
+                    <tr mat-row *matRowDef="let row; columns: ['id', 'banco', 'tipo', 'titular', 'number', 'delete']">
+                    </tr>
+                </table>
+            </div>
+            }
+
+
+        </div>
+    </div>
+</div>

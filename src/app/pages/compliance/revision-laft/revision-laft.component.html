@@ -1,0 +1,89 @@
+<div class="cmp-panel">
+  <p class="cmp-bajada">
+    Las operaciones finalizadas del período con el <strong>régimen de debida diligencia</strong> del cliente
+    (General o Reforzado) y los <strong>motivos de inusualidad</strong>: monto sobre el umbral individual,
+    ocupación o zona de riesgo, o figurar en una lista. Si se opera por cuenta de otro, también se evalúa a quien
+    dio la orden. Es el insumo para revisar el mes y decidir qué pasa a expediente ROS. No entran las excluidas
+    del Registro de Operaciones.
+  </p>
+
+  <div class="cmp-filtros">
+    <mat-form-field appearance="outline">
+      <mat-label>Desde</mat-label>
+      <input matInput type="date" [ngModel]="desde()" (ngModelChange)="desde.set($event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Hasta</mat-label>
+      <input matInput type="date" [ngModel]="hasta()" (ngModelChange)="hasta.set($event)" />
+    </mat-form-field>
+    <mat-checkbox [ngModel]="soloInusuales()" (ngModelChange)="soloInusuales.set($event); cargar()">Solo las inusuales</mat-checkbox>
+    <button mat-flat-button color="primary" type="button" [disabled]="cargando()" (click)="cargar()">
+      {{ cargando() ? 'Generando…' : 'Generar' }}
+    </button>
+    <button mat-stroked-button type="button" [disabled]="exportando() || !revision()?.filas?.length" (click)="exportar()">
+      {{ exportando() ? 'Exportando…' : 'Exportar a Excel' }}
+    </button>
+  </div>
+
+  @if (revision(); as r) {
+  <div class="cmp-tarjetas">
+    <div class="cmp-tarjeta">
+      <span class="cmp-tarjeta__cifra">{{ r.operaciones | number }}</span>
+      <span class="cmp-tarjeta__rotulo">Operaciones del período</span>
+    </div>
+    <div class="cmp-tarjeta" [class.cmp-tarjeta--aviso]="r.inusuales > 0">
+      <span class="cmp-tarjeta__cifra">{{ r.inusuales | number }}</span>
+      <span class="cmp-tarjeta__rotulo">Inusuales</span>
+      <span class="cmp-tarjeta__pie">umbral individual USD {{ r.umbralUsd | number:'1.0-0' }}</span>
+    </div>
+    <div class="cmp-tarjeta">
+      <span class="cmp-tarjeta__cifra">{{ r.clientesReforzado | number }}</span>
+      <span class="cmp-tarjeta__rotulo">Clientes en régimen reforzado</span>
+    </div>
+    @if (r.sinIdentificar > 0) {
+    <div class="cmp-tarjeta cmp-tarjeta--aviso">
+      <span class="cmp-tarjeta__cifra">{{ r.sinIdentificar | number }}</span>
+      <span class="cmp-tarjeta__rotulo">Sin persona identificada</span>
+      <span class="cmp-tarjeta__pie">finalizadas que no se pueden evaluar</span>
+    </div>
+    }
+  </div>
+
+  @if (!r.filas.length) {
+  <p class="cmp-nota">{{ soloInusuales() ? 'Ninguna operación inusual en el período.' : 'No hay operaciones finalizadas en el período.' }}</p>
+  } @else {
+  <div class="cmp-tabla rvl-tabla">
+    <div class="cmp-fila cmp-fila--cabecera">
+      <span>Operación</span><span>Cliente</span><span class="cmp-numero">Monto</span><span>Debida diligencia</span><span>Inusual por</span>
+    </div>
+    @for (f of visibles(); track f.operationId) {
+    <div class="cmp-fila" [class.cmp-fila--vencida]="f.esInusual">
+      <span data-label="Operación"><strong>{{ f.codigo }}</strong>
+        <small class="cmp-doc">{{ f.fecha | date:'dd/MM/yyyy HH:mm' }} · {{ f.tipo }}{{ f.comprobante ? ' · ' + f.comprobante : '' }}</small></span>
+      <span data-label="Cliente">{{ f.cliente }}
+        <small class="cmp-doc">{{ f.tipoDocumento }} {{ f.documento }}{{ f.nacionalidad ? ' · ' + f.nacionalidad : '' }}</small>
+        @if (f.ocupacion) { <small class="cmp-doc">{{ f.ocupacion }}</small> }
+        @if (f.ejecutante) {
+        <small class="cmp-doc rvl-ejecutante">Por cuenta de otro · ordenó {{ f.ejecutante }} ({{ f.ejecutanteDocumento }})
+          · {{ f.ejecutanteRegimen }}{{ f.ejecutanteRegimen === 'Reforzado' ? ': ' + f.ejecutanteMotivoRegimen : '' }}</small>
+        }</span>
+      <span data-label="Monto" class="cmp-numero">USD {{ f.montoUsd | number:'1.2-2' }}
+        <small class="cmp-doc">TC {{ f.tipoCambio | number:'1.3-4' }} · S/ {{ f.totalPen | number:'1.2-2' }}</small></span>
+      <span data-label="Debida diligencia">
+        <span class="cmp-chip" [ngClass]="claseRiesgo(f.riesgoLaft)">{{ f.regimen }} · {{ f.riesgoLaft }}</span>
+        @if (f.regimen === 'Reforzado') { <small class="cmp-doc">{{ f.motivoRegimen }}</small> }
+      </span>
+      <span data-label="Inusual por">
+        @for (m of f.motivosInusual; track m) { <span class="cmp-chip cmp-chip--alta rvl-motivo">{{ m }}</span> }
+        @if (!f.esInusual) { <small class="cmp-doc">—</small> }
+      </span>
+    </div>
+    }
+  </div>
+  @if (r.filas.length > 50) {
+  <mat-paginator [length]="r.filas.length" [pageIndex]="pagina()" [pageSize]="tamano()" [pageSizeOptions]="[50, 100, 200]"
+                 (page)="cambiarPagina($event)"></mat-paginator>
+  }
+  }
+  }
+</div>

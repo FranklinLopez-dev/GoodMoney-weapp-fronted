@@ -1,0 +1,151 @@
+<mat-card class="cardWithShadow">
+    <mat-card-content>
+        <div class="d-flex align-items-center">
+            <mat-card-title class="m-b-0">
+                REGISTRO DE OPERACIONES INDIVIDUALES
+            </mat-card-title>
+
+            <div class="m-l-auto">
+                <button mat-flat-button color="primary" (click)="descargarExcel()">
+                    Exportar
+                </button>
+            </div>
+        </div>
+
+        <!-- TEMPORAL: el endpoint aun no existe en el backend. Quitar cuando el modulo quede operativo. -->
+        @if (!store.items()) {
+        <div class="m-t-16 p-16 rounded b-1 d-flex align-items-center gap-8">
+            <i-tabler name="tool" class="icon-20"></i-tabler>
+            <span>
+                <strong>Módulo en preparación.</strong>
+                Este reporte aún no está disponible; el servicio respondió con error.
+            </span>
+        </div>
+        }
+
+        <form [formGroup]="form" class="w-100 m-t-16">
+            <div class="row g-3">
+                <app-month-picker class="col-sm-6 col-md-4" [control]="month" label="Mes" errorMessage="Mes inválido">
+                </app-month-picker>
+
+                <div class="col-sm-6 col-md-4">
+                    <button mat-raised-button color="primary" (click)="applyFilter()">
+                        Buscar
+                    </button>
+                </div>
+                <div class="col-md-4 p-8 m-l-auto">
+                    <img src="./assets/images/SBS.png" class="m-l-auto" width="200px" alt="SBS">
+                </div>
+            </div>
+
+        </form>
+
+        <div class="table-responsive m-t-16">
+            @if (store.loading()) {
+            <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
+                <mat-spinner diameter="50"></mat-spinner>
+            </div>
+            } @else {
+            @if (items.length) {
+            <table class="min-w-full table-auto border text-sm">
+                <caption class="caption-top text-lg">
+                    (Items de la Operación y de sus Participantes)
+                </caption>
+                <caption class="caption-top text-lg">
+                    (Empresas de compra y venta de divisas supervisadas por la SBS – UIF Perú)
+                </caption>
+
+                <thead>
+                    <tr style="background-color: #00186b !important;" class="text-white">
+                        <th class="border p-2" rowspan="3">N° de Registro</th>
+                        <th class="border p-2" colspan="4">DATOS DEL REGISTRO</th>
+                        <th class="border p-2" colspan="7">DATOS DEL EJECUTANTE</th>
+                        <th class="border p-2" colspan="6">DATOS DEL BENEFICIARIO</th>
+                        <th class="border p-2" colspan="8">DATOS DE LA OPERACIÓN</th>
+                    </tr>
+                    <tr style="background-color: #00186b !important;" class="text-white">
+                        <th class="border p-2" rowspan="2">Fecha</th>
+                        <th class="border p-2" colspan="3">Ubigeo Oficina</th>
+                        <th class="border p-2" colspan="2">Doc Identidad</th>
+                        <th class="border p-2" rowspan="2">Apellido Pat.</th>
+                        <th class="border p-2" rowspan="2">Apellido Mat.</th>
+                        <th class="border p-2" rowspan="2">Nombres</th>
+                        <th class="border p-2" rowspan="2">País</th>
+                        <th class="border p-2" rowspan="2">Ocupación</th>
+                        <th class="border p-2" rowspan="2">A Favor De</th>
+                        <th class="border p-2" rowspan="2">RUC</th>
+                        <th class="border p-2" rowspan="2">Razón Social</th>
+                        <th class="border p-2" rowspan="2">Apellido Mat.</th>
+                        <th class="border p-2" rowspan="2">Nombres</th>
+                        <th class="border p-2" rowspan="2">Ocupación</th>
+                        <th class="border p-2" rowspan="2">Tipo Fondo</th>
+                        <th class="border p-2" rowspan="2">Tipo Operación</th>
+                        <th class="border p-2" rowspan="2">Origen Fondos</th>
+                        <th class="border p-2" colspan="2">DE</th>
+                        <th class="border p-2" colspan="2">A</th>
+                        <th class="border p-2" rowspan="2">Comprobante</th>
+                    </tr>
+                    <tr style="background-color: #00186b !important;" class="text-white">
+                        <th class="border p-2">Departamento</th>
+                        <th class="border p-2">Provincia</th>
+                        <th class="border p-2">Distrito</th>
+                        <th class="border p-2">Tipo</th>
+                        <th class="border p-2">N°</th>
+                        <th class="border p-2">Moneda</th>
+                        <th class="border p-2">Monto</th>
+                        <th class="border p-2">Moneda</th>
+                        <th class="border p-2">Monto</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for (e of pagedData; track $index; let i = $index) {
+                    <tr>
+                        <td class="border p-2 text-center">
+                            {{ currentPage * pageSize + i + 1 }}
+                        </td>
+                        <td class="p-2">{{ e.emision }}</td>
+                        <td class="p-2">{{ e.departamento }}</td>
+                        <td class="p-2">{{ e.provincia }}</td>
+                        <td class="p-2">{{ e.distrito }}</td>
+                        <td class="p-2">{{ e.tipoEjecu }}</td>
+                        <td class="p-2">{{ e.numberDocumentEjecu }}</td>
+                        <td class="p-2">{{ e.apePaternoEjecu }}</td>
+                        <td class="p-2">{{ e.apeMaternoEjecu }}</td>
+                        <td class="p-2">{{ e.nombresjecu }}</td>
+                        <td class="p-2">{{ e.paisEjecu }}</td>
+                        <td class="p-2">{{ e.ocupacionEjecu }}</td>
+                        <td class="p-2">{{ e.aFavor }}</td>
+                        <td class="p-2">{{ e.numberDocumentBene }}</td>
+                        <td class="p-2">{{ e.apellidoORazonSocial }}</td>
+                        <td class="p-2">{{ e.apellidoMaternoBene }}</td>
+                        <td class="p-2">{{ e.nombresBenef }}</td>
+                        <td class="p-2">{{ e.ocupacionBenef }}</td>
+                        <td class="p-2">{{ e.tipoPago }}</td>
+                        <td class="p-2">{{ e.tipoOperacion }}</td>
+                        <td class="p-2">{{ e.origenFondos }}</td>
+                        <td class="p-2">{{ e.monedade }}</td>
+                        <td class="p-2">{{ e.montode }}</td>
+                        <td class="p-2">{{ e.monedaa }}</td>
+                        <td class="p-2">{{ e.montoa }}</td>
+                        <td class="p-2">{{ e.documentCorrelative }}</td>
+                    </tr>
+                    }
+                </tbody>
+
+            </table>
+            } @else {
+            <div class="text-center text-muted m-t-20">
+                No hay registros de operaciones
+            </div>
+            }
+            }
+        </div>
+
+        @if (items.length) {
+        <mat-paginator [length]="items.length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions"
+            showFirstLastButtons (page)="onPageChange($event)">
+        </mat-paginator>
+        }
+    </mat-card-content>
+</mat-card>

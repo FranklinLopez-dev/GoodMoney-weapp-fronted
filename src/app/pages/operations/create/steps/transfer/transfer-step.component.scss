@@ -1,0 +1,210 @@
+.info-alert {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: var(--gm-verde-100);
+  color: var(--gm-color-marca-acento);
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+
+  mat-icon {
+    color: var(--gm-color-marca-acento);
+  }
+}
+
+.transfer-card {
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 24px;
+  text-align: center;
+  margin-bottom: 10px;
+  line-height: 0%;
+}
+
+.section-subtitle {
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--gm-color-marca-acento);
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+
+  .summary-item {
+    background: #f8f9fb;
+    padding: 12px;
+    border-radius: 12px;
+    text-align: center;
+
+    span {
+      display: block;
+      font-size: 13px;
+      color: var(--gm-plomo-400);
+    }
+
+    strong {
+      font-size: 18px;
+      font-weight: 700;
+    }
+  }
+}
+
+.bank-card {
+  border: 1px solid var(--gm-gris-500);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.bank-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+
+  .bank-icon {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+  }
+
+  .bank-sub {
+    font-size: 13px;
+    color: var(--gm-plomo-400);
+  }
+}
+
+.bank-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.data-row {
+  display: grid;
+  /* `minmax(0, …)`: sin el, un numero de cuenta largo estira la fila y se sale de la tarjeta. */
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 10px;
+
+  span {
+    font-size: 13px;
+    color: var(--gm-plomo-400);
+  }
+
+  strong {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  button {
+    transition: transform 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      transform: scale(1.15);
+      color: var(--gm-color-marca-acento);
+    }
+  }
+}
+
+.data-row.highlight {
+  background: var(--gm-verde-100);
+
+  strong {
+    font-size: 16px;
+    color: var(--gm-color-marca-acento);
+  }
+}
+
+.confirm-box {
+  margin-top: 20px;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+
+  button {
+    min-width: 160px;
+    border-radius: 12px;
+  }
+}
+
+.paso-acciones {
+  .btn-back,
+  .btn-next {
+    min-width: 160px;
+    height: 44px;
+    border-radius: var(--gm-radius-xl);
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .btn-back {
+    background: #fff;
+    color: var(--gm-plomo-700);
+  }
+}
+
+button mat-icon {
+  &.copied {
+    animation: pulse 0.5s ease;
+    color: var(--gm-color-marca-primario);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 640px) {
+  .summary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+    gap: 12px;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .data-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+
+    span {
+      grid-column: 1 / -1;
+    }
+  }
+}

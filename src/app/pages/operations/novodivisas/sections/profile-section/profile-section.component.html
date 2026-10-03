@@ -1,0 +1,146 @@
+<form [formGroup]="form">
+    <div class="row">
+        <div class="col-md-6">
+            <mat-label class="f-s-14 f-w-600 d-block m-b-4">Fecha de emisión:</mat-label>
+            <mat-form-field appearance="outline" class="w-100">
+                <input [matDatepicker]="issueDate" matInput appDateMask maxlength="10" placeholder="dd/mm/yyyy"
+                    formControlName="issueDate" [max]="maxDate" [min]="minDate" />
+                <mat-datepicker-toggle matSuffix [for]="issueDate"></mat-datepicker-toggle>
+                <mat-datepicker #issueDate></mat-datepicker>
+            </mat-form-field>
+        </div>
+        <div class="col-md-6">
+            <mat-label class="f-s-14 f-w-600 d-block m-b-4">Tipo de Documento:</mat-label>
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-select formControlName="documentTypeId" (selectionChange)="setDocumentType($event.value)" placeholder="Selecciona el tipo de documento">
+                    @for (type of documentTypes(); track type.id) {
+                    <mat-option [value]="type.id">
+                        {{ type.name }}
+                    </mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <mat-label class="f-s-14 f-w-600 d-block m-b-4">Método de pago:</mat-label>
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-select formControlName="paymentConditionId" placeholder="Selecciona el método de pago">
+                    @for (method of table()?.paymentConditions; track $index) {
+                    <mat-option [value]="method.id">
+                        {{ method.description }}
+                    </mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="col-md-6">
+            <mat-label class="f-s-14 f-w-600 d-block m-b-4">&nbsp;</mat-label>
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Número de {{documentType()?.name ?
+                    documentType()?.name:'documento'}}</mat-label>
+                <input #documentNumberInput matInput formControlName="documentNumber"
+                    [maxLengthValue]="documentType()?.sizeMax!"
+                    [appInputMask]="documentType()?.isNumeric ? 'numeric' : 'text'" />
+                @if(control['documentNumber'].touched && control['documentNumber'].invalid) {
+                <mat-hint class="su-error">
+                    {{ validatorsService.getErrorMessage(
+                    control['documentNumber'],
+                    'Número de ' + (documentType()?.name ?? 'documento')) }}
+                </mat-hint>
+                }
+                <ng-container matSuffix>
+                    @if (profileSelected$()) {
+                    <button mat-mini-fab class="bg-primary text-white rounded-right" type="button"
+                        (click)="changeProfile('create-natural'); $event.stopPropagation()" matTooltip="Editar perfil">
+                        <i-tabler name="edit" class="icon-20 d-flex"></i-tabler>
+                    </button>
+                    } @else {
+
+                    <ng-container matSuffix>
+                        <button type="button" mat-mini-fab class="bg-secondary text-white rounded-none"
+                            (click)="openDialog(); $event.stopPropagation()" matTooltip="Buscar perfil">
+                            <i-tabler name="users-group" class="icon-20 d-flex"></i-tabler>
+                        </button>
+                        <button type="button" mat-mini-fab class="bg-primary text-white rounded-right"
+                            matTooltip="Nuevo perfil" (click)="$event.stopPropagation()"
+                            [matMenuTriggerFor]="menuAddAccount">
+                            <i-tabler name="plus" class="icon-20 d-flex"></i-tabler>
+                        </button>
+
+                        <mat-menu #menuAddAccount="matMenu">
+                            <button type="button" mat-menu-item
+                                (click)="changeProfile('create-natural'); $event.stopPropagation()">
+                                <span>Perfil Natural</span>
+                            </button>
+
+                            <button type="button" mat-menu-item
+                                (click)="changeProfile('create-juridico'); $event.stopPropagation()">
+                                <span>Perfil Juridico</span>
+                            </button>
+                        </mat-menu>
+                    </ng-container>
+                    }
+                </ng-container>
+            </mat-form-field>
+        </div>
+    </div>
+
+    @if(controlQuote.value.amountUsd >= 5000) {
+    <div class="row">
+        <div class="col-md-6">
+            <mat-label class="f-s-14 f-w-600 d-block m-b-4">Origen de los Fondos:</mat-label>
+            <mat-form-field class="w-100" appearance="outline" color="primary">
+                <mat-select formControlName="origenFondos" placeholder="Selecciona el origen">
+                    @for (origen of origenFondosList; track origen) {
+                    <mat-option [value]="origen.id">
+                        {{ origen.name }}
+                    </mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+    }
+
+    <div class="row">
+        <div class="col-12">
+            <mat-label class="f-s-14 f-w-600 d-block m-b-4">
+                @if( profileSelected$()) {
+                <span>
+                    {{ profileSelected$()?.documentTypeIsNatural ? 'Nombres:':'Razón social:' }}
+                </span>
+                } @else {
+                <span>
+                    {{ document() == '03' ? 'Nombres:':'Razón social:' }}
+                </span>
+                }
+            </mat-label>
+            <mat-form-field appearance="outline" class="w-100" color="primary">
+                <input formControlName="names" matInput readonly>
+            </mat-form-field>
+        </div>
+    </div>
+
+    @if(profileSelected$()?.documentTypeIsNatural && document() == '03') {
+    <div class="row">
+        <div class="col-12">
+            <mat-label class="f-s-14 f-w-600 d-block m-b-4">Apellidos:</mat-label>
+            <mat-form-field appearance="outline" class="w-100" color="primary">
+                <input formControlName="lastNames" matInput readonly>
+            </mat-form-field>
+        </div>
+    </div>
+    }
+
+    <div class="row">
+        <div class="col-12">
+            <mat-label class="f-s-14 f-w-600 d-block m-b-4">Dirección:</mat-label>
+            <mat-form-field appearance="outline" class="w-100" color="primary">
+                <textarea matInput formControlName="address" readonly cdkTextareaAutosize></textarea>
+            </mat-form-field>
+        </div>
+    </div>
+</form>

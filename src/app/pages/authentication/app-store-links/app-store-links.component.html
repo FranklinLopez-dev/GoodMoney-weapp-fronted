@@ -1,0 +1,33 @@
+@if (showCard()) {
+  <div class="info-card app-card">
+    <h3>Lleva tu cambio al siguiente nivel</h3>
+      <p>
+        Realiza tus operaciones desde tu celular en segundos.
+        Disponible 24/7 en iOS y Android.
+      </p>
+
+    <div class="store-links">
+      <a
+        [href]="appAndroidUrl()!"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img
+          src="assets/images/playstore.png"
+          alt="Descargar en Google Play"
+        />
+      </a>
+
+      <a
+        [href]="appIosUrl()!"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img
+          src="assets/images/applestore.png"
+          alt="Descargar en App Store"
+        />
+      </a>
+    </div>
+  </div>
+}

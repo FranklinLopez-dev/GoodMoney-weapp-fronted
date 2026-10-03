@@ -1,0 +1,25 @@
+@for (grupo of grupos(); track grupo.titulo) {
+<section class="ajustes-grupo">
+
+  <div class="ajustes-grupo__cabecera">
+    <h2 class="ajustes-grupo__titulo">{{ grupo.titulo }}</h2>
+    <p class="ajustes-grupo__bajada">{{ grupo.descripcion }}</p>
+  </div>
+
+  <div class="ajustes-rejilla">
+    @for (ajuste of grupo.ajustes; track ajuste.ruta) {
+    <a class="ajuste" [routerLink]="ajuste.ruta">
+      <span class="ajuste__icono"><i-tabler [name]="ajuste.icono"></i-tabler></span>
+
+      <span class="ajuste__texto">
+        <span class="ajuste__titulo">{{ ajuste.titulo }}</span>
+        <span class="ajuste__descripcion">{{ ajuste.descripcion }}</span>
+      </span>
+
+      <i-tabler name="chevron-right" class="ajuste__flecha"></i-tabler>
+    </a>
+    }
+  </div>
+
+</section>
+}

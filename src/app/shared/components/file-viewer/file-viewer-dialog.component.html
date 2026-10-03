@@ -1,0 +1,54 @@
+@if (data.name) {
+<h2 mat-dialog-title>{{ data.name }}</h2>
+}
+
+<mat-dialog-content class="viewer-content">
+
+    @if (data.type === 'PNG') {
+    <!-- El área captura rueda (zoom), doble click (alternar) y arrastre; a zoom 1 se ve como antes. -->
+    <div #area class="image-zoom-area" [class.image-zoom-area--zoomed]="zoom() > 1"
+        (wheel)="onWheel($event)" (dblclick)="alternarZoom()"
+        (pointerdown)="iniciarArrastre($event, area)"
+        (pointermove)="moverArrastre($event, area)"
+        (pointerup)="terminarArrastre()" (pointercancel)="terminarArrastre()">
+        <img [src]="safeUrl()" fallbackImg="default" class="image-preview" draggable="false"
+            [class.image-preview--zoomed]="zoom() > 1"
+            [style.width.%]="zoom() === 1 ? null : zoom() * 100" />
+    </div>
+    }
+
+    @if (data.type === 'PDF') {
+    <iframe [src]="safeUrl()" width="100%" height="100%" frameborder="0">
+    </iframe>
+    }
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    @if (data.type === 'PNG') {
+    <!-- Controles de zoom; el PDF ya trae los suyos en el visor del navegador. -->
+    <div class="viewer-zoom-controls">
+        <button mat-icon-button type="button" (click)="alejar()" [disabled]="zoom() <= 1"
+            matTooltip="Alejar">
+            <i-tabler name="zoom-out" class="icon-20"></i-tabler>
+        </button>
+        <span class="viewer-zoom-controls__nivel">{{ zoom() * 100 | number:'1.0-0' }}%</span>
+        <button mat-icon-button type="button" (click)="acercar()" [disabled]="zoom() >= 6"
+            matTooltip="Acercar">
+            <i-tabler name="zoom-in" class="icon-20"></i-tabler>
+        </button>
+        @if (zoom() > 1) {
+        <button mat-icon-button type="button" (click)="restablecer()" matTooltip="Tamaño original">
+            <i-tabler name="refresh" class="icon-20"></i-tabler>
+        </button>
+        }
+    </div>
+    }
+    <span class="viewer-actions-spacer"></span>
+    <button mat-button mat-dialog-close>Cerrar</button>
+</mat-dialog-actions>
+
+<!-- Al final del DOM para que el foco inicial del diálogo no caiga en ella; la posición la fija .viewer-cerrar. -->
+<button mat-icon-button mat-dialog-close class="viewer-cerrar" matTooltip="Cerrar">
+    <i-tabler name="x" class="icon-20 d-flex"></i-tabler>
+</button>

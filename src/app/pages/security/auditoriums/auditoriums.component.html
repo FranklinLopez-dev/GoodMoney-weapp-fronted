@@ -1,0 +1,162 @@
+<mat-card>
+    <mat-card-content>
+
+        <div class="row justify-content-between gap-16">
+            <form [formGroup]="form" class="col-lg-8 row">
+                <div class="col-md-6">
+                    <mat-form-field appearance="outline" class="w-100">
+                        <mat-label>Desde</mat-label>
+                        <input appDateMask matInput maxlength="10" formControlName="fromDate" placeholder="dd/mm/yyyy"
+                            [matDatepicker]="fromDatePicker" (dateChange)="loadData()" />
+                        <mat-datepicker-toggle matIconSuffix [for]="fromDatePicker" />
+                        <mat-datepicker #fromDatePicker />
+                        @if(control['fromDate'].touched && control['fromDate'].invalid) {
+                        <mat-hint class="su-error">
+                            Fecha inicial inválida
+                        </mat-hint>
+                        }
+                    </mat-form-field>
+                </div>
+
+                <div class="col-md-6">
+                    <mat-form-field appearance="outline" class="w-100">
+                        <mat-label>Hasta</mat-label>
+                        <input appDateMask matInput maxlength="10" formControlName="toDate" placeholder="dd/mm/yyyy"
+                            [matDatepicker]="toDatePicker" (dateChange)="loadData()" />
+                        <mat-datepicker-toggle matIconSuffix [for]="toDatePicker" />
+                        <mat-datepicker #toDatePicker />
+                        @if (control['toDate'].touched && control['toDate'].invalid) {
+                        <mat-hint class="su-error">
+                            @if (control['toDate'].errors?.['required']) {
+                            Fecha final inválida
+                            }
+                            @if (control['toDate'].errors?.['rangeInvalid']) {
+                            La fecha "Desde" no puede ser mayor que "Hasta"
+                            }
+                        </mat-hint>
+                        }
+                    </mat-form-field>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-responsive m-t-20 tabla-tarjetas">
+            @if(loading()) {
+            <div class="d-flex justify-content-center align-items-center">
+                <mat-spinner diameter="50"></mat-spinner>
+            </div>
+            } @else {
+            @if(store.items()?.length) {
+            <table mat-table [dataSource]="dataSource" class="w-100">
+
+                <ng-container matColumnDef="num">
+                    <th mat-header-cell *matHeaderCellDef>#</th>
+                    <td mat-cell *matCellDef="let i = index">
+                        {{ (i + pageIndex() * pageSize()) + 1 }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="date">
+                    <th mat-header-cell *matHeaderCellDef>Fecha</th>
+                    <td mat-cell *matCellDef="let element" data-label="Fecha">
+                        {{element.date | date: 'dd/MM/yyyy HH:mm'}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="category">
+                    <th mat-header-cell *matHeaderCellDef>Categoría</th>
+                    <td mat-cell *matCellDef="let element" data-label="Categoría">
+                        <mat-chip>{{element.category}}</mat-chip>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="action">
+                    <th mat-header-cell *matHeaderCellDef>Acción</th>
+                    <td mat-cell *matCellDef="let element" data-label="Acción" class="td-dato">
+                        <span class="badge"
+                            [ngClass]="{'bg-success': element.action === 'CREATE', 'bg-info': element.action === 'UPDATE', 'bg-danger': element.action === 'DELETE'}">
+                            {{element.action}}
+                        </span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="applicationUser">
+                    <th mat-header-cell *matHeaderCellDef>Usuario</th>
+                    <td mat-cell *matCellDef="let element" data-label="Usuario">
+                        {{element?.targetProfile?.names ?? element?.targetUser?.names}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="targetUser">
+                    <th mat-header-cell *matHeaderCellDef>Responsable</th>
+                    <td mat-cell *matCellDef="let element" data-label="Responsable">
+                        {{element?.applicationUser?.names ?? element?.targetUser?.names}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="ipAddress">
+                    <th mat-header-cell *matHeaderCellDef>IP</th>
+                    <td mat-cell *matCellDef="let element" data-label="IP">
+                        <small>{{element.ipAddress}}</small>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="location">
+                    <th mat-header-cell *matHeaderCellDef> Ubicación </th>
+                    <td mat-cell *matCellDef="let element" data-label="Ubicación">
+                        <div class="d-flex justify-content-center align-items-center w-100">
+                            <a (click)="verLocation(element)" title="Ver ubicación"
+                                class="m-r-10 cursor-pointer text-primary">
+                                <i-tabler name="eye" class="icon-18"></i-tabler>
+                            </a>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="dispositivo">
+                    <th mat-header-cell *matHeaderCellDef> Dispositivo </th>
+                    <td mat-cell *matCellDef="let element" data-label="Dispositivo">
+                        {{ element.dispositivo || '-' }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="dispositivoType">
+                    <th mat-header-cell *matHeaderCellDef class="no-wrap"> Tipo Disp. </th>
+                    <td mat-cell *matCellDef="let element" data-label="Tipo disp.">
+                        {{ element.dispositivoType || '-' }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="plataforma">
+                    <th mat-header-cell *matHeaderCellDef> Plataforma </th>
+                    <td mat-cell *matCellDef="let element" data-label="Plataforma">
+                        {{ element.plataforma || '-' }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="browser">
+                    <th mat-header-cell *matHeaderCellDef> Navegador </th>
+                    <td mat-cell *matCellDef="let element" data-label="Navegador">
+                        {{ element.browser || '-' }}
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+            </table>
+            } @else {
+            <div class="d-flex justify-content-center align-items-center">
+                <p class="text-muted">No hay registros de auditoría</p>
+            </div>
+            }
+            }
+        </div>
+
+        @if(store.items()?.length) {
+        <mat-paginator [pageIndex]="pageIndex()" [pageSize]="pageSize()" [length]="length()"
+            [pageSizeOptions]="pageSizeOptions" showFirstLastButtons (page)="onPageChange($event)"></mat-paginator>
+        }
+
+    </mat-card-content>
+</mat-card>

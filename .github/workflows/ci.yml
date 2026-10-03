@@ -1,0 +1,62 @@
+name: CI
+
+# Valida ANTES de mergear. El deploy compila, pero recien al hacer push a main:
+# para entonces el cambio ya esta aprobado y en camino a produccion.
+on:
+  pull_request:
+    branches: [main, develop]
+    paths-ignore:
+      - '**.md'
+  push:
+    branches: [develop]
+    paths-ignore:
+      - '**.md'
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Compilar
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      # La misma configuracion que usa el deploy, para que lo que pasa aqui sea
+      # lo que se va a publicar.
+      - name: Build produccion
+        run: npx ng build
+
+      # El .htaccess lleva el rewrite del SPA. Sin el, el rsync --delete del
+      # deploy borra el del servidor y todas las rutas profundas dan 404.
+      - name: Verificar que el .htaccess quedo en el build
+        run: |
+          test -f dist/goodmoney/browser/.htaccess \
+            || { echo "Falta .htaccess en el build (revisa public/ y angular.json)"; exit 1; }
+          echo ".htaccess presente en el build"
+
+      # Atrapa el error de apuntar el entorno de desarrollo a produccion, que es
+      # lo que hace que `ng serve` opere contra datos reales sin que se note.
+      - name: Verificar que desarrollo no apunte a produccion
+        run: |
+          if grep -q "goodmoney.pseperu.pro" src/environments/environment.ts; then
+            echo "environment.ts (desarrollo) apunta a produccion."
+            exit 1
+          fi
+          echo "environment.ts apunta a un backend local"
+
+      - name: Auditar dependencias
+        continue-on-error: true
+        run: npm audit --omit=dev

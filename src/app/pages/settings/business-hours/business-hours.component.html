@@ -1,0 +1,72 @@
+<mat-card>
+  <mat-card-content>
+
+    <div class="horario-cabecera">
+      <div>
+        <h2 class="horario-titulo">Horario de atención</h2>
+        <p class="horario-bajada">
+          Se muestra en el menú del panel y en el sitio público. Se toca aquí y cambia en los dos.
+        </p>
+      </div>
+
+      @if (abierto() !== null) {
+      <span class="gm-insignia" [class.gm-insignia--exito]="abierto()"
+        [class.gm-insignia--error]="!abierto()">
+        {{ abierto() ? 'Abierto ahora' : 'Cerrado ahora' }}
+      </span>
+      }
+    </div>
+
+    <form [formGroup]="form">
+      <div formArrayName="dias" class="horario-dias">
+
+        @for (fila of filas.controls; track $index; let i = $index) {
+        <div class="horario-dia" [formGroupName]="i" [class.horario-dia--cerrado]="fila.get('isClosed')?.value">
+
+          <span class="horario-dia__nombre">{{ nombreDe(i) }}</span>
+
+          <mat-slide-toggle formControlName="isClosed" class="horario-dia__cerrado">
+            Cerrado
+          </mat-slide-toggle>
+
+          <mat-form-field appearance="outline" class="horario-dia__hora">
+            <mat-label>Abre</mat-label>
+            <input matInput type="time" formControlName="openTime" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="horario-dia__hora">
+            <mat-label>Cierra</mat-label>
+            <input matInput type="time" formControlName="closeTime" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="horario-dia__nota">
+            <mat-label>Nota (opcional)</mat-label>
+            <input matInput formControlName="note" maxlength="120"
+              placeholder="Ej. atención reducida" />
+          </mat-form-field>
+
+        </div>
+        }
+
+      </div>
+    </form>
+
+    <!-- Es exactamente lo que verán el menú y la web: lo agrupa el servidor, no cada cliente por su cuenta. -->
+    @if (lineas().length) {
+    <div class="horario-previa">
+      <span class="gm-etiqueta">Así se verá</span>
+      @for (linea of lineas(); track linea) {
+      <p class="horario-previa__linea">{{ linea }}</p>
+      }
+    </div>
+    }
+
+    <div class="horario-acciones">
+      <button mat-flat-button color="primary" type="button"
+        [disabled]="guardando()" (click)="guardar()">
+        {{ guardando() ? 'Guardando…' : 'Guardar horario' }}
+      </button>
+    </div>
+
+  </mat-card-content>
+</mat-card>

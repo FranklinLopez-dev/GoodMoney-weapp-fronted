@@ -1,0 +1,24 @@
+<mat-card>
+  <mat-card-content class="p-y-24">
+
+    @switch (seccion()) {
+      @case ('apps') {
+        <company-operation-tab></company-operation-tab>
+      }
+      @case ('correos') {
+        <company-email-tab></company-email-tab>
+      }
+    }
+
+  </mat-card-content>
+
+  <div class="text-right p-24 p-t-0">
+    @if (puedeGuardar()) {
+      <button mat-flat-button color="primary" [disabled]="guardando()" (click)="guardar()">
+        {{ guardando() ? 'Guardando…' : 'Guardar cambios' }}
+      </button>
+    } @else {
+      <p class="su-error">No tienes permiso para guardar cambios en esta sección.</p>
+    }
+  </div>
+</mat-card>

@@ -1,0 +1,285 @@
+// Misma rejilla y mismas pastillas que Cumplimiento y Soporte, para que no parezcan tres productos distintos.
+
+.per-panel { padding: 18px 4px 8px; }
+
+.per-bajada {
+  margin: 0 0 16px;
+  max-width: 92ch;
+  font-size: 13px;
+  color: var(--gm-plomo-400, #7b7979);
+
+  code {
+    padding: 1px 5px;
+    border-radius: 5px;
+    background: var(--gm-color-fondo-crema);
+    font-size: 12px;
+  }
+}
+
+.per-nota {
+  margin: 16px 0;
+  font-size: 13px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+.per-subtitulo {
+  margin: 24px 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+// El tema da width:100% a mat-form-field: sin acotarlos, cada campo se come una fila entera.
+
+.per-filtros {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.per-filtros mat-form-field { flex: 0 0 auto; width: 190px; }
+// Más específica que la de arriba: solo con la clase ganaba el `flex: 0 0 auto` y el buscador se encogía.
+.per-filtros mat-form-field.per-filtros__buscar { flex: 1 1 280px; width: auto !important; max-width: 460px; }
+
+// Tablas
+
+.per-tabla {
+  display: grid;
+  border: 1px solid var(--gm-gris-300);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.per-fila {
+  display: grid;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--gm-gris-300);
+  font-size: 13px;
+}
+
+// :first-child y no :nth-of-type: las filas son divs hermanos que repinta el @for.
+.per-fila:first-child { border-top: 0; }
+
+.per-fila--cabecera {
+  background: var(--gm-color-fondo-crema);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.per-tabla--personas     .per-fila { grid-template-columns: 1.2fr 2fr 100px 90px 110px 1.6fr 80px; }
+.per-tabla--cuentas      .per-fila { grid-template-columns: 1.8fr 1.4fr 1.2fr 1.4fr 1.3fr 110px; }
+.per-tabla--reps         .per-fila { grid-template-columns: 1fr 1.8fr 1.2fr 1.4fr; }
+.per-tabla--pendientes   .per-fila { grid-template-columns: 2fr 90px 130px 100px 120px 80px; }
+.per-tabla--respaldos    .per-fila { grid-template-columns: 1.6fr 1.5fr 1.2fr 1.5fr 110px 120px 80px; }
+.per-tabla--conciliacion .per-fila { grid-template-columns: 1fr 140px; }
+
+// Banda a la izquierda y no fondo entero: con media tabla marcada, el fondo deja de leerse como "mira esto".
+.per-fila--aviso { box-shadow: inset 3px 0 0 #e0a63a; }
+.per-fila--mal   { box-shadow: inset 3px 0 0 var(--gm-color-error, #ca4444); }
+
+.per-tabla--conciliacion .per-fila span:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.per-sub {
+  display: block;
+  font-size: 11.5px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+.per-marcas { display: flex; flex-wrap: wrap; gap: 5px; }
+
+// Pastillas
+
+.per-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.per-chip--alta   { background: #fdeaea; color: var(--gm-color-error, #ca4444); }
+.per-chip--media  { background: #fdf3e0; color: #b57614; }
+.per-chip--ok     { background: var(--gm-verde-050, #eef7e3); color: var(--gm-verde-600, #4f9a1f); }
+.per-chip--neutro { background: var(--gm-plomo-050, #f0f0f0); color: var(--gm-plomo-400, #7b7979); }
+
+// Paginador
+
+.per-paginador {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+  padding-bottom: 8px;
+  font-size: 12.5px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+// Ficha
+
+.per-cabecera {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+
+  h3 { margin: 0; font-size: 18px; font-weight: 700; }
+}
+
+.per-ficha { display: flex; flex-direction: column; gap: 22px; }
+
+.per-bloque {
+  h4 { margin: 0 0 10px; font-size: 14px; font-weight: 700; }
+}
+
+.per-datos {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 8px 14px;
+  margin: 0;
+  font-size: 13px;
+
+  dt { font-weight: 700; color: var(--gm-plomo-400, #7b7979); }
+  dd { margin: 0; word-break: break-word; }
+}
+
+.per-cifras { margin: 0 0 8px; font-size: 14px; }
+
+.per-factores,
+.per-historia {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+
+  li { margin-bottom: 4px; }
+  small { color: var(--gm-plomo-400, #7b7979); }
+}
+
+.per-acciones {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.per-aviso {
+  margin: 10px 0 0;
+  max-width: 92ch;
+  font-size: 12px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+.per-aviso--fuerte {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fdf8ef;
+  color: #8a5c10;
+  font-size: 12.5px;
+}
+
+// Veredicto de la conciliación
+
+.per-veredicto {
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: var(--gm-verde-050, #eef7e3);
+  color: var(--gm-verde-600, #4f9a1f);
+  font-size: 13.5px;
+}
+
+.per-veredicto--mal {
+  background: #fdeaea;
+  color: var(--gm-color-error, #ca4444);
+}
+
+// En móvil cada fila es una tarjeta con su data-label a la izquierda; la conciliación ya trae filas de pares.
+@media (max-width: 767px) {
+  .per-tabla {
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+    gap: 12px;
+  }
+
+  .per-fila--cabecera { display: none; }
+
+  .per-fila {
+    grid-template-columns: 1fr !important; // pisa las pistas por variante
+    gap: 7px;
+    padding: 12px 16px;
+    border: 1px solid var(--gm-gris-300);
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgb(0 0 0 / 6%);
+  }
+
+  // En tarjetas el borde superior lo llevan todas: en «Última conciliación» la primera fila no es una cabecera oculta.
+  .per-fila:first-child { border-top: 1px solid var(--gm-gris-300); }
+
+  // La banda de aviso tiene que convivir con la sombra de la tarjeta.
+  .per-fila--aviso { box-shadow: inset 3px 0 0 #e0a63a, 0 1px 4px rgb(0 0 0 / 6%); }
+  .per-fila--mal   { box-shadow: inset 3px 0 0 var(--gm-color-error, #ca4444), 0 1px 4px rgb(0 0 0 / 6%); }
+
+  // Las filas de conciliación caben en una línea: texto a la izquierda, cifra a la derecha.
+  .per-tabla--conciliacion .per-fila { grid-template-columns: 1fr auto !important; }
+
+  .per-fila [data-label] {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .per-fila [data-label]::before {
+    content: attr(data-label);
+    // margin-right además de space-between: en celdas con varios nodos todo lo que no es etiqueta se agrupa a la derecha.
+    margin-right: auto;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--gm-plomo-400, #7b7979);
+    flex-shrink: 0;
+  }
+
+  // Los chips de estado, apretados y a la derecha aunque envuelvan.
+  .per-fila .per-marcas { justify-content: flex-end; gap: 6px; }
+
+  // El nombre hace de cabecera de la tarjeta, esté donde esté en la fila.
+  .per-fila .pf-cabecera {
+    order: -1;
+    min-width: 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgb(0 0 0 / 6%);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  .per-fila .pf-cabecera .per-sub { font-weight: 400; }
+
+  // El filete solo si hay botón: en «Sin carta poder» puede no haberlo.
+  .per-fila .pf-acciones {
+    display: flex;
+    justify-content: center;
+  }
+
+  .per-fila .pf-acciones:has(button) {
+    margin-top: 2px;
+    padding-top: 8px;
+    border-top: 1px solid rgb(0 0 0 / 6%);
+  }
+
+  .per-paginador { justify-content: center; flex-wrap: wrap; }
+}

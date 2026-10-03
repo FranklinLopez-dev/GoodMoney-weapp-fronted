@@ -1,0 +1,14 @@
+<div class="file-card" (click)="open()">
+  <div class="icon">
+    <mat-icon class="icon-40" >description</mat-icon>
+    <span class="badge" [ngClass]="file.type">{{ file.type }}</span>
+  </div>
+
+  <div class="name" matTooltip="{{ file.label }}">
+    {{ file.name }}
+  </div>
+
+  <div class="label">
+    {{ file.label }}
+  </div>
+</div>

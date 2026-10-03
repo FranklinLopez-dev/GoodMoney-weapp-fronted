@@ -1,0 +1,122 @@
+<mat-card>
+  <mat-card-content>
+    <div class="d-flex align-items-center justify-content-between p-x-24 p-y-16">
+      <h5 class="f-w-600 f-s-18">{{ company()?.name }}</h5>
+      @if(authStore.hasPermission(Permission.BusinessUpdate)) {
+      <button mat-flat-button class="boton-editar" (click)="store.enableEdit()">
+        <div class="d-flex align-items-center justify-content-center">
+          <i-tabler name="pencil" class="icon-18 d-flex align-items-center m-r-4"></i-tabler>
+          <span>Editar</span>
+        </div>
+      </button>
+      }
+
+    </div>
+    <mat-divider></mat-divider>
+    <div class="p-24">
+      <div class="d-flex align-items-center gap-16">
+        <img [src]="'data:image/jpeg;base64,' + company()?.logo" class="rounded-circle" fallbackImg="company"
+          alt="userimg" width="72px" height="72px" />
+        <div>
+          <h5 class="f-w-600 f-s-16">
+            {{ company()?.tradeName }}
+          </h5>
+          <span class="f-w-400 f-s-12">
+            RUC: {{ company()?.ruc }}
+          </span>
+          @if (rucResponse()) {
+          @if (rucResponse()?.data?.estado) {
+          <span
+            [ngClass]="{ 'bg-success': rucResponse()?.data?.estado === 'ACTIVO', 'bg-error': rucResponse()?.data?.estado !== 'ACTIVO' }"
+            class="f-s-12 f-w-500 p-x-10 p-y-4 rounded-pill text-white">
+            {{ rucResponse()?.data?.estado | titlecase }}
+          </span>
+          }
+
+          @if (rucResponse()?.data?.condicion) {
+          <span
+            [ngClass]="{ 'bg-success': rucResponse()?.data?.condicion === 'HABIDO', 'bg-error': rucResponse()?.data?.condicion !== 'HABIDO' }"
+            class="f-s-12 f-w-500 p-x-10 p-y-4 rounded-pill m-l-8 text-white">
+            {{ rucResponse()?.data?.condicion | titlecase }}
+          </span>
+          }
+          }
+        </div>
+      </div>
+      <div class="row">
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+          <span class="f-s-12">Correo electrónico</span>
+          <h5 class="f-w-600 lh-sm f-s-14">
+            {{ company()?.emailAdress }}
+          </h5>
+        </div>
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+          <span class="f-s-12">Celular</span>
+          <h5 class="d-flex f-w-600 lh-sm f-s-14">
+            <span class="m-r-4">
+              <span class="d-flex align-items-center m-r-8">
+                <img class="option-image" fallbackImg="default" [src]="selectedCountry()?.flags?.svg"
+                  [alt]="selectedCountry()?.name?.common" class="option-image">
+                <span
+                  class="m-l-4 font-medium text-default">{{selectedCountry()?.idd?.root}}{{selectedCountry()?.idd?.suffixes?.[0]}}</span>
+              </span>
+            </span>
+            {{ company()?.cellPhone }}
+          </h5>
+        </div>
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+          <span class="f-s-12">Teléfono</span>
+          <h5 class="f-w-600 lh-sm f-s-14">
+            {{ company()?.phone }}
+          </h5>
+        </div>
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+          <span class="f-s-12">Departamento</span>
+          <h5 class="f-w-600 lh-sm f-s-14">
+            {{ selectedDepartament()?.departament }}
+          </h5>
+        </div>
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+          <span class="f-s-12">Provincia</span>
+          <h5 class="f-w-600 lh-sm f-s-14">
+            {{ selectedProvince()?.province }}
+          </h5>
+        </div>
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+          <span class="f-s-12">Distrito</span>
+          <h5 class="f-w-600 lh-sm f-s-14">
+            {{ selectedDistrict()?.district }}
+          </h5>
+        </div>
+
+        <div class="col-lg-6 m-t-8">
+          <span class="f-s-12">Dirección</span>
+          <h5 class="f-w-600 lh-sm f-s-14">
+            {{ company()?.address }}
+          </h5>
+        </div>
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+          <span class="f-s-12">Url web</span>
+          <h5 class="f-w-600 lh-sm f-s-14">
+            {{ company()?.webSite }}
+          </h5>
+        </div>
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+          <span class="f-s-12">Url web API</span>
+          <h5 class="f-w-600 lh-sm f-s-14">
+            {{ company()?.webSiteApp }}
+          </h5>
+        </div>
+
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

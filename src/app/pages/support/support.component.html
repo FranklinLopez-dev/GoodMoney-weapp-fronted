@@ -1,0 +1,261 @@
+<mat-card>
+  <mat-card-content>
+    <mat-tab-group (selectedIndexChange)="alCambiarPestana($event)">
+
+      <!-- SALIENTES -->
+      <mat-tab label="Salientes">
+        <div class="sop-panel">
+          <p class="sop-bajada">
+            Todo lo que salió hacia fuera por WhatsApp o correo. Es lo que hay que mirar
+            cuando alguien dice que no le llegó nada.
+          </p>
+
+          <div class="sop-filtros">
+            <mat-form-field appearance="outline">
+              <mat-label>Canal</mat-label>
+              <mat-select [ngModel]="canal()" (ngModelChange)="canal.set($event); cargarEnvios()" placeholder="Selecciona el canal">
+                <mat-option value="">Todos</mat-option>
+                <mat-option value="WhatsApp">WhatsApp</mat-option>
+                <mat-option value="Correo">Correo</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Estado</mat-label>
+              <mat-select [ngModel]="estado()" (ngModelChange)="estado.set($event); cargarEnvios()" placeholder="Selecciona el estado">
+                <mat-option value="">Todos</mat-option>
+                <mat-option value="Enviado">Enviado</mat-option>
+                <mat-option value="Fallido">Fallido</mat-option>
+                <mat-option value="Omitido">Omitido</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="sop-filtros__buscar">
+              <mat-label>Destinatario, asunto o motivo</mat-label>
+              <input matInput [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)"
+                     (keyup.enter)="cargarEnvios()" />
+            </mat-form-field>
+
+            <button mat-flat-button color="primary" type="button" (click)="cargarEnvios()">Buscar</button>
+            <button mat-button type="button" (click)="limpiarFiltros()">Limpiar</button>
+          </div>
+
+          @if (cargandoEnvios()) {
+          <p class="sop-nota">Cargando…</p>
+          } @else if (!envios().length) {
+          <p class="sop-nota">No hay envíos que cumplan el filtro.</p>
+          } @else {
+
+          <div class="sop-tabla">
+            <div class="sop-fila sop-fila--cabecera">
+              <span>Cuándo</span><span>Canal</span><span>Tipo</span>
+              <span>Destinatario</span><span>Estado</span><span></span>
+            </div>
+            @for (e of envios(); track e.id) {
+            <div class="sop-fila">
+              <span data-label="Cuándo">{{ e.createdAt | date:'dd/MM/yy HH:mm' }}</span>
+              <span data-label="Canal">{{ e.channel }}</span>
+              <span class="sop-truncado" data-label="Tipo" [matTooltip]="e.type || ''">{{ e.type || '—' }}</span>
+              <span class="sop-truncado" data-label="Destinatario" [matTooltip]="e.recipient || ''">{{ e.recipient || '—' }}</span>
+              <span data-label="Estado">
+                <span class="sop-chip" [ngClass]="claseEstado(e.status)">{{ e.status }}</span>
+                @if (e.httpStatus) { <span class="sop-http">HTTP {{ e.httpStatus }}</span> }
+              </span>
+              <span class="sf-acciones"><button mat-button type="button" (click)="verDetalle(e.id)">Ver</button></span>
+            </div>
+            }
+          </div>
+
+          <div class="sop-paginador">
+            <button mat-button type="button" [disabled]="pagina() <= 1"
+                    (click)="cargarEnvios(pagina() - 1)">Anterior</button>
+            <span>Página {{ pagina() }} de {{ paginas }} — {{ total() }} envíos</span>
+            <button mat-button type="button" [disabled]="pagina() >= paginas"
+                    (click)="cargarEnvios(pagina() + 1)">Siguiente</button>
+          </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- COLA -->
+      <mat-tab label="Cola">
+        <div class="sop-panel">
+          <p class="sop-bajada">
+            Trabajos en segundo plano. El panel completo está en <code>/hangfire</code>;
+            esto es la vista rápida sin salir del backoffice.
+          </p>
+
+          <div class="sop-filtros">
+            <button mat-flat-button color="primary" type="button" (click)="cargarCola()">Actualizar</button>
+            @if (puedeGestionar) {
+            <button mat-stroked-button class="mat-error" type="button" (click)="purgar()">Vaciar la cola</button>
+            }
+          </div>
+
+          @if (cargandoCola()) {
+          <p class="sop-nota">Cargando…</p>
+          } @else if (cola(); as c) {
+
+          <div class="sop-contadores">
+            <div class="sop-contador"><strong>{{ c.counts.enqueued }}</strong><span>Encolados</span></div>
+            <div class="sop-contador"><strong>{{ c.counts.scheduled }}</strong><span>Programados</span></div>
+            <div class="sop-contador"><strong>{{ c.counts.processing }}</strong><span>En curso</span></div>
+            <div class="sop-contador sop-contador--mal"><strong>{{ c.counts.failed }}</strong><span>Fallidos</span></div>
+          </div>
+
+          @if (!c.jobs.length) {
+          <p class="sop-nota">La cola está vacía.</p>
+          } @else {
+          <div class="sop-tabla sop-tabla--cola">
+            <div class="sop-fila sop-fila--cabecera">
+              <span>Estado</span><span>Método</span><span>Argumentos</span><span>Cuándo</span><span></span>
+            </div>
+            @for (j of c.jobs; track j.id) {
+            <div class="sop-fila">
+              <span data-label="Estado"><span class="sop-chip"
+                [ngClass]="j.state === 'Failed' ? 'sop-chip--mal' : 'sop-chip--neutro'">{{ j.state }}</span></span>
+              <span class="sop-truncado" data-label="Método" [matTooltip]="j.method">{{ j.method }}</span>
+              <span class="sop-truncado" data-label="Argumentos" [matTooltip]="j.args">{{ j.args || '—' }}</span>
+              <span data-label="Cuándo">{{ j.when ? (j.when | date:'dd/MM/yy HH:mm') : '—' }}</span>
+              <span class="sf-acciones">
+                @if (puedeGestionar) {
+                <button mat-button class="mat-error" type="button" (click)="borrarTrabajo(j.id)">Borrar</button>
+                }
+              </span>
+            </div>
+            }
+          </div>
+          }
+          } @else {
+          <p class="sop-nota">Pulsa «Actualizar» para ver la cola.</p>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- REGISTRO -->
+      <mat-tab label="Registro">
+        <div class="sop-panel">
+          <p class="sop-bajada">
+            Avisos y errores del sistema. Solo se guarda de <strong>Warning</strong> hacia
+            arriba: en Information una sola petición escribiría varias filas.
+          </p>
+
+          <div class="sop-filtros">
+            <mat-form-field appearance="outline">
+              <mat-label>Nivel</mat-label>
+              <mat-select [ngModel]="nivel()" (ngModelChange)="nivel.set($event); cargarRegistro()" placeholder="Selecciona el nivel">
+                <mat-option value="">Todos</mat-option>
+                <mat-option value="Warning">Warning</mat-option>
+                <mat-option value="Error">Error</mat-option>
+                <mat-option value="Fatal">Fatal</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="sop-filtros__buscar">
+              <mat-label>Buscar en el mensaje</mat-label>
+              <input matInput [ngModel]="busquedaRegistro()" (ngModelChange)="busquedaRegistro.set($event)"
+                     (keyup.enter)="cargarRegistro()" />
+            </mat-form-field>
+
+            <button mat-flat-button color="primary" type="button" (click)="cargarRegistro()">Buscar</button>
+          </div>
+
+          @if (cargandoRegistro()) {
+          <p class="sop-nota">Cargando…</p>
+          } @else if (sinTablaRegistro()) {
+          <p class="sop-nota">
+            Todavía no hay registro. La tabla se crea sola con el primer aviso, así que
+            esto significa que no ha fallado nada desde el último despliegue.
+          </p>
+          } @else if (!registro().length) {
+          <p class="sop-nota">No hay entradas que cumplan el filtro.</p>
+          } @else {
+
+          <div class="sop-tabla sop-tabla--registro">
+            <div class="sop-fila sop-fila--cabecera">
+              <span>Cuándo</span><span>Nivel</span><span>Mensaje</span>
+            </div>
+            @for (l of registro(); track l.id) {
+            <div class="sop-fila">
+              <span data-label="Cuándo">{{ l.timeStamp | date:'dd/MM/yy HH:mm:ss' }}</span>
+              <span data-label="Nivel"><span class="sop-chip" [ngClass]="claseNivel(l.level)">{{ l.level }}</span></span>
+              <span class="sop-mensaje" data-label="Mensaje">
+                {{ l.message }}
+                @if (l.exception) {
+                <details class="sop-excepcion">
+                  <summary>Excepción</summary>
+                  <pre>{{ l.exception }}</pre>
+                </details>
+                }
+              </span>
+            </div>
+            }
+          </div>
+
+          <div class="sop-paginador">
+            <button mat-button type="button" [disabled]="paginaRegistro() <= 1"
+                    (click)="cargarRegistro(paginaRegistro() - 1)">Anterior</button>
+            <span>Página {{ paginaRegistro() }} de {{ paginasRegistro }} — {{ totalRegistro() }} entradas</span>
+            <button mat-button type="button" [disabled]="paginaRegistro() >= paginasRegistro"
+                    (click)="cargarRegistro(paginaRegistro() + 1)">Siguiente</button>
+          </div>
+          }
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </mat-card-content>
+</mat-card>
+
+<!-- DETALLE DE ENVÍO -->
+@if (cargandoDetalle() || detalle()) {
+<div class="sop-velo" (click)="cerrarDetalle()"></div>
+<div class="sop-modal">
+  @if (cargandoDetalle()) {
+  <p class="sop-nota">Cargando…</p>
+  } @else if (detalle(); as d) {
+  <header class="sop-modal__cabecera">
+    <h3>Envío #{{ d.id }}</h3>
+    <button mat-button type="button" (click)="cerrarDetalle()">Cerrar</button>
+  </header>
+
+  <dl class="sop-datos">
+    <dt>Canal</dt><dd>{{ d.channel }}</dd>
+    <dt>Tipo</dt><dd>{{ d.type || '—' }}</dd>
+    <dt>Destinatario</dt><dd>{{ d.recipient || '—' }}</dd>
+    <dt>Asunto</dt><dd>{{ d.subject || '—' }}</dd>
+    <dt>Estado</dt><dd><span class="sop-chip" [ngClass]="claseEstado(d.status)">{{ d.status }}</span></dd>
+    <dt>Motivo</dt><dd>{{ d.reason || '—' }}</dd>
+    <dt>HTTP</dt><dd>{{ d.httpStatus ?? '—' }}</dd>
+    <dt>Tamaño</dt><dd>{{ d.payloadBytes ? d.payloadBytes + ' bytes' : '—' }}</dd>
+    <dt>Cuándo</dt><dd>{{ d.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}</dd>
+  </dl>
+
+  <h4 class="sop-modal__titulo">Lo que se envió</h4>
+  @if (d.body) {
+  <pre class="sop-cuerpo">{{ d.body }}</pre>
+  } @else {
+  <!-- Los cuerpos sensibles no se guardan a propósito: sería una forma de entrar a cualquier cuenta. -->
+  <p class="sop-nota">
+    Este tipo de envío no guarda el cuerpo. Los códigos de verificación y los enlaces
+    de recuperación se omiten a propósito: guardarlos convertiría esta pantalla en una
+    puerta trasera.
+  </p>
+  }
+
+  @if (d.providerResponse) {
+  <h4 class="sop-modal__titulo">Respuesta del proveedor</h4>
+  <pre class="sop-cuerpo sop-cuerpo--crudo">{{ d.providerResponse }}</pre>
+  }
+
+  @if (puedeGestionar && d.channel === 'WhatsApp' && d.body) {
+  <div class="sop-modal__acciones">
+    <button mat-flat-button color="primary" type="button"
+            [disabled]="reintentando()" (click)="reintentar(d.id)">
+      {{ reintentando() ? 'Enviando…' : 'Volver a enviar' }}
+    </button>
+  </div>
+  }
+  }
+</div>
+}

@@ -1,0 +1,104 @@
+<mat-card>
+    <mat-card-content>
+
+        <div class="row justify-content-between gap-16">
+            <div class="col-md-4">
+                <mat-form-field appearance="outline" class="w-100 hide-hint">
+                    <mat-label>Buscar usuarios</mat-label>
+                    <input matInput [formControl]="searchControl" (keydown.enter)="cargarData()" />
+                    <mat-icon matPrefix>search</mat-icon>
+                </mat-form-field>
+            </div>
+            <div class="col-md-7 gm-acciones">
+                <app-botones-exportar [deshabilitado]="!length()" (excel)="exportarExcel()" (pdf)="exportarPdf()" />
+                <button (click)="create()" type="button" mat-flat-button color="primary">
+                    Agregar
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive m-t-20 tabla-tarjetas">
+            @if(loading()) {
+            <div class="d-flex justify-content-center align-items-center">
+                <mat-spinner diameter="50"></mat-spinner>
+            </div>
+            } @else {
+            @if(store.items()?.length) {
+            <table mat-table [dataSource]="dataSource" class="w-100">
+
+                <ng-container matColumnDef="num">
+                    <th mat-header-cell *matHeaderCellDef>#</th>
+                    <td mat-cell *matCellDef="let i = index">
+                        {{ (i + pageIndex() * pageSize()) + 1 }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="document">
+                    <th mat-header-cell *matHeaderCellDef> Documento </th>
+                    <td mat-cell *matCellDef="let element" data-label="Documento">
+                        @if(element.documentTypeName && element.documentNumber) {
+                        {{element.documentTypeName}}:
+                        {{element.documentNumber}}
+                        }
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="email">
+                    <th mat-header-cell *matHeaderCellDef>Correo</th>
+                    <td mat-cell *matCellDef="let element" data-label="Correo">
+                        {{element.email}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="cellPhone">
+                    <th mat-header-cell *matHeaderCellDef>Teléfono</th>
+                    <td mat-cell *matCellDef="let element" data-label="Teléfono">
+                        {{element.cellPhone}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="reason">
+                    <th mat-header-cell *matHeaderCellDef>Motivo</th>
+                    <td mat-cell *matCellDef="let element" data-label="Motivo">
+                        {{element.reason}}
+                        @if (element.screeningHitId) {
+                        <small class="d-block text-muted">Puesta por Cumplimiento al confirmar una coincidencia</small>
+                        }
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="action" [stickyEnd]="true">
+                    <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">
+                        Acciones
+                    </th>
+                    <td mat-cell *matCellDef="let element" class="action-link">
+                        @if (!element.screeningHitId) {
+                        <a (click)="delete(element)" class="m-r-10 cursor-pointer"><i-tabler name="trash"
+                                class="icon-18"></i-tabler></a>
+                        } @else {
+                        <span class="text-muted" matTooltip="Se quita revirtiendo la confirmación en Cumplimiento → Listas">—</span>
+                        }
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+            } @else {
+            <div class="no-records no-records--icono" style="min-height: 400px">
+                <img class="no-records__icono" src="assets/images/iconos3d/block.svg" alt="" />
+                <p>No hay registros de usuarios en lista negra</p>
+            </div>
+            }
+            }
+
+        </div>
+
+        @if(store.items()?.length) {
+        <mat-paginator [length]="length()" [pageSize]="pageSize()" [pageSizeOptions]="pageSizeOptions"
+            [pageIndex]="pageIndex()" (page)="onPageChange($event)" showFirstLastButtons>
+        </mat-paginator>
+        }
+
+    </mat-card-content>
+</mat-card>

@@ -1,0 +1,262 @@
+<div>
+
+  <div class="drawer-header">
+    <div class="header-left">
+      <h2>Detalle de la operación</h2>
+
+      <div class="header-meta">
+        <span class="code">
+          SC-{{ operation.id.toString().padStart(8,'0') }}
+        </span>
+
+        <span class="status-badge" [ngClass]="statusClass">
+          {{ statusLabel }}
+        </span>
+      </div>
+    </div>
+
+    <button mat-icon-button (click)="closeDrawer()">
+      <i-tabler name="x"></i-tabler>
+    </button>
+  </div>
+
+  <div class="drawer-body">
+    <div class="timeline-feed">
+
+      <!-- REGISTRADA -->
+      <div class="feed-item done">
+        <div class="feed-marker-wrapper">
+          <span class="feed-marker"></span>
+          <span class="feed-line"></span>
+        </div>
+
+        <div class="feed-content">
+          <div class="feed-meta">
+            <div>{{ operation.dateCreation | date:'dd/MM/yyyy HH:mm' }}</div>
+            <small>Responsable: <b>{{ operation.createdByUser.names }}</b></small>
+          </div>
+
+          <div class="card">
+            <h4>Operación registrada</h4>
+
+            <div class="profile">
+              <img
+                [fallbackImg]="operation.eProfile.documentTypeIsNatural ? 'person':'company'"
+                [src]="operation.eProfile.profilePhoto | archivoPrivado | async">
+
+              <div>
+                <strong>{{operation.eProfile.names}} {{operation.eProfile.lastNames}}</strong>
+                <div>
+                  {{operation.eProfile.documentTypeName}} ·
+                  {{operation.eProfile.documentNumber}}
+                </div>
+              </div>
+            </div>
+
+            <div class="exchange">
+              @if(operation.typeOperation == '1'){ <span>$ {{operation.monto | number:'.2-2'}}</span> }
+              @if(operation.typeOperation == '2'){ <span>S/ {{operation.total | number:'.2-2'}}</span> }
+              <i-tabler name="exchange"></i-tabler>
+              @if(operation.typeOperation == '2'){ <span>$ {{operation.monto | number:'.2-2'}}</span> }
+              @if(operation.typeOperation == '1'){ <span>S/ {{operation.total | number:'.2-2'}}</span> }
+            </div>
+
+            <div class="rate">
+              Tipo de cambio
+              <b>{{ operation.typeOperation == '1' ? 'COMPRA' : 'VENTA' }}</b>:
+              {{ operation.tipoCambio | number:'.3-4' }}
+            </div>
+
+            @if (operation.tieneDj) {
+            <a (click)="descargarDj()" class="cursor-pointer d-block m-t-8 f-s-13">
+              <i-tabler name="file-type-pdf" class="icon-16"></i-tabler> Declaración jurada (SBS)
+            </a>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- PROCESADA -->
+      @if(isProcessed && operation.typeMpodera == 0){
+      <div class="feed-item done">
+        <div class="feed-marker-wrapper">
+          <span class="feed-marker"></span>
+          <span class="feed-line"></span>
+        </div>
+
+        <div class="feed-content">
+          <div class="feed-meta">
+            <div>{{ operation.processDate | date:'dd/MM/yyyy HH:mm' }}</div>
+            <small>Responsable: <b>{{ operation.processedByUser.names }}</b></small>
+          </div>
+
+          <div class="card">
+            <h4>Operación procesada</h4>
+
+            <div class="bank">
+              <img [src]="'data:image/jpeg;base64,' + operation.profileBankClient1.bankIcon">
+              <span>{{operation.profileBankClient1.bankName}}</span>
+            </div>
+
+            @if(operation.codeOperation){
+              <div class="code">
+                N° Op. <b>{{operation.codeOperation}}</b>
+                @if(operation.operationImage){
+                  <button mat-icon-button (click)="vouchers.abrirVoucher(operation.id)">
+                    <i-tabler name="eye"></i-tabler>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- TRANSFERENCIA RECIBIDA -->
+      @if(hasTransferReceived){
+      <div class="feed-item done">
+        <div class="feed-marker-wrapper">
+          <span class="feed-marker"></span>
+          <span class="feed-line"></span>
+        </div>
+
+        <div class="feed-content">
+          <div class="feed-meta">
+            <div>{{ operation.receiptConfirmedDate | date:'dd/MM/yyyy HH:mm' }}</div>
+            <small>Responsable: <b>{{ operation.receiptConfirmedByUser.names }}</b></small>
+          </div>
+
+          <div class="card">
+            <h4>Transferencia recibida</h4>
+
+            <div class="bank">
+              <img [src]="'data:image/jpeg;base64,' + operation.companyBank.bankIcon">
+              <span>{{operation.companyBank.bankName}}</span>
+            </div>
+
+            <div><b>Titular:</b> {{operation.companyBank.titular}}</div>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- TRANSFERENCIA ENVIADA -->
+      @if(hasTransferSent){
+      <div class="feed-item done">
+        <div class="feed-marker-wrapper">
+          <span class="feed-marker"></span>
+          <span class="feed-line"></span>
+        </div>
+
+        <div class="feed-content">
+          <div class="feed-meta">
+            <div>{{ operation.transferSentDate | date:'dd/MM/yyyy HH:mm' }}</div>
+            <small>Responsable: <b>{{ operation.transferSentByUser.names }}</b></small>
+          </div>
+
+          <div class="card">
+            <h4>Transferencia enviada</h4>
+
+            <div class="bank">
+              <img [src]="'data:image/jpeg;base64,' + operation.operationBanks[0].profileBankClient2.bankIcon">
+              <span>{{operation.operationBanks[0].profileBankClient2.bankName}}</span>
+            </div>
+
+            <div>
+              <b>Titular:</b>
+              {{operation.operationBanks[0].profileBankClient2.name}}
+              {{operation.operationBanks[0].profileBankClient2.lastName}}
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- FINALIZADA -->
+      @if(isFinalized && operation.typeMpodera == 0){
+      <div class="feed-item done">
+        <div class="feed-marker-wrapper">
+          <span class="feed-marker"></span>
+          @if(operation.pdf || operation.correlative > 0) {
+            <span class="feed-line"></span>
+          }
+        </div>
+
+        <div class="feed-content">
+          <div class="feed-meta">
+            <div>{{ operation.finalizationDate | date:'dd/MM/yyyy HH:mm' }}</div>
+            <small>Responsable: <b>{{ operation.finalizedByUser.names }}</b></small>
+          </div>
+
+          <div class="card">
+            <h4>Operación finalizada</h4>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- COMPROBANTE -->
+      @if(isFinalized && (operation.pdf || operation.correlative > 0)){
+      <div class="feed-item done">
+        <div class="feed-marker-wrapper">
+          <span class="feed-marker"></span>
+        </div>
+
+        <div class="feed-content">
+          <div class="feed-meta">
+            <div>{{ operation.invoiceDate | date:'dd/MM/yyyy HH:mm' }}</div>
+            <small>Responsable: <b>{{ operation.invoicedByUser.names }}</b></small>
+          </div>
+
+          <div class="card">
+            <h4>Emisión de comprobante</h4>
+
+            <strong>
+              {{operation.serie}}-{{operation.correlative.toString().padStart(8,'0')}}
+            </strong>
+
+            <div class="files">
+              @if (operation.pdf) {
+              <a [href]="operation.pdf" target="_blank">
+                <i-tabler name="file-type-pdf"></i-tabler>
+              </a>
+              <a [href]="operation.xml" target="_blank">
+                <i-tabler name="file-type-xml"></i-tabler>
+              </a>
+              } @else {
+              <!-- Motor nativo: con sesión; el estado ante SUNAT se ve en Gestión fiscal. -->
+              <a (click)="descargarComprobante()" class="cursor-pointer" matTooltip="Descargar comprobante">
+                <i-tabler name="file-type-pdf"></i-tabler>
+              </a>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- CANCELADA -->
+      @if(isCancelled){
+      <div class="feed-item cancelled">
+        <div class="feed-marker-wrapper">
+          <span class="feed-marker"></span>
+        </div>
+
+        <div class="feed-content">
+          <div class="feed-meta">
+            <div>{{ operation.cancellationDate | date:'dd/MM/yyyy HH:mm' }}</div>
+            <small>Responsable: <b>{{operation.cancelledByUser?.names}}</b></small>
+          </div>
+
+          <div class="card">
+            <h4>Operación cancelada</h4>
+            <p>{{operation.message}}</p>
+          </div>
+        </div>
+      </div>
+      }
+
+    </div>
+  </div>
+</div>

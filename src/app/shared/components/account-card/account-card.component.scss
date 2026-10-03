@@ -1,0 +1,159 @@
+/* Sobria a propósito: el degradado verde leía a promoción y teñía el fondo del número de cuenta. */
+
+.cuenta {
+  display: flex;
+  flex-direction: column;
+  min-height: 168px;
+  padding: 20px 22px;
+  background: #fff;
+  border: 1px solid var(--gm-gris-500, var(--gm-gris-500));
+  border-radius: var(--gm-radius-2xl, 16px);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.cuenta:hover {
+  border-color: var(--gm-plomo-400, var(--gm-plomo-400));
+  box-shadow: var(--gm-shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05));
+}
+
+/* Pendiente: borde discontinuo, la convención de "hueco por llenar". */
+.cuenta--vacia {
+  border-style: dashed;
+  justify-content: space-between;
+}
+
+.cuenta__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* La moneda es una etiqueta legible, no un color de fondo que haya que adivinar. */
+.cuenta__moneda {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gm-plomo-700, var(--gm-color-marca-terciario));
+}
+
+.cuenta__estado {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--gm-color-fondo-crema, var(--gm-color-fondo-crema));
+  color: var(--gm-plomo-400, var(--gm-plomo-400));
+}
+
+.cuenta__editar {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gm-color-marca-acento, var(--gm-color-marca-acento));
+}
+
+.cuenta__editar:hover {
+  text-decoration: underline;
+}
+
+/* Pendiente */
+
+.cuenta__vacia-texto {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--gm-plomo-400, var(--gm-plomo-400));
+}
+
+.cuenta__agregar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  align-self: flex-start;
+  height: 42px;
+  padding: 0 20px;
+  border: 1px solid var(--gm-plomo-700, var(--gm-color-marca-terciario));
+  border-radius: var(--gm-radius-xl, 12px);
+  background: #fff;
+  color: var(--gm-plomo-700, var(--gm-color-marca-terciario));
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.cuenta__agregar mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+
+.cuenta__agregar:hover {
+  background: var(--gm-plomo-700, var(--gm-color-marca-terciario));
+  color: #fff;
+}
+
+/* Con cuenta registrada */
+
+.cuenta__banco {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.cuenta__logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--gm-color-fondo-crema, var(--gm-color-fondo-crema));
+}
+
+.cuenta__logo--sin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gm-plomo-400, var(--gm-plomo-400));
+}
+
+.cuenta__banco-nombre {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gm-color-texto-principal, #000);
+}
+
+.cuenta__datos {
+  display: flex;
+  gap: 32px;
+  margin: auto 0 0;
+}
+
+.cuenta__datos dt {
+  margin: 0 0 2px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gm-plomo-400, var(--gm-plomo-400));
+}
+
+.cuenta__datos dd {
+  margin: 0;
+  font-size: 14px;
+  color: var(--gm-color-texto-principal, #000);
+}
+
+/* Cifras tabulares: los dígitos no bailan entre una tarjeta y otra. */
+.cuenta__numero {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}

@@ -1,0 +1,47 @@
+<h2 mat-dialog-title>Filtros</h2>
+<mat-dialog-content>
+    <form [formGroup]="searchForm" class="row m-t-16">
+        <div class="col-sm-6">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Desde</mat-label>
+                <input appDateMask matInput maxlength="10" formControlName="fromDate" placeholder="dd/mm/yyyy"
+                    [matDatepicker]="fromDatePicker" />
+                <mat-datepicker-toggle matIconSuffix [for]="fromDatePicker" />
+                <mat-datepicker #fromDatePicker />
+                @if(control['fromDate'].touched && control['fromDate'].invalid) {
+                <mat-hint class="su-error">
+                    Fecha incial inválida
+                </mat-hint>
+                }
+            </mat-form-field>
+        </div>
+
+        <div class="col-sm-6">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Hasta</mat-label>
+                <input appDateMask matInput maxlength="10" formControlName="toDate" placeholder="dd/mm/yyyy"
+                    [matDatepicker]="toDatePicker" />
+                <mat-datepicker-toggle matIconSuffix [for]="toDatePicker" />
+                <mat-datepicker #toDatePicker />
+                @if (control['toDate'].touched && control['toDate'].invalid) {
+                <mat-hint class="su-error">
+                    @if (control['toDate'].errors?.['required']) {
+                    Fecha final inválida
+                    }
+                    @if (control['toDate'].errors?.['rangeInvalid']) {
+                    La fecha "Desde" no puede ser mayor que "Hasta"
+                    }
+                </mat-hint>
+                }
+            </mat-form-field>
+        </div>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button mat-dialog-close class="b-1">
+        Cerrar
+    </button>
+    <button [disabled]="searchForm.invalid" (click)="generarPdf()" mat-flat-button cdkFocusInitial>
+        Generar Reporte
+    </button>
+</mat-dialog-actions>

@@ -1,0 +1,78 @@
+<mat-card>
+    <mat-card-content>
+        <div class="row justify-content-between gap-16">
+            <div class="col-md-4">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Buscar perfil</mat-label>
+                    <input matInput [formControl]="searchControl" (keydown.enter)="cargarData()" />
+                    <mat-icon matPrefix>search</mat-icon>
+                </mat-form-field>
+            </div>
+            <div class="col-md-4 d-flex align-items-center justify-content-end">
+                <mat-paginator class="truncate-line" [length]="length()" [pageSize]="pageSize()"
+                    [pageIndex]="pageIndex()" [hidePageSize]="true" [showFirstLastButtons]="false"
+                    (page)="onPageChange($event)">
+                </mat-paginator>
+            </div>
+        </div>
+    </mat-card-content>
+</mat-card>
+
+<div class="row">
+    @for (profile of profiles(); track profile.id) {
+    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 m-t-16">
+        <mat-card class="profile-card" [class.selected]="isAdminWithIndividualProfile(profile)">
+
+            <div class="profile-photo">
+                <img [src]="profile.profilePhoto | archivoPrivado | async" alt="Perfil"
+                    [fallbackImg]="profile.documentTypeIsNatural ? 'person' : 'company'" />
+            </div>
+
+            <div class="profile-info">
+
+                @if(profile.isBlackListed)
+                {
+                <span class="bg-black f-s-12 f-w-500 p-x-10 p-y-4 rounded-pill text-white">
+                    LISTA NEGRA
+                </span>
+                }
+
+                <h4 class="profile-name">
+                    {{ profile.names }} {{ profile.lastNames }}
+                </h4>
+
+                <span class="profile-type">
+                    {{ getProfileType(profile) }}
+                </span>
+
+                <div class="profile-doc">
+                    {{ profile.documentTypeName }}: {{ profile.documentNumber }}
+                </div>
+
+                <div class="profile-address">
+                    {{ profile.address || 'Sin dirección registrada' }}
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <button mat-stroked-button color="primary" class="m-r-4"
+                    (click)="update(profile); $event.stopPropagation()">
+                    {{ profile.isValidate ? 'Deshabilitar': 'Habilitar'}}
+                </button>
+
+                <button mat-flat-button color="primary" (click)="editProfile(profile); $event.stopPropagation()">
+                    Administrar
+                </button>
+            </div>
+
+        </mat-card>
+    </div>
+    }
+
+</div>
+
+@if (changingProfile) {
+<div class="loading-overlay">
+    <mat-spinner diameter="60"></mat-spinner>
+</div>
+}

@@ -1,0 +1,96 @@
+/* Paso "Adjunta y finaliza" (frame 459): la cabecera, el resumen y las acciones vienen de styles.scss. */
+
+.voucher-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.voucher-indicacion {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* En el mockup la zona de subida no lleva marco: solo el botón gris y la leyenda. */
+.upload-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: center;
+
+  &.invalid .upload-btn {
+    outline: 1.5px solid var(--gm-color-text-error);
+  }
+
+  .upload-hint {
+    font-size: 13px;
+    color: var(--gm-plomo-400);
+  }
+
+  .preview img {
+    max-width: 260px;
+    border-radius: 10px;
+    border: 1px solid var(--gm-gris-500);
+  }
+}
+
+/* Botón gris redondeado con la nube, medido del frame 459. */
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 26px;
+  border: none;
+  border-radius: 10px;
+  background: var(--gm-gris-300);
+  color: var(--gm-color-marca-terciario);
+  font-family: var(--gm-font-family);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: var(--gm-gris-500);
+  }
+
+  i-tabler {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Campo del número de operación como píldora con el texto centrado. */
+.voucher-code {
+  width: min(400px, 100%);
+  text-align: center;
+
+  input {
+    width: 100%;
+    padding: 14px 22px;
+    border: 1px solid var(--gm-gris-500);
+    border-radius: 999px;
+    font-family: var(--gm-font-family);
+    font-size: 15px;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+
+    &::placeholder {
+      color: var(--gm-plomo-400);
+    }
+
+    &:focus {
+      border-color: var(--gm-color-marca-terciario);
+    }
+
+    &.invalid {
+      border-color: var(--gm-color-text-error);
+    }
+  }
+}

@@ -1,0 +1,127 @@
+<div class="per-panel">
+  @if (!ficha() && !cargandoFicha()) {
+  <p class="per-bajada">
+    La verificación de identidad (KYC) de cada cliente. Las reglas —identidad en RENIEC o SUNAT, documentos, mayoría
+    de edad, listas, PEP, representante— se evalúan cada mañana para los que faltan (por tandas) o con "Evaluar
+    ahora"; la decisión la toma el equipo. Hoy <strong>no bloquea a nadie</strong> salvo que se active "Exigir KYC
+    para operar" en la configuración de Cumplimiento.
+  </p>
+
+  <div class="kyc-estados">
+    @for (e of pestanas; track e) {
+    <button mat-stroked-button type="button" [class.kyc-estados--activo]="estado() === e" [attr.aria-pressed]="estado() === e"
+            (click)="elegirEstado(e)">
+      {{ rotulo(e) }} <small>({{ conteo(e) }})</small>
+    </button>
+    }
+  </div>
+
+  <div class="per-filtros">
+    <mat-form-field appearance="outline" class="per-filtros__buscar">
+      <mat-label>Documento, nombre o razón social</mat-label>
+      <input matInput [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" (keyup.enter)="pagina.set(0); cargar()" />
+    </mat-form-field>
+  </div>
+
+  @if (cargando()) {
+  <p class="per-nota">Cargando…</p>
+  } @else if (!items().length) {
+  <p class="per-nota">No hay personas en este estado.</p>
+  } @else {
+  <div class="kyc-tabla">
+    <div class="kyc-fila kyc-fila--cabecera">
+      <span>Persona</span><span>Documento</span><span>Estado</span><span>Documentos</span><span>Observación</span><span></span>
+    </div>
+    @for (p of items(); track p.personId) {
+    <div class="kyc-fila">
+      <span><strong>{{ p.fullName || '—' }}</strong>
+        <small class="kyc-doc">{{ p.personType === 'J' ? 'Jurídica' : 'Natural' }} · desde {{ p.createdAt | date:'dd/MM/yyyy' }}</small></span>
+      <span>{{ p.documentType }} {{ p.documentNumber }}</span>
+      <span><span class="kyc-chip" [ngClass]="claseEstado(p.kycEstado)">{{ nombreEstado(p.kycEstado) }}</span>
+        @if (p.kycVenceAt && p.kycEstado === 'validado') { <small class="kyc-doc">vence {{ p.kycVenceAt | date:'dd/MM/yyyy' }}</small> }</span>
+      <span>{{ p.documentos }}</span>
+      <span><small class="kyc-doc">{{ p.kycObservacion || '—' }}</small></span>
+      <span><button mat-button type="button" (click)="abrir(p.personId)" [attr.aria-label]="'Ver KYC de ' + p.fullName">Ver</button></span>
+    </div>
+    }
+  </div>
+  <mat-paginator [length]="total()" [pageIndex]="pagina()" [pageSize]="tamano()" [pageSizeOptions]="[25, 50, 100]"
+                 (page)="cambiarPagina($event)"></mat-paginator>
+  }
+  } @else if (cargandoFicha() && !ficha()) {
+  <p class="per-nota">Cargando…</p>
+  } @else if (ficha(); as f) {
+  <div class="kyc-acciones">
+    <button mat-button type="button" (click)="cerrar()">← Volver</button>
+    <h3 class="kyc-titulo">{{ f.persona.fullName }} <small class="kyc-doc">{{ f.persona.documentType }} {{ f.persona.documentNumber }}</small></h3>
+    <span class="kyc-chip" [ngClass]="claseEstado(f.persona.kycEstado)">{{ nombreEstado(f.persona.kycEstado) }}</span>
+    @if (f.persona.kycVenceAt && f.persona.kycEstado === 'validado') { <small class="kyc-doc">Vence el {{ f.persona.kycVenceAt | date:'dd/MM/yyyy' }}</small> }
+  </div>
+  @if (f.persona.kycObservacion) { <p class="per-aviso">{{ f.persona.kycObservacion }}</p> }
+
+  <section class="per-bloque">
+    <h4>Reglas @if (f.ultimaEvaluacionAt) { <small class="kyc-doc">evaluadas el {{ f.ultimaEvaluacionAt | date:'dd/MM/yyyy HH:mm' }}</small> }</h4>
+    @if (!f.reglasUltimaEvaluacion.length) {
+    <p class="per-nota">Todavía no se evaluó.</p>
+    } @else {
+    <ul class="kyc-reglas">
+      @for (r of f.reglasUltimaEvaluacion; track r.regla) {
+      <li><strong>{{ r.titulo }}</strong>
+        <span class="kyc-chip" [ngClass]="claseRegla(r.estado)">{{ r.estado === 'ok' ? 'Cumple' : r.estado === 'falla' ? 'Falla' : 'Revisar' }}</span>
+        <span>{{ r.detalle }}</span></li>
+      }
+    </ul>
+    }
+    @if (puedeDecidir) {
+    <div class="kyc-acciones">
+      <button mat-stroked-button type="button" [disabled]="ocupado() !== null" (click)="evaluar()">
+        {{ ocupado() === 'evaluar' ? 'Evaluando…' : 'Evaluar ahora' }}
+      </button>
+    </div>
+    }
+  </section>
+
+  <section class="per-bloque">
+    <h4>Documentos</h4>
+    @if (!f.documentos.length) {
+    <p class="per-nota">No tiene documentos adjuntos.</p>
+    } @else {
+    <ul class="per-historia">
+      @for (d of f.documentos; track d.id) {
+      <li>{{ d.type }} — {{ d.originalName || 'sin nombre' }} <small>({{ d.uploadedAt | date:'dd/MM/yyyy' }})</small>
+        <button mat-button type="button" (click)="verDocumento(d.id, d.type)" [attr.aria-label]="'Ver ' + d.type">Ver</button></li>
+      }
+    </ul>
+    }
+  </section>
+
+  @if (puedeDecidir) {
+  <section class="per-bloque">
+    <h4>Decisión</h4>
+    <mat-form-field appearance="outline" class="kyc-nota">
+      <mat-label>Nota (obligatoria para observar o suspender)</mat-label>
+      <textarea matInput rows="2" maxlength="1000" [ngModel]="nota()" (ngModelChange)="nota.set($event)"
+                placeholder="Ej.: cotejé el DNI con la foto; o: sube el reverso del DNI."></textarea>
+    </mat-form-field>
+    <div class="kyc-acciones">
+      <button mat-flat-button color="primary" type="button" [disabled]="ocupado() !== null || tieneFallas() || !f.reglasUltimaEvaluacion.length"
+              [matTooltip]="tieneFallas() ? 'Hay una regla que falla: corrige y vuelve a evaluar' : ''" (click)="decidir('Validar')">Validar</button>
+      <button mat-stroked-button type="button" [disabled]="ocupado() !== null" (click)="decidir('Observar')">Observar</button>
+      <button mat-stroked-button type="button" [disabled]="ocupado() !== null" (click)="suspender()">Suspender</button>
+    </div>
+  </section>
+  }
+
+  <section class="per-bloque">
+    <h4>Historial</h4>
+    @if (!f.historial.length) { <p class="per-nota">Sin movimientos.</p> }
+    <ul class="per-historia">
+      @for (h of f.historial; track h.id) {
+      <li><strong>{{ h.accion }}</strong> → {{ nombreEstado(h.estado) }}
+        <small>({{ h.fecha | date:'dd/MM/yyyy HH:mm' }} · {{ h.userName || 'Sistema' }})</small>
+        @if (h.nota) { <br /><small>{{ h.nota }}</small> }</li>
+      }
+    </ul>
+  </section>
+  }
+</div>

@@ -1,0 +1,39 @@
+@use "sass:map";
+@use "@angular/material" as mat;
+
+@include mat.dialog-overrides(
+  (
+    container-shape: var(--mat-sys-corner-small),
+    subhead-size: 18px,
+    subhead-weight: 600,
+    content-padding: 20px 24px,
+    actions-padding: 20px 24px,
+    container-min-width: 300px,
+    subhead-tracking: unset,
+    supporting-text-tracking: unset,
+  )
+);
+
+html {
+  // Con título, Material deja el contenido sin padding y la etiqueta flotante del primer campo se recorta.
+  .mat-mdc-dialog-container .mat-mdc-dialog-title + .mat-mdc-dialog-content {
+    padding-top: 12px;
+  }
+
+  // Confirmaciones (frames de cancelar/confirmar operación): tarjeta muy redondeada y compacta, como las cards del flujo.
+  .confirm-dialog-panel {
+    --mat-dialog-container-shape: var(--gm-radius-2xl, 20px);
+    --mat-dialog-headline-padding: 16px 20px 0;
+    --mat-dialog-content-padding: 8px 20px 6px;
+    --mat-dialog-with-actions-content-padding: 8px 20px 6px;
+  }
+
+  .cdk-overlay-pane.confirm-dialog-panel--flow-centered {
+    transform: translateX(var(--gm-confirm-dialog-offset-x, 0px));
+  }
+
+  .cdk-overlay-pane.dialog-panel-hidden-behind-confirm {
+    opacity: 0;
+    pointer-events: none;
+  }
+}

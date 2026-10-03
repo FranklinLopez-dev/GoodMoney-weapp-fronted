@@ -1,0 +1,88 @@
+<!-- Botón flotante: el señor del sombrero (icono de marca) sobre el amarillo. -->
+<button type="button" class="asistente-fab" (click)="alternar()"
+    [attr.aria-label]="abierto() ? 'Cerrar asistente virtual' : 'Abrir asistente virtual'">
+    @if (abierto()) {
+    <i-tabler name="x"></i-tabler>
+    } @else {
+    <img src="assets/images/logos/logo-3d.png" alt="" />
+    }
+</button>
+
+@if (abierto()) {
+<section class="asistente" aria-label="Asistente virtual">
+
+    <header class="asistente__cabecera">
+        <img class="asistente__avatar" src="assets/images/logos/logo-3d.png" alt="" />
+        <div>
+            <h2 class="asistente__titulo">Asistente Good Money</h2>
+            <p class="asistente__estado">Responde al instante</p>
+        </div>
+
+        <div class="asistente__acciones">
+            <!-- La conversación se conserva al recargar, así que hace falta una forma de empezar de cero. -->
+            @if (mensajes().length > 2) {
+            <button type="button" class="asistente__accion" (click)="limpiar()"
+                title="Empezar de nuevo" aria-label="Empezar una conversación nueva">
+                <i-tabler name="refresh"></i-tabler>
+            </button>
+            }
+
+            <button type="button" class="asistente__accion" (click)="alternar()" aria-label="Cerrar">
+                <i-tabler name="x"></i-tabler>
+            </button>
+        </div>
+    </header>
+
+    <div class="asistente__cuerpo" #cuerpo>
+
+        @for (m of mensajes(); track $index) {
+        <div class="burbuja" [class.burbuja--bot]="m.de === 'bot'" [class.burbuja--usuario]="m.de === 'usuario'">
+            @if (m.de === 'bot' && m.conAvatar) {
+            <img class="burbuja__avatar" src="assets/images/logos/logo-3d.png" alt="" />
+            }
+            <div class="burbuja__contenido">
+                <p class="burbuja__texto">{{ m.texto }}</p>
+                <span class="burbuja__hora">{{ m.hora }}</span>
+            </div>
+        </div>
+        }
+
+        @if (escribiendo()) {
+        <div class="burbuja burbuja--bot">
+            <div class="burbuja__contenido">
+                <p class="burbuja__texto asistente__escribiendo">
+                    <span></span><span></span><span></span>
+                </p>
+            </div>
+        </div>
+        }
+
+        @if (conAsesor()) {
+        <a class="asistente__asesor" [href]="enlaceAsesor()" target="_blank" rel="noopener">
+            <i-tabler name="brand-whatsapp"></i-tabler>
+            Hablar con un asesor
+        </a>
+        }
+
+        @if (sugerencias().length && !escribiendo()) {
+        <div class="asistente__sugerencias">
+            @for (faq of sugerencias(); track faq.id) {
+            <button type="button" class="asistente__chip" (click)="preguntar(faq)">
+                {{ faq.question }}
+            </button>
+            }
+        </div>
+        }
+
+    </div>
+
+    <footer class="asistente__pie">
+        <input class="asistente__input" type="text" placeholder="Haz una pregunta" [(ngModel)]="texto"
+            (keydown.enter)="enviar()" />
+        <button type="button" class="asistente__enviar" (click)="enviar()" aria-label="Enviar">
+            <i-tabler name="send"></i-tabler>
+        </button>
+    </footer>
+
+</section>
+}

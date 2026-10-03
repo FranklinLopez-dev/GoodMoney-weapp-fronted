@@ -1,0 +1,112 @@
+<form [formGroup]="form" class="row g-3">
+
+    <div [ngClass]="{
+        'col-md-4': [1, 2, 3, 5].includes(control['filterType'].value),
+        'col-md-3': [4, 6].includes(control['filterType'].value)
+        }">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Tipo de filtro</mat-label>
+            <mat-select formControlName="filterType" placeholder="Selecciona el tipo de filtro">
+                <mat-option [value]="1">General</mat-option>
+                <mat-option [value]="2">Última semana</mat-option>
+                <mat-option [value]="3">Por mes</mat-option>
+                <mat-option [value]="4">Entre meses</mat-option>
+                <mat-option [value]="5">Por fecha</mat-option>
+                <mat-option [value]="6">Entre fechas</mat-option>
+            </mat-select>
+            @if(control['filterType'].touched && control['filterType'].invalid) {
+            <mat-hint class="su-error">
+                @if(control['filterType'].errors &&
+                control['filterType'].errors['required']) {
+                Tipo de filtro es obligatorio
+                }
+            </mat-hint>
+            }
+        </mat-form-field>
+    </div>
+
+    @if (control['filterType'].value === 3) {
+    <div class="col-md-4">
+        <app-month-picker [control]="month" label="Mes" errorMessage="Mes inválido">
+        </app-month-picker>
+    </div>
+    }
+
+    @if (control['filterType'].value === 4) {
+    <div class="col-md-3">
+        <app-month-picker [control]="fromMonth" label="Desde" errorMessage="Mes inicial inválido">
+        </app-month-picker>
+    </div>
+
+    <div class="col-md-3">
+        <app-month-picker [control]="toMonth" label="Hasta" errorMessage="Mes final inválido">
+        </app-month-picker>
+    </div>
+    }
+
+    @if (control['filterType'].value === 5) {
+    <div class="col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Fecha</mat-label>
+            <input appDateMask matInput maxlength="10" formControlName="date" placeholder="dd/mm/yyyy"
+                [matDatepicker]="datePicker" />
+            <mat-datepicker-toggle matIconSuffix [for]="datePicker" />
+            <mat-datepicker #datePicker />
+            @if(control['date'].touched && control['date'].invalid) {
+            <mat-hint class="su-error">
+                Fehca inválida
+            </mat-hint>
+            }
+        </mat-form-field>
+    </div>
+    }
+
+    @if (control['filterType'].value === 6) {
+    <div class="col-md-3">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Desde</mat-label>
+            <input appDateMask matInput maxlength="10" formControlName="fromDate" placeholder="dd/mm/yyyy"
+                [matDatepicker]="fromDatePicker" />
+            <mat-datepicker-toggle matIconSuffix [for]="fromDatePicker" />
+            <mat-datepicker #fromDatePicker />
+            @if(control['fromDate'].touched && control['fromDate'].invalid) {
+            <mat-hint class="su-error">
+                Fecha incial inválida
+            </mat-hint>
+            }
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-3">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Hasta</mat-label>
+            <input appDateMask matInput maxlength="10" formControlName="toDate" placeholder="dd/mm/yyyy"
+                [matDatepicker]="toDatePicker" />
+            <mat-datepicker-toggle matIconSuffix [for]="toDatePicker" />
+            <mat-datepicker #toDatePicker />
+            @if (control['toDate'].touched && control['toDate'].invalid) {
+            <mat-hint class="su-error">
+                @if (control['toDate'].errors?.['required']) {
+                Fecha final inválida
+                }
+                @if (control['toDate'].errors?.['rangeInvalid']) {
+                La fecha "Desde" no puede ser mayor que "Hasta"
+                }
+            </mat-hint>
+            }
+        </mat-form-field>
+    </div>
+    }
+
+    <div [ngClass]="{
+        'col-md-8': [1, 2].includes(control['filterType'].value),
+        'col-md-4': [3, 5].includes(control['filterType'].value),
+        'col-md-3': [4, 6].includes(control['filterType'].value)
+        }" class="d-flex justify-content-end ">
+        <!-- Unica accion de la fila: boton primario de la biblioteca, verde relleno. -->
+        <button mat-flat-button color="primary" type="button" (click)="apply()" [disabled]="form.invalid">
+            Filtrar
+        </button>
+    </div>
+
+</form>

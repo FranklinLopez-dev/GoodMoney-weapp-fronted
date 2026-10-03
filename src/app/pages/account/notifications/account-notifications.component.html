@@ -1,0 +1,124 @@
+@if (cargando()) {
+<mat-card>
+  <mat-card-content>
+    <p class="avisos-cargando">Cargando…</p>
+  </mat-card-content>
+</mat-card>
+} @else {
+
+@for (grupo of grupos(); track grupo.audience) {
+<mat-card class="m-b-16">
+  <mat-card-content>
+
+    <div class="avisos-cabecera">
+      <div>
+        <h2 class="avisos-titulo">{{ grupo.title }}</h2>
+        <p class="avisos-bajada">{{ grupo.subtitle }}</p>
+      </div>
+      <div class="avisos-cabecera__acciones">
+        <button mat-button type="button" (click)="alternarBloque(grupo.audience, true)">
+          Activar todo
+        </button>
+        <button mat-button type="button" (click)="alternarBloque(grupo.audience, false)">
+          Silenciar todo
+        </button>
+      </div>
+    </div>
+
+    @if (!grupo.preferences.length) {
+    <p class="avisos-vacio">No hay avisos que configurar en este bloque.</p>
+    } @else {
+
+    <div class="avisos-tabla"
+         [class.avisos-tabla--sin-correo]="!tieneColumnaCorreo(grupo)"
+         [class.avisos-tabla--con-whatsapp]="tieneColumnaWhatsApp(grupo)">
+
+      <div class="avisos-fila avisos-fila--cabecera">
+        <span>Aviso</span>
+        <span class="avisos-canal">En el panel</span>
+        @if (tieneColumnaCorreo(grupo)) {
+        <span class="avisos-canal">Por correo</span>
+        }
+        @if (tieneColumnaWhatsApp(grupo)) {
+        <span class="avisos-canal">Por WhatsApp</span>
+        }
+      </div>
+
+      @for (p of grupo.preferences; track p.type) {
+      <div class="avisos-fila">
+
+        <div class="avisos-aviso">
+          <span class="avisos-aviso__nombre">{{ p.label }}</span>
+          <span class="avisos-aviso__detalle">{{ p.description }}</span>
+          @if (p.mandatory) {
+          <span class="avisos-obligatorio">
+            <i-tabler name="lock" class="icon-14"></i-tabler>
+            Siempre activo: afecta a tu dinero o a tu cuenta.
+          </span>
+          }
+        </div>
+
+        <div class="avisos-canal avisos-canal--panel">
+          @if (p.hasInApp) {
+          <mat-slide-toggle [checked]="p.inApp" [disabled]="p.mandatory"
+            (change)="alternar(p.type, 'inApp', $event.checked)"
+            [attr.aria-label]="p.label + ' en el panel'"></mat-slide-toggle>
+          } @else {
+          <span class="avisos-nohay">—</span>
+          }
+        </div>
+
+        @if (tieneColumnaCorreo(grupo)) {
+        <div class="avisos-canal avisos-canal--correo">
+          @if (p.hasEmail) {
+          <mat-slide-toggle [checked]="p.email" [disabled]="p.mandatory"
+            (change)="alternar(p.type, 'email', $event.checked)"
+            [attr.aria-label]="p.label + ' por correo'"></mat-slide-toggle>
+          } @else {
+          <!-- Sin interruptor a propósito: este aviso no tiene correo, y uno que no gobierna nada es peor que ninguno. -->
+          <span class="avisos-nohay" matTooltip="Este aviso no se envía por correo">—</span>
+          }
+        </div>
+        }
+
+        @if (tieneColumnaWhatsApp(grupo)) {
+        <div class="avisos-canal avisos-canal--whatsapp">
+          @if (p.hasWhatsApp) {
+          <!-- Sin [disabled] aunque sea obligatorio: WhatsApp llega al teléfono personal y cuesta dinero por mensaje. -->
+          <mat-slide-toggle [checked]="p.whatsApp"
+            (change)="alternar(p.type, 'whatsApp', $event.checked)"
+            [attr.aria-label]="p.label + ' por WhatsApp'"></mat-slide-toggle>
+          } @else {
+          <span class="avisos-nohay" matTooltip="Este aviso no se envía por WhatsApp">—</span>
+          }
+        </div>
+        }
+
+      </div>
+      }
+
+    </div>
+    }
+
+  </mat-card-content>
+</mat-card>
+}
+
+<mat-card>
+  <mat-card-content>
+    <p class="avisos-nota">
+      Los correos de la cuenta —bienvenida, recuperar contraseña, los códigos de verificación y el
+      código del segundo factor— no se pueden desactivar: son la forma de entrar. El acuse de
+      "operación registrada" tampoco: es el recibo de lo que acabas de hacer.
+    </p>
+
+    <div class="avisos-acciones">
+      <button mat-flat-button color="primary" type="button"
+        [disabled]="guardando() || !hayCambios()" (click)="guardar()">
+        {{ guardando() ? 'Guardando…' : 'Guardar cambios' }}
+      </button>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+}

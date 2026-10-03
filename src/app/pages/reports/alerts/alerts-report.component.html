@@ -1,0 +1,158 @@
+<mat-card>
+  <mat-card-content>
+
+    <p class="inf-bajada">
+      Clientes que dejaron dicho a qué precio quieren cambiar. Ordenados por lo que le
+      falta al tipo de cambio para llegar: <strong>arriba, lo que está a punto de saltar</strong>.
+    </p>
+
+    @if (datos(); as d) {
+    <div class="inf-resumen">
+      <div class="inf-tarjeta">
+        <span class="inf-tarjeta__valor">{{ d.compraHoy | number:'1.3-3' }}</span>
+        <span class="inf-tarjeta__rotulo">Compra de hoy</span>
+        <span class="inf-tarjeta__pie">lo que pagamos</span>
+      </div>
+      <div class="inf-tarjeta">
+        <span class="inf-tarjeta__valor">{{ d.ventaHoy | number:'1.3-3' }}</span>
+        <span class="inf-tarjeta__rotulo">Venta de hoy</span>
+        <span class="inf-tarjeta__pie">lo que cobramos</span>
+      </div>
+      <div class="inf-tarjeta inf-tarjeta--vender">
+        <span class="inf-tarjeta__valor">{{ d.resumen.quierenVender }}</span>
+        <span class="inf-tarjeta__rotulo">Quieren vender dólares</span>
+        <span class="inf-tarjeta__pie">
+          @if (d.resumen.masCercaVender != null) {
+          el más cercano, a {{ d.resumen.masCercaVender | number:'1.3-3' }}
+          } @else { ninguno esperando }
+        </span>
+      </div>
+      <div class="inf-tarjeta inf-tarjeta--comprar">
+        <span class="inf-tarjeta__valor">{{ d.resumen.quierenComprar }}</span>
+        <span class="inf-tarjeta__rotulo">Quieren comprar dólares</span>
+        <span class="inf-tarjeta__pie">
+          @if (d.resumen.masCercaComprar != null) {
+          el más cercano, a {{ d.resumen.masCercaComprar | number:'1.3-3' }}
+          } @else { ninguno esperando }
+        </span>
+      </div>
+    </div>
+    }
+
+    <div class="inf-filtros">
+      <mat-form-field appearance="outline">
+        <mat-label>Qué quiere</mat-label>
+        <mat-select [ngModel]="tipo()" (ngModelChange)="tipo.set($event); cargar()" placeholder="Selecciona una opción">
+          <mat-option value="">Todo</mat-option>
+          <mat-option value="COMPRA">Vender dólares</mat-option>
+          <mat-option value="VENTA">Comprar dólares</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="inf-filtros__buscar">
+        <mat-label>Nombre, documento, correo o comentario</mat-label>
+        <input matInput [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)"
+               (keyup.enter)="cargar()" />
+      </mat-form-field>
+
+      <mat-checkbox [checked]="soloActivas()"
+                    (change)="soloActivas.set($event.checked); cargar()">
+        Solo las que siguen esperando
+      </mat-checkbox>
+
+      <button mat-flat-button color="primary" type="button" (click)="cargar()">Buscar</button>
+      <button mat-button type="button" (click)="limpiar()">Limpiar</button>
+    </div>
+
+    @if (cargando()) {
+    <p class="inf-nota">Cargando…</p>
+    } @else if (!datos()?.filas?.length) {
+    <p class="inf-nota">Ningún cliente tiene alertas que cumplan el filtro.</p>
+    } @else {
+
+    <div class="inf-tabla">
+      <div class="inf-fila inf-fila--cabecera">
+        <span>Cliente</span><span>Qué quiere</span><span>A qué precio</span>
+        <span>Cuánto falta</span><span>Vigencia</span><span>Contacto</span>
+      </div>
+
+      @for (f of datos()!.filas; track f.id) {
+      <div class="inf-fila" [class.inf-fila--inminente]="esInminente(f)">
+        <div class="inf-cliente">
+          <span class="inf-cliente__nombre">{{ f.cliente?.nombre || '(sin perfil)' }}</span>
+          <span class="inf-cliente__dato">
+            {{ f.cliente?.documentNumber || '—' }}
+            @if (telefono(f)) { · <strong>{{ telefono(f) }}</strong> }
+            @if (f.cliente?.email) { · {{ f.cliente?.email }} }
+          </span>
+          @if (sinContacto(f)) {
+          <span class="inf-cliente__sincontacto">
+            <i-tabler name="alert-triangle" class="icon-14"></i-tabler>
+            Sin teléfono ni correo en su perfil
+          </span>
+          }
+          @if (f.comment) {
+          <span class="inf-cliente__nota" [matTooltip]="f.comment">“{{ f.comment }}”</span>
+          }
+        </div>
+
+        <span class="inf-que" [class.inf-que--vender]="f.type === 'COMPRA'"
+                              [class.inf-que--comprar]="f.type === 'VENTA'">
+          {{ queQuiere(f) }}
+        </span>
+
+        <span class="inf-precio">{{ f.targetPrice | number:'1.3-3' }}</span>
+
+        <span class="inf-falta">
+          <span class="inf-chip" [class.inf-chip--ya]="f.falta <= 0"
+                                 [class.inf-chip--cerca]="f.falta > 0 && esInminente(f)">
+            {{ textoFalta(f) }}
+          </span>
+        </span>
+
+        <span class="inf-fecha">
+          <span class="inf-fecha__valor">
+            Desde {{ f.createdAt | date:'dd/MM/yy' }}
+            @if (f.expiresAt) {
+            <br />hasta {{ f.expiresAt | date:'dd/MM/yy' }}
+            } @else {
+            <br /><span class="inf-fecha--suave">sin vencimiento</span>
+            }
+          </span>
+        </span>
+
+        <span class="inf-acciones">
+          <!-- El contacto es el motivo de la pantalla: hay que poder escribirle sin salir de aquí. -->
+          @if (whatsapp(f)) {
+          <a class="inf-wa" [href]="'https://wa.me/' + whatsapp(f)" target="_blank" rel="noopener"
+             [matTooltip]="'Abrir chat con ' + telefono(f)">
+            <i-tabler name="brand-whatsapp"></i-tabler> WhatsApp
+          </a>
+          }
+          @if (telefono(f) && !whatsapp(f)) {
+          <a class="inf-tel" [href]="'tel:' + telefono(f)" matTooltip="Llamar">
+            <i-tabler name="phone"></i-tabler> Llamar
+          </a>
+          }
+          @if (f.cliente?.email) {
+          <a mat-icon-button [href]="'mailto:' + f.cliente?.email"
+             [matTooltip]="'Escribir a ' + f.cliente?.email">
+            <i-tabler name="mail"></i-tabler>
+          </a>
+          }
+        </span>
+      </div>
+      }
+    </div>
+
+    <div class="inf-paginador">
+      <button mat-button type="button" [disabled]="pagina() <= 1"
+              (click)="cargar(pagina() - 1)">Anterior</button>
+      <span>Página {{ pagina() }} de {{ paginas() }} — {{ datos()!.total }} alertas</span>
+      <button mat-button type="button" [disabled]="pagina() >= paginas()"
+              (click)="cargar(pagina() + 1)">Siguiente</button>
+    </div>
+    }
+
+  </mat-card-content>
+</mat-card>

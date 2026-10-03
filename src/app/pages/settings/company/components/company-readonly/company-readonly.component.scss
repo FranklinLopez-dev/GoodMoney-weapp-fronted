@@ -1,0 +1,7 @@
+// Color directo y no `color="primary"`: esta versión de Material ya no lee los tokens --mdc-*-button-*.
+.boton-editar.mat-mdc-unelevated-button {
+  border-radius: 999px;
+  background: var(--gm-verde-500, #87ba30);
+  color: #fff;
+  font-weight: 700;
+}

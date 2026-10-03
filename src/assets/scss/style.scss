@@ -1,0 +1,425 @@
+@use "sass:map";
+@use "@angular/material" as mat;
+
+// Va primero para que los temas y overrides puedan referenciar los tokens.
+@use "design-tokens";
+
+@use "themecolors/blue_theme";
+@use "themecolors/orange_theme";
+@use "themecolors/aqua_theme";
+@use "themecolors/cyan_theme";
+@use "themecolors/green_theme";
+@use "themecolors/purple_theme";
+
+@use "variables" as *;
+@use "override-component";
+@use "./theme-variables/default-variables";
+@use "./theme-variables/light-theme-variables";
+@use "./theme-variables/dark-theme-variables";
+
+@use "layouts/transitions";
+@use "helpers/color";
+@use "helpers/border-color";
+@use "helpers/icon-size";
+@use "container";
+@use "layouts/layouts";
+@use "grid/grid";
+@use "helpers/custom-flex";
+@use "helpers/index";
+
+@use "horizontal/horizontal";
+@use "dark/dark";
+
+// apps: solo las dos que se usan; las otras siete eran de la plantilla comprada y se colaban enteras.
+@use "apps/chat";
+@use "apps/todo";
+@use "apps/ecommerce";
+
+@use "pages/auth";
+@use "pages/cliente";
+@use "pages/dashboards";
+@use "pages/landingpage";
+@use "pages/toast";
+
+@use "rtl/rtl";
+
+// Va al final a propósito: la biblioteca de marca tiene que ganar a la plantilla comprada, no al revés.
+@use "biblioteca";
+
+.global-drawer-container {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  height: 100vh !important;
+  z-index: 4000 !important;
+  background: transparent !important;
+  width: 100% !important;
+}
+
+.global-drawer-container.closed {
+  width: 0 !important;
+  overflow: hidden !important;
+}
+
+.global-drawer {
+  width: 480px !important;
+  max-width: 480px !important;
+  height: 100vh !important;
+  padding: 16px !important;
+}
+
+@media (max-width: 500px) {
+
+  .global-drawer-container:not(.closed),
+  .global-drawer {
+    width: 100vw !important;
+    max-width: 100% !important;
+    // A 90dvh el panel colgaba del borde superior y dejaba una franja muerta abajo.
+    height: 100dvh !important;
+  }
+
+  // El padding del panel se suma al del .drawer-container (20px): a lo ancho de un móvil es demasiado marco.
+  .global-drawer {
+    padding: 4px !important;
+    border-radius: 0 !important;
+  }
+}
+
+.custom-modal-full-height {
+  border-radius: 15px 0 0 15px !important;
+  padding: 0px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0px 8px 10px -5px rgba(0, 0, 0, 0.2), 0px 16px 24px 2px rgba(0, 0, 0, 0.14), 0px 6px 30px 5px rgba(0, 0, 0, 0.12);
+}
+
+.avatar-wrapper {
+  position: relative;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.avatar-img-wrapper {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.25s ease;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  opacity: 1;
+}
+
+.avatar-action {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .avatar-overlay {
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .avatar-wrapper:hover .avatar-overlay {
+    opacity: 1;
+  }
+
+  .avatar-wrapper:hover .avatar-img-wrapper {
+    transform: scale(1.05);
+  }
+}
+
+
+.su-error {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--mat-sys-error);
+  font-weight: 500;
+}
+
+.auth-header-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mat-sys-primary);
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+.auth-header-link:hover {
+  opacity: 1;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+
+.file-viewer-dialog .mat-mdc-dialog-content {
+  padding: 0;
+  height: 80vh;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+  display: block;
+}
+
+/* Libro de reclamaciones: tarjetas en móvil */
+/* Aquí y no en el scss del componente: Material crea thead/tbody en runtime, sin atributo de encapsulación. */
+@media (max-width: 767px) {
+  .tabla-reclamos {
+    overflow: visible;
+
+    table {
+      display: block;
+    }
+
+    thead {
+      display: none;
+    }
+
+    tbody {
+      display: block;
+    }
+
+    tr.example-element-row {
+      display: block;
+      height: auto;
+      padding: 8px 0 0;
+      margin-bottom: 12px;
+      border: 1px solid rgb(0 0 0 / 10%);
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgb(0 0 0 / 6%);
+
+      td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        height: auto;
+        padding: 7px 16px !important;
+        border: 0;
+        white-space: normal !important;
+      }
+    }
+
+    td[data-label]::before {
+      content: attr(data-label);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      flex-shrink: 0;
+    }
+
+    /* El número de fila no aporta en la tarjeta. */
+    td.mat-column-id {
+      display: none !important;
+    }
+
+    /* La flecha de expandir: pie de tarjeta a lo ancho, con su filete. */
+    td.mat-column-expand {
+      justify-content: center;
+      margin-top: 4px;
+      padding: 0 !important;
+      border-top: 1px solid rgb(0 0 0 / 6%);
+    }
+
+    /* Como bloque, el `height: 0` del modo tabla pintaría el detalle ENCIMA de las tarjetas siguientes. */
+    tr.example-detail-row {
+      display: block;
+      /* !important: el height 0 del modo tabla está en el scss del componente, que se inyecta después y empataría. */
+      height: auto !important;
+
+      td {
+        display: block;
+        height: auto;
+        padding: 0 !important;
+        white-space: normal !important;
+      }
+    }
+  }
+}
+
+/* Tablas Material como tarjetas en móvil */
+/* `.tabla-tarjetas`: bajo 768px cada fila es una tarjeta con su data-label; Material crea thead/tbody en runtime. */
+@media (max-width: 767px) {
+  .tabla-tarjetas {
+    overflow: visible;
+
+    table {
+      display: block;
+    }
+
+    thead {
+      display: none;
+    }
+
+    tbody {
+      display: block;
+    }
+
+    tr.mat-mdc-row {
+      display: block;
+      height: auto;
+      padding: 10px 0 0;
+      margin-bottom: 12px;
+      border: 1px solid rgb(0 0 0 / 10%);
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgb(0 0 0 / 6%);
+
+      td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        height: auto;
+        min-width: 0 !important;
+        padding: 7px 16px !important;
+        border: 0;
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+        /* Anula el sticky de columnas fijas, que en bloque descoloca. */
+        position: static !important;
+      }
+    }
+
+    td[data-label]::before {
+      content: attr(data-label);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      flex-shrink: 0;
+    }
+
+    /* El número de fila no aporta en la tarjeta; `td-num` marca la celda cuando su matColumnDef no se llama num/id. */
+    td.mat-column-num,
+    td.mat-column-id,
+    td.td-num {
+      display: none !important;
+    }
+
+    /* Acciones como pie centrado. `td-acciones` para columnas con otro nombre. */
+    td.mat-column-action,
+    td.td-acciones {
+      justify-content: center;
+      margin-top: 4px;
+      padding: 8px 16px !important;
+      border-top: 1px solid rgb(0 0 0 / 6%);
+    }
+
+    /* Columna que se llama 'action' pero es un DATO (la Acción de auditoría): `td-dato` le devuelve el formato de celda. */
+    td.mat-column-action.td-dato {
+      justify-content: space-between;
+      margin-top: 0;
+      padding: 7px 16px !important;
+      border-top: 0;
+    }
+
+    /* `td-cabecera`: la celda identidad como cabecera de la tarjeta, sin etiqueta, en negrita y con su filete. */
+    td.td-cabecera {
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      padding-bottom: 10px !important;
+      border-bottom: 1px solid rgb(0 0 0 / 6%);
+      font-weight: 600;
+    }
+  }
+
+  /* Usuarios/clientes: el nombre con su avatar hace de cabecera de tarjeta. */
+  .tabla-usuarios td.mat-column-names {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    padding-bottom: 10px !important;
+    border-bottom: 1px solid rgb(0 0 0 / 6%);
+    font-weight: 600;
+  }
+}
+
+/* Zoom del visor de imágenes */
+
+.image-zoom-area {
+  height: 100%;
+  overflow: auto;
+  cursor: zoom-in;
+  // El arrastre desplaza el scroll; sin esto el navegador lo pelea con el touch-scroll nativo.
+  touch-action: none;
+
+  &--zoomed {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+}
+
+// Ampliada ya no se ajusta al modal: crece y el área hace scroll.
+.image-preview--zoomed {
+  max-width: none;
+  max-height: none;
+  user-select: none;
+}
+
+.viewer-zoom-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+
+  &__nivel {
+    min-width: 46px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+  }
+}
+
+.viewer-actions-spacer {
+  flex: 1;
+}
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rounded-right {
+  border-top-right-radius: 4px !important;
+  border-bottom-right-radius: 4px !important;
+  border-top-left-radius: 0px !important;
+  border-bottom-left-radius: 0px !important;
+}
+
+.rounded-none {
+  border-radius: 0px !important;
+}

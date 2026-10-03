@@ -1,0 +1,102 @@
+// Gestión fiscal: reutiliza la rejilla y las pastillas de Cumplimiento (_compartido.scss) y solo
+// define sus columnas y lo propio.
+
+.fis-tabla--comprobantes .cmp-fila { grid-template-columns: 1.3fr 110px 1.8fr 120px 1.7fr 64px; }
+.fis-tabla--por-facturar .cmp-fila { grid-template-columns: 130px 120px 1.8fr 120px 130px 120px; }
+.fis-tabla--anulaciones  .cmp-fila { grid-template-columns: 1.2fr 1.4fr 1.8fr 130px 1.1fr 170px; }
+.fis-tabla--resumenes    .cmp-fila { grid-template-columns: 1.4fr 110px 1.6fr 1.8fr 120px 150px; }
+.fis-tabla--historial    .cmp-fila { grid-template-columns: 140px 140px 2.6fr 1.1fr; }
+
+.fis-beta {
+  margin: 0 0 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  background: #fdf3e0;
+  color: #8a5a0f;
+}
+
+.fis-motivo {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: var(--gm-plomo-400, #7b7979);
+  overflow-wrap: anywhere;
+}
+
+.fis-motivo--error { color: var(--gm-color-error, #ca4444); }
+
+.fis-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 18px;
+}
+
+.fis-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 4px 14px;
+  max-width: 760px;
+}
+
+.fis-form__ancho { grid-column: 1 / -1; }
+
+.fis-datos {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 6px 14px;
+  margin: 0;
+  font-size: 13px;
+
+  dt { color: var(--gm-plomo-400, #7b7979); }
+  dd { margin: 0; overflow-wrap: anywhere; }
+}
+
+.fis-lista {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+
+  li { margin-bottom: 4px; }
+}
+
+.fis-listo { color: var(--gm-verde-600, #4f9a1f); font-weight: 700; }
+
+.fis-tabla--sire        .cmp-fila { grid-template-columns: 1fr 1.3fr 150px 1.8fr 200px; }
+.fis-tabla--sire-lineas .cmp-fila { grid-template-columns: 1.2fr 110px 1.8fr 120px 2fr; }
+
+// Filtro activo (grupo de conciliación seleccionado).
+.fis-activo { border-color: var(--gm-color-texto, #2b2b2b) !important; font-weight: 700; }
+
+// Indicadores clicables: sin esto el <button> trae el fondo gris y el texto centrado del
+// navegador y no se parece a las tarjetas que no son clicables.
+button.cmp-tarjeta {
+  align-items: flex-start;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: var(--gm-color-blanco, #fff);
+  cursor: pointer;
+  transition: border-color .15s ease, box-shadow .15s ease;
+
+  &:hover { border-color: var(--gm-plomo-400, #7b7979); box-shadow: 0 2px 8px rgba(0, 0, 0, .06); }
+}
+
+// Configuración: cada sección separada de la anterior (sin esto el botón de una quedaba
+// pegado al título de la siguiente).
+.fis-config .cmp-bloque + .cmp-bloque {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid var(--gm-gris-300);
+}
+
+.fis-archivo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+
+  input[type='file'] { display: none; }
+}

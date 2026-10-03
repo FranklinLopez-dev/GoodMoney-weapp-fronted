@@ -1,0 +1,217 @@
+<mat-card class="chat-app cardWithShadow overflow-hidden">
+    <mat-sidenav-container [ngClass]="{
+      'side-panel-opened': sidePanelOpened,
+      'side-panel-closed': !sidePanelOpened
+    }">
+        <mat-sidenav class="bg-white" [mode]="isOver() ? 'over' : 'side'" [opened]="sidePanelOpened"
+            (open)="sidePanelOpened = true" (close)="sidePanelOpened = false">
+            <ng-scrollbar class="position-relative" style="height: 100%">
+                <div class="d-flex align-items-center p-24 gap-16">
+                    <img [fallbackImg]="appData.profile()?.documentTypeIsNatural ? 'person':'company'"
+                        [src]="appData.profile()?.profilePhoto | archivoPrivado | async" class="rounded-circle" width="54"
+                        height="54" />
+                    <div>
+                        <h4 class="f-s-16 f-w-600">{{appData.profile()?.names}}</h4>
+                        <span class="f-s-14 text-muted"> {{appData.profile()?.email}} </span>
+                    </div>
+                </div>
+
+                <div class="p-x-20 d-flex align-items-center justify-content-between">
+                    <button mat-flat-button color="primary" (click)="toggleNewChat()">
+                        {{ viewMode() === 'new-chat' ? 'Atrás' : 'Nuevo' }}
+                    </button>
+                    @if (viewMode() === 'new-chat') {
+                    <mat-paginator [length]="usersTotal()" [pageIndex]="usersPageIndex()" [pageSize]="usersPageSize()"
+                        (page)="onUsersPage($event)" [hidePageSize]="true" [showFirstLastButtons]="false">
+                    </mat-paginator>
+                    } @else {
+                    <mat-paginator [length]="chatsTotal()" [pageIndex]="chatsPageIndex()" [pageSize]="chatsPageSize()"
+                        (page)="onChatsPage($event)" [hidePageSize]="true" [showFirstLastButtons]="false">
+                    </mat-paginator>
+                    }
+                </div>
+
+                <mat-divider></mat-divider>
+
+                <div class="p-x-24 m-t-16">
+                    <mat-form-field appearance="outline" class="w-100">
+                        <input matInput placeholder="Buscar" [value]="searchTerm()"
+                            (input)="searchTerm.set($any($event.target).value)" (keydown.enter)="onSearch()" />
+                    </mat-form-field>
+                </div>
+
+                @if (viewMode() === 'new-chat') {
+                @if (users()?.length) {
+                <div class="m-x-24">
+                    <mat-nav-list class="chat-listing">
+                        @for (user of users(); track $index) {
+                        <mat-list-item role="listitem" (click)="openChat(user)" class="m-b-2 gap-12">
+                            <span matListItemIcon>
+                                <img fallbackImg="default" [src]="user.photo | archivoPrivado | async" alt="" width="42"
+                                    class="rounded-circle" />
+                            </span>
+                            <h3 class="f-w-600 f-s-16 truncate-line" matListItemTitle>
+                                {{user.names}}
+                            </h3>
+                            <p class="f-s-14 m-t-4 truncate-line" matListItemLine>
+                                {{ user.email }}
+                            </p>
+                        </mat-list-item>
+                        }
+                    </mat-nav-list>
+                </div>
+                } @else {
+                <div class="p-15 bg-light-primary text-primary rounded m-x-20 m-t-20 text-center">
+                    <span class="f-s-14">No se encontraron usuarios.</span>
+                </div>
+                }
+                } @else {
+                @if (chats()?.length) {
+                <div class="m-x-24">
+                    <mat-nav-list class="chat-listing">
+                        @for (message of chats(); track $index) {
+                        <mat-list-item role="listitem" (click)="selectMessage(message)"
+                            [class.bg-light-primary]="message.conversationId === activeChat()?.id" class="m-b-2 gap-12">
+                            <span
+                                class="m-r--4 position-relative flex-shrink-0 rounded-circle icon-45 d-flex align-items-center justify-content-center"
+                                matListItemIcon>
+                                <img fallbackImg="default" [src]="message.photo | archivoPrivado | async" alt="" width="45"
+                                    height="45" class="rounded-circle" />
+                            </span>
+                            <h3 class="f-w-600 f-s-16 truncate-line" matListItemTitle>
+                                {{message.applicationUser.names}}
+                            </h3>
+                            @if(!message.message.isImage) {
+                            <p class="f-s-14 m-t-4 truncate-line" [ngClass]="{
+                                    'text-error': message.isReadByOtherParticipant
+                                }" matListItemLine>
+                                {{ message.message.content }}
+                            </p>
+                            } @else {
+                            <p class="f-s-14 m-t-8 d-flex" matListItemLine>
+                                <i-tabler name="camera" class="icon-20"></i-tabler> <span class="m-l-8">Foto</span>
+                            </p>
+                            }
+                        </mat-list-item>
+                        }
+                    </mat-nav-list>
+                </div>
+                } @else {
+                <div class="p-15 bg-light-primary text-primary rounded m-x-20 m-t-20 text-center">
+                    <span class="f-s-14">No se encontraron mensajes.</span>
+                </div>
+                }
+                }
+            </ng-scrollbar>
+        </mat-sidenav>
+        <mat-sidenav-content>
+            @if(activeChat()) {
+            <mat-toolbar class="chat-right-panel d-flex align-items-center b-b-1 gap-8">
+                <button (click)="sidePanelOpened = !sidePanelOpened" mat-icon-button>
+                    <i-tabler name="align-left" class="icon-20"></i-tabler>
+                </button>
+                <div class="d-flex align-items-center gap-16">
+                    <img [src]="activeChat()?.applicationUser?.photo | archivoPrivado | async" fallbackImg="default" width="40"
+                        class="rounded-circle" />
+                    <div class="f-s-16 f-w-600">
+                        {{activeChat()?.applicationUser?.names}}
+                    </div>
+                </div>
+                @if(canDelete()) {
+                <button [matMenuTriggerFor]="moredd" class="m-l-auto" mat-icon-button>
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #moredd="matMenu" x-position="before">
+                    <button (click)="deleteChat()" mat-menu-item>Eliminar chat</button>
+                </mat-menu>
+                }
+            </mat-toolbar>
+            <ng-scrollbar style="height: calc(100vh - 300px)" class="position-relative">
+                <mat-card-content class="chat-middle-box p-24">
+                    @for (c of activeChat()?.messages; let i = $index; track c.id) {
+                    @if(i === 0 || (activeChat()!.messages[i - 1].dateSend | date:'d') !== (c.dateSend | date:'d')) {
+                    <div class="d-flex align-items-start align-items-lg-center justify-content-center m-b-2">
+                        <span>{{c.dateSend | date: 'longDate'}}</span>
+                    </div>
+                    <mat-divider class="m-b-16"></mat-divider>
+                    }
+                    @if(activeChat()!.applicationUser.id ===
+                    c.applicationUserId) {
+                    <div class="chat-list odd">
+                        <div>
+                            <div class="bg-light-secondary p-10 rounded d-flex align-items-center gap-16">
+                                <img [src]="activeChat()!.applicationUser.photo | archivoPrivado | async" fallbackImg="default"
+                                    class="rounded-circle" width="40" />
+                                @if(c.isImage) {
+                                <div>
+                                    <img style="max-width: 200px;" [src]="c.content | archivoPrivado | async"
+                                        fallbackImg="default">
+                                </div>
+                                } @else {
+                                <span class="f-s-14">{{ c.content }}</span>
+                                }
+                            </div>
+                            <span class="f-s-12">
+                                {{ c.dateSend | date: 'HH:mm' }}
+                            </span>
+                        </div>
+                    </div>
+                    } @else {
+                    <div class="chat-list even">
+                        <div>
+                            @if(c.isImage){
+                            <div>
+                                <img fallbackImg="default" style="max-width: 200px;" [src]="c.content | archivoPrivado | async">
+                            </div>
+                            } @else {
+                            <div class="bg-secondary p-10 rounded d-flex align-items-center f-s-14 f-w-600">
+                                {{ c.content }}
+                            </div>
+                            }
+
+                            <span class="f-s-12">
+                                {{ c.dateSend | date: 'HH:mm' }}
+                            </span>
+                        </div>
+                    </div>
+                    }
+                    }
+                </mat-card-content>
+            </ng-scrollbar>
+            <mat-divider></mat-divider>
+            <div class="d-flex p-t-20 p-x-24">
+                <button mat-icon-button class="d-flex m-t-4" (click)="f_input.click()">
+                    <i-tabler name="paperclip" class="icon-20"></i-tabler>
+                </button>
+                <input #fileInput type="file" [multiple]="false" hidden accept="image/*" #f_input
+                    (change)="uploadPhoto($event)" />
+                <mat-form-field appearance="outline" class="m-l-auto w-100">
+                    <textarea matInput placeholder="Enviar mensaje" (input)="messageText.set($any($event.target).value)"
+                        cdkTextareaAutosize [value]="messageText()"></textarea>
+                    <button mat-icon-button matSuffix (click)="sendMessage(null, null)">
+                        <mat-icon>send</mat-icon>
+                    </button>
+                </mat-form-field>
+            </div>
+            } @else {
+            <!-- El botón dentro de la columna: sumado al alto fijo del contenedor generaba un scroll de su propio alto. -->
+            <div style="height: calc(100vh - 200px)" class="d-flex flex-col">
+                <div>
+                    <button (click)="sidePanelOpened = !sidePanelOpened" mat-icon-button>
+                        <i-tabler name="align-left" class="icon-20"></i-tabler>
+                    </button>
+                </div>
+                <div class="d-flex align-items-center justify-content-center flex-grow-1 w-100">
+                    <div>
+                        <h3 class="f-s-21 f-w-500 text-center m-b-24" style="line-height: 1.6">
+                            Seleccione un chat para iniciar<br />conversación
+                        </h3>
+                        <img src="/assets/images/iconos3d/chat.svg" width="250px" alt="" class="d-block m-x-auto" />
+                    </div>
+                </div>
+            </div>
+            }
+
+        </mat-sidenav-content>
+    </mat-sidenav-container>
+</mat-card>

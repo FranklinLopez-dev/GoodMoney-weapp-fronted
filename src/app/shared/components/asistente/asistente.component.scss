@@ -1,0 +1,311 @@
+// Asistente virtual con el diseño del widget del sitio público (goodmoney): cabecera amarilla con avatar,
+// cuerpo gris, burbujas blanco/amarillo con esquina recta y pie con input píldora. Dimensiones propias de la webapp.
+
+.asistente-fab {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 40;
+  width: 58px;
+  height: 58px;
+  border: none;
+  border-radius: 50%;
+  background: var(--gm-color-marca-primario);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.18s ease, background-color 0.18s ease;
+
+  &:hover {
+    background: var(--gm-amarillo-500);
+    transform: translateY(-2px);
+  }
+
+  img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+  }
+
+  i-tabler {
+    width: 26px;
+    height: 26px;
+    color: var(--gm-color-texto-principal);
+  }
+}
+
+.asistente {
+  position: fixed;
+  right: 18px;
+  bottom: 88px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  width: min(370px, calc(100vw - 36px));
+  height: min(560px, calc(100vh - 130px));
+  background: #fff;
+  border-radius: var(--gm-radius-2xl);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+
+.asistente__cabecera {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--gm-color-marca-primario);
+}
+
+.asistente__avatar {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.asistente__titulo {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gm-color-texto-principal);
+}
+
+.asistente__estado {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--gm-plomo-700);
+}
+
+.asistente__acciones {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.asistente__accion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  color: var(--gm-color-texto-principal);
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--gm-amarillo-200);
+  }
+
+  i-tabler {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.asistente__cuerpo {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--gm-gris-100);
+}
+
+// Burbujas
+
+.burbuja {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 88%;
+}
+
+.burbuja--usuario {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.burbuja__avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+// Sin avatar, la burbuja se alinea con las que sí lo llevan.
+.burbuja--bot:not(:has(.burbuja__avatar)) .burbuja__contenido {
+  margin-left: 38px;
+}
+
+.burbuja__contenido {
+  display: flex;
+  flex-direction: column;
+}
+
+.burbuja__texto {
+  margin: 0;
+  padding: 11px 14px;
+  border-radius: var(--gm-radius-xl);
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--gm-color-texto-principal);
+  white-space: pre-line;
+}
+
+// La esquina recta apunta a quien habla, como en el widget del sitio público.
+.burbuja--bot .burbuja__texto {
+  border-bottom-left-radius: 4px;
+}
+
+.burbuja--usuario .burbuja__texto {
+  background: var(--gm-color-marca-primario);
+  box-shadow: none;
+  border-bottom-left-radius: var(--gm-radius-xl);
+  border-bottom-right-radius: 4px;
+}
+
+.burbuja__hora {
+  margin-top: 3px;
+  font-size: 10px;
+  color: var(--gm-plomo-400);
+}
+
+.burbuja--usuario .burbuja__hora {
+  text-align: right;
+}
+
+// "Escribiendo…": tres puntos con latido.
+.asistente__escribiendo {
+  display: inline-flex;
+  gap: 4px;
+
+  span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gm-plomo-400);
+    animation: asistente-latido 1s infinite;
+
+    &:nth-child(2) { animation-delay: 0.18s; }
+    &:nth-child(3) { animation-delay: 0.36s; }
+  }
+}
+
+@keyframes asistente-latido {
+  0%, 60%, 100% { opacity: 0.35; }
+  30% { opacity: 1; }
+}
+
+// Sugerencias y asesor
+
+.asistente__sugerencias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.asistente__chip {
+  padding: 7px 14px;
+  border: 1px solid var(--gm-amarillo-200);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gm-plomo-700);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  text-align: left;
+
+  &:hover {
+    background: var(--gm-amarillo-100);
+    border-color: var(--gm-color-marca-primario);
+  }
+}
+
+.asistente__asesor {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--gm-color-marca-acento);
+  color: var(--gm-color-texto-contraste);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: filter 0.15s ease;
+
+  i-tabler {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    filter: brightness(0.95);
+    color: var(--gm-color-texto-contraste);
+  }
+}
+
+// Entrada
+
+.asistente__pie {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--gm-gris-100);
+  background: #fff;
+}
+
+.asistente__input {
+  flex: 1;
+  border: 1px solid var(--gm-gris-300);
+  border-radius: 999px;
+  background: #fff;
+  padding: 11px 16px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--gm-color-texto-principal);
+  outline: none;
+  transition: border-color 0.15s ease;
+
+  &:focus {
+    border-color: var(--gm-color-marca-primario);
+  }
+}
+
+.asistente__enviar {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--gm-color-marca-primario);
+  color: var(--gm-color-texto-principal);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--gm-amarillo-500);
+  }
+
+  i-tabler {
+    width: 20px;
+    height: 20px;
+  }
+}

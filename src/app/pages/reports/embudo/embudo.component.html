@@ -1,0 +1,206 @@
+<mat-card>
+  <mat-card-content>
+
+    <p class="emb-bajada">
+      Qué pasa con las operaciones que <strong>registra el propio cliente</strong> en la web: cuántas llegan a cada
+      paso, dónde se caen y cuánto tardamos en atenderlas. Las que registra el equipo desde el panel no entran: nacen
+      finalizadas. Montos en dólares; <em>compra</em> es cuando la casa compra dólares (el cliente vende).
+    </p>
+
+    <div class="emb-filtros">
+      <div class="emb-atajos">
+        <button mat-stroked-button type="button" [class.emb-atajo--activo]="atajo() === 'mes'" [attr.aria-pressed]="atajo() === 'mes'" (click)="usarAtajo('mes')">Este mes</button>
+        <button mat-stroked-button type="button" [class.emb-atajo--activo]="atajo() === 'mes-pasado'" [attr.aria-pressed]="atajo() === 'mes-pasado'" (click)="usarAtajo('mes-pasado')">Mes pasado</button>
+        <button mat-stroked-button type="button" [class.emb-atajo--activo]="atajo() === '30'" [attr.aria-pressed]="atajo() === '30'" (click)="usarAtajo('30')">Últimos 30 días</button>
+        <button mat-stroked-button type="button" [class.emb-atajo--activo]="atajo() === '90'" [attr.aria-pressed]="atajo() === '90'" (click)="usarAtajo('90')">Últimos 90 días</button>
+      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Desde</mat-label>
+        <input matInput type="date" [ngModel]="desde()" (ngModelChange)="cambiarFecha('desde', $event)" (keyup.enter)="cargar()" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Hasta</mat-label>
+        <input matInput type="date" [ngModel]="hasta()" (ngModelChange)="cambiarFecha('hasta', $event)" (keyup.enter)="cargar()" />
+      </mat-form-field>
+      <button mat-flat-button color="primary" type="button" [disabled]="cargando() || !!problemaRango()" (click)="cargar()">
+        {{ cargando() ? 'Consultando…' : 'Consultar' }}
+      </button>
+    </div>
+    @if (problemaRango(); as problema) {
+    <p class="emb-aviso emb-aviso--error" role="alert">{{ problema }}</p>
+    }
+
+    @if (datos(); as d) {
+    <div class="emb-contenido" [class.emb-contenido--cargando]="cargando()">
+
+      <p class="emb-periodo">
+        Del {{ d.desde | date:'dd/MM/yyyy' }} al {{ d.hasta | date:'dd/MM/yyyy' }}
+      </p>
+      @if (d.operacionesSinOrigen > 0) {
+      <p class="emb-aviso">
+        {{ d.operacionesSinOrigen | number }} {{ d.operacionesSinOrigen === 1 ? 'operación del rango no entra' : 'operaciones del rango no entran' }}:
+        son anteriores a que se guardara quién las registró, y no se sabe si fue el cliente o el equipo.
+      </p>
+      }
+
+      <div class="emb-tarjetas">
+        <div class="emb-tarjeta">
+          <span class="emb-tarjeta__valor">{{ registradas()?.n ?? 0 | number }}</span>
+          <span class="emb-tarjeta__rotulo">Operaciones registradas</span>
+          <span class="emb-tarjeta__pie">USD {{ registradas()?.montoUsd ?? 0 | number:'1.2-2' }}</span>
+        </div>
+        <div class="emb-tarjeta emb-tarjeta--bien">
+          <span class="emb-tarjeta__valor">{{ finalizadas()?.n ?? 0 | number }}</span>
+          <span class="emb-tarjeta__rotulo">Finalizadas</span>
+          <span class="emb-tarjeta__pie">
+            USD {{ finalizadas()?.montoUsd ?? 0 | number:'1.2-2' }}
+            @if (conversion() != null) { · {{ conversion()! | percent:'1.0-1' }} de las registradas }
+          </span>
+        </div>
+        <div class="emb-tarjeta" [class.emb-tarjeta--aviso]="d.canceladas.total > 0">
+          <span class="emb-tarjeta__valor">{{ d.canceladas.total | number }}</span>
+          <span class="emb-tarjeta__rotulo">Canceladas</span>
+          <span class="emb-tarjeta__pie">{{ d.canceladas.sinTransferir | number }} antes de transferir</span>
+        </div>
+        <div class="emb-tarjeta">
+          @if (d.atencion; as a) {
+          <span class="emb-tarjeta__valor">{{ duracion(a.medianaMinutos) }}</span>
+          <span class="emb-tarjeta__rotulo">Tiempo de atención</span>
+          <span class="emb-tarjeta__pie">mediana de {{ a.operaciones | number }} finalizadas en el rango · promedio {{ duracion(a.promedioMinutos) }}</span>
+          } @else {
+          <span class="emb-tarjeta__valor">—</span>
+          <span class="emb-tarjeta__rotulo">Tiempo de atención</span>
+          <span class="emb-tarjeta__pie">ninguna finalizada con transferencia en el rango</span>
+          }
+        </div>
+        <div class="emb-tarjeta">
+          <span class="emb-tarjeta__valor">{{ d.perfilesNuevos | number }}</span>
+          <span class="emb-tarjeta__rotulo">Perfiles nuevos</span>
+          <span class="emb-tarjeta__pie">creados en el rango</span>
+        </div>
+      </div>
+
+      <h3 class="emb-titulo">Embudo</h3>
+
+      @if (cotizaron(); as c) {
+      <div class="emb-cotizaron">
+        <div>
+          <span class="emb-cotizaron__cifra">{{ c.compra.n + c.venta.n | number }}</span>
+          cotizaciones
+          <span class="emb-suave">(compra {{ c.compra.n | number }} · venta {{ c.venta.n | number }})</span>,
+          de las que <strong>{{ (usadas()?.compra?.n ?? 0) + (usadas()?.venta?.n ?? 0) | number }}</strong> se usaron para registrar.
+        </div>
+        @if (d.cotizacionesIncompletas) {
+        <p class="emb-aviso">
+          @if (d.cotizacionesDesde) {
+          Las cotizaciones se guardan desde el {{ d.cotizacionesDesde | date:'dd/MM/yyyy' }}: antes de esa fecha este
+          dato está incompleto, no es cero.
+          } @else {
+          Todavía no hay cotizaciones guardadas: este dato no existe para el rango, no es cero.
+          }
+        </p>
+        }
+        <p class="emb-nota">
+          Cada vez que el cliente ve el precio y avanza se sella una cotización; si vuelve a cotizar cuenta otra vez, así
+          que no se compara uno a uno con las operaciones.
+        </p>
+      </div>
+      }
+
+      <div class="emb-tabla emb-tabla--embudo">
+        <div class="emb-fila emb-fila--cabecera">
+          <span>Paso</span><span></span><span class="emb-num">Operaciones</span><span class="emb-num">Del paso anterior</span>
+          <span class="emb-num">Compra</span><span class="emb-num">Venta</span><span class="emb-num">USD</span>
+        </div>
+        @for (f of filas(); track f.paso.clave) {
+        <div class="emb-fila">
+          <span class="emb-paso">{{ f.paso.paso }}</span>
+          <span class="emb-barra" aria-hidden="true">
+            <span class="emb-barra__relleno" [style.width.%]="f.ancho"></span>
+          </span>
+          <span class="emb-num"><strong>{{ f.total.n | number }}</strong></span>
+          <span class="emb-num">
+            @if (f.pasaron != null) {
+            <span [class.emb-caida]="f.pasaron < 0.7">{{ f.pasaron | percent:'1.0-0' }}</span>
+            } @else { <span class="emb-suave">—</span> }
+          </span>
+          <span class="emb-num">{{ f.paso.compra.n | number }}</span>
+          <span class="emb-num">{{ f.paso.venta.n | number }}</span>
+          <span class="emb-num">{{ f.total.montoUsd | number:'1.2-2' }}</span>
+        </div>
+        }
+      </div>
+
+      <div class="emb-columnas">
+        <section>
+          <h3 class="emb-titulo">Canceladas: quién</h3>
+          @if (d.canceladas.total === 0) {
+          <p class="emb-nota">Ninguna cancelada en el rango.</p>
+          } @else {
+          <div class="emb-tabla">
+            <div class="emb-fila emb-fila--dos"><span>El cliente</span><span class="emb-num">{{ d.canceladas.cliente | number }}</span></div>
+            <div class="emb-fila emb-fila--dos"><span>Venció sin transferencia <span class="emb-suave">(sistema)</span></span><span class="emb-num">{{ d.canceladas.sistema | number }}</span></div>
+            <div class="emb-fila emb-fila--dos"><span>El equipo</span><span class="emb-num">{{ d.canceladas.equipo | number }}</span></div>
+          </div>
+          }
+        </section>
+
+        <section>
+          <h3 class="emb-titulo">Clientes con más volumen finalizado</h3>
+          @if (d.topClientesOculto) {
+          <p class="emb-nota">Ver los clientes pide el permiso del reporte de clientes.</p>
+          } @else if (!d.topClientes.length) {
+          <p class="emb-nota">Ninguna operación finalizada en el rango.</p>
+          } @else {
+          <div class="emb-tabla">
+            @for (t of d.topClientes; track t.eProfileId; let i = $index) {
+            <div class="emb-fila emb-fila--top">
+              <span class="emb-suave">{{ i + 1 }}</span>
+              <span class="emb-cliente">
+                <span class="emb-cliente__nombre">{{ t.nombre }}</span>
+                <span class="emb-suave">{{ t.documento || '—' }} · {{ t.operaciones | number }} {{ t.operaciones === 1 ? 'operación' : 'operaciones' }}</span>
+              </span>
+              <span class="emb-num">USD {{ t.montoUsd | number:'1.2-2' }}</span>
+            </div>
+            }
+          </div>
+          }
+        </section>
+      </div>
+
+      <h3 class="emb-titulo">Por día</h3>
+      @if (!d.porDia.length) {
+      <p class="emb-nota">Ninguna operación registrada por clientes en el rango.</p>
+      } @else {
+      <div class="emb-leyenda">
+        <span><i class="emb-punto emb-punto--registradas"></i> Registradas</span>
+        <span><i class="emb-punto emb-punto--finalizadas"></i> Finalizadas</span>
+      </div>
+      <div class="emb-tabla">
+        <div class="emb-fila emb-fila--dia emb-fila--cabecera">
+          <span>Día</span><span></span><span class="emb-num">Finalizadas / registradas</span>
+          <span class="emb-num">Canceladas</span><span class="emb-num">Finalizado</span>
+        </div>
+        @for (x of d.porDia; track x.dia) {
+        <div class="emb-fila emb-fila--dia">
+          <span>{{ x.dia | date:'EEE dd/MM' }}</span>
+          <span class="emb-dia" aria-hidden="true">
+            <span class="emb-dia__barra emb-dia__barra--registradas" [style.width.%]="ancho(x.registradas, maxDia())"></span>
+            <span class="emb-dia__barra emb-dia__barra--finalizadas" [style.width.%]="ancho(x.finalizadas, maxDia())"></span>
+          </span>
+          <span class="emb-num">{{ x.finalizadas | number }} / {{ x.registradas | number }}</span>
+          <span class="emb-num">
+            @if (x.canceladas) { {{ x.canceladas | number }} } @else { <span class="emb-suave">—</span> }
+          </span>
+          <span class="emb-num">USD {{ x.finalizadoUsd | number:'1.2-2' }}</span>
+        </div>
+        }
+      </div>
+      }
+    </div>
+    } @else if (cargando()) {
+    <p class="emb-nota">Cargando…</p>
+    }
+
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,179 @@
+<div class="cmp-panel">
+  <p class="cmp-bajada">
+    Las operaciones que entran al registro que se remite a la UIF: las que igualan o
+    superan el umbral por sí solas y <strong>todas las del mes de un cliente cuyo
+    acumulado lo cruza</strong>, porque la norma las trata como una sola operación.
+    Al <strong>archivo del portal</strong> van solo las individuales: el portal rechaza las que no
+    llegan al umbral individual. Las múltiples se documentan en
+    <a [routerLink]="['../operaciones-multiples']" [queryParams]="{ anio: anio(), mes: mes() }">Operaciones múltiples</a>.
+  </p>
+
+  <div class="cmp-filtros">
+    <mat-form-field appearance="outline">
+      <mat-label>Mes</mat-label>
+      <mat-select [ngModel]="mes()" (ngModelChange)="mes.set($event); cambiarMes()" placeholder="Selecciona el mes">
+        @for (m of meses; track m.valor) {
+        <mat-option [value]="m.valor">{{ m.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Año</mat-label>
+      <mat-select [ngModel]="anio()" (ngModelChange)="anio.set($event); cambiarMes()" placeholder="Selecciona el año">
+        @for (a of anios(); track a) {
+        <mat-option [value]="a">{{ a }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" type="button"
+            [disabled]="exportando()" (click)="exportar()">
+      {{ exportando() ? 'Generando…' : 'Descargar Excel del portal' }}
+    </button>
+
+    @if (puedeRevisar) {
+    <button mat-stroked-button type="button"
+            [disabled]="recalculando() || mesCongelado()" (click)="recalcular()">
+      {{ recalculando() ? 'Recalculando…' : 'Recalcular el mes' }}
+    </button>
+    }
+  </div>
+
+  @if (cargando()) {
+  <p class="cmp-nota">Cargando…</p>
+  } @else if (ro(); as r) {
+
+  <div class="cmp-estado-mes">
+    <span class="cmp-chip" [ngClass]="claseEstado(r.status)">{{ r.status }}</span>
+    <span>{{ r.totalFilas }} operaciones · USD {{ r.totalUsd | number:'1.2-2' }}</span>
+    @if (r.filasMultiples) {
+    <span>{{ r.filasPortal }} al portal · {{ r.filasMultiples }} múltiples</span>
+    }
+    @if (r.filasIncompletas > 0) {
+    <span class="cmp-vencido">{{ r.filasIncompletas }} filas del portal incompletas</span>
+    } @else if (r.totalFilas > 0) {
+    <span class="cmp-plazo">Todas las filas completas</span>
+    }
+    @if (r.fechaLimite) {
+    <span>
+      Límite {{ r.fechaLimite | date:'dd/MM/yyyy' }}
+      @if (r.vencido) { <strong class="cmp-vencido">vencido</strong> }
+    </span>
+    }
+  </div>
+
+  @if (mesCongelado()) {
+  <p class="cmp-aviso cmp-aviso--fuerte">
+    Este mes ya se remitió a la UIF, así que queda congelado: no se recalcula ni se
+    completan sus filas. Lo que se remitió tiene que seguir diciendo lo que se remitió.
+  </p>
+  }
+
+  @if (puedeRevisar && !mesCongelado()) {
+  <div class="cmp-filtros">
+    <mat-form-field appearance="outline" class="cmp-filtros__buscar">
+      <mat-label>Nota del oficial (n.º de cargo del portal, observaciones…)</mat-label>
+      <input matInput [ngModel]="nota()" (ngModelChange)="nota.set($event)" />
+    </mat-form-field>
+    <button mat-stroked-button type="button" (click)="marcarEstado('Enviado')"
+            [disabled]="r.totalFilas === 0">
+      Marcar como remitido al portal
+    </button>
+  </div>
+  }
+
+  @if (!r.totalFilas) {
+  <p class="cmp-nota">
+    Ninguna operación de este mes llega al umbral de registro. Si esperabas alguna,
+    comprueba los umbrales en Configuración y vuelve a recalcular el mes.
+  </p>
+  } @else {
+
+  <div class="cmp-tabla cmp-tabla--ro">
+    <div class="cmp-fila cmp-fila--cabecera">
+      <span>Fecha</span><span>Ejecutante</span><span>A favor de</span>
+      <span>USD</span><span>Ocupación</span><span>Origen de fondos</span><span></span>
+    </div>
+
+    @for (f of r.rows; track f.operationId) {
+    <div class="cmp-fila" [class.cmp-fila--incompleta]="f.faltantes.length">
+      <span>
+        {{ f.fecha | date:'dd/MM/yyyy' }}
+        <small class="cmp-doc">{{ f.comprobante || '—' }}</small>
+        @if (f.esMultiple) { <small class="cmp-regla">Múltiple · no va al portal</small> }
+      </span>
+      <span>
+        <strong>{{ f.ejecutanteNombre || '—' }}</strong>
+        <small class="cmp-doc">{{ f.ejecutanteDocumento || 'sin documento' }}</small>
+      </span>
+      <span>
+        @if (f.porCuentaDeTerceros) {
+        <strong>{{ f.beneficiarioNombre || '—' }}</strong>
+        <small class="cmp-doc">{{ f.beneficiarioDocumento || 'sin documento' }}</small>
+        } @else {
+        <small class="cmp-regla">De sí mismo</small>
+        }
+      </span>
+      <span class="cmp-numero">{{ f.montoUsd | number:'1.2-2' }}</span>
+      <span><small>{{ f.ocupacion || '—' }}</small></span>
+      <span><small>{{ f.origenFondos || '—' }}</small></span>
+      <span>
+        @if (f.tieneDj) {
+        <button mat-button type="button" (click)="descargarDj(f.operationId)">DJ</button>
+        } @else if (puedeRevisar && !mesCongelado()) {
+        <button mat-button type="button" [disabled]="pidiendoDj() === f.operationId" (click)="pedirDj(f.operationId)"
+                matTooltip="Manda al cliente un enlace para firmar la declaración jurada">Pedir DJ</button>
+        }
+        @if (puedeRevisar && !mesCongelado() && f.faltantes.length) {
+        <button mat-button type="button" (click)="editarFila(f)">Completar</button>
+        }
+      </span>
+    </div>
+
+    @if (f.faltantes.length) {
+    <div class="cmp-faltantes">
+      Falta: {{ f.faltantes.join(' · ') }}
+    </div>
+    }
+
+    @if (filaEnEdicion() === f.operationId) {
+    <div class="cmp-edicion">
+      <mat-form-field appearance="outline">
+        <mat-label>Origen de los fondos</mat-label>
+        <input matInput [ngModel]="edicionOrigen()" (ngModelChange)="edicionOrigen.set($event)"
+               placeholder="Ej.: 001: Ingresos por trabajo dependiente" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Ocupación del ejecutante</mat-label>
+        <mat-select [ngModel]="edicionOcupacion()" (ngModelChange)="edicionOcupacion.set($event)" placeholder="Selecciona la ocupación">
+          @for (o of r.ocupaciones; track o.id) {
+          <mat-option [value]="o.id">{{ o.code }} — {{ o.description }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>País de nacionalidad</mat-label>
+        <input matInput [ngModel]="edicionNacionalidad()"
+               (ngModelChange)="edicionNacionalidad.set($event)" placeholder="PE" />
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" type="button"
+              [disabled]="guardandoFila()" (click)="guardarFila()">
+        {{ guardandoFila() ? 'Guardando…' : 'Guardar' }}
+      </button>
+      <button mat-button type="button" (click)="filaEnEdicion.set(null)">Cancelar</button>
+
+      <p class="cmp-aviso">
+        La ocupación y la nacionalidad se guardan en la ficha de la persona, no en
+        esta fila: valen también para sus operaciones siguientes.
+      </p>
+    </div>
+    }
+    }
+  </div>
+  }
+  }
+</div>

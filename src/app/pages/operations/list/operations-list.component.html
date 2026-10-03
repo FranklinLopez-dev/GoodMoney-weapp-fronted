@@ -1,0 +1,296 @@
+<mat-card>
+    <mat-card-content>
+        <form [formGroup]="form" class="row">
+            <div class="col-sm-6 col-md-4 col-lg-2">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Desde</mat-label>
+                    <input appDateMask matInput maxlength="10" formControlName="startDate" placeholder="dd/mm/yyyy"
+                        [matDatepicker]="startDatePicker" (dateChange)="cargarData()" />
+                    <mat-datepicker-toggle matIconSuffix [for]="startDatePicker" />
+                    <mat-datepicker #startDatePicker />
+                    @if(control['startDate'].touched && control['startDate'].invalid) {
+                    <mat-hint class="su-error">
+                        Fecha incial inválida
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-2">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Hasta</mat-label>
+                    <input appDateMask matInput maxlength="10" formControlName="endDate" placeholder="dd/mm/yyyy"
+                        [matDatepicker]="endDatePicker" (dateChange)="cargarData()" />
+                    <mat-datepicker-toggle matIconSuffix [for]="endDatePicker" />
+                    <mat-datepicker #endDatePicker />
+                    @if (control['endDate'].touched && control['endDate'].invalid) {
+                    <mat-hint class="su-error">
+                        @if (control['endDate'].errors?.['required']) {
+                        Fecha final inválida
+                        }
+                        @if (control['endDate'].errors?.['rangeInvalid']) {
+                        La fecha "Desde" no puede ser mayor que "Hasta"
+                        }
+                    </mat-hint>
+                    }
+                </mat-form-field>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-2">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Tipo</mat-label>
+                    <mat-select formControlName="type" (selectionChange)="cargarData()" placeholder="Selecciona el tipo">
+                        <mat-option value="0">TODOS</mat-option>
+                        <mat-option value="1">COMPRAS</mat-option>
+                        <mat-option value="2">VENTAS</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="col-sm-6 col-md-6 col-lg-3">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Estados</mat-label>
+                    <mat-select formControlName="status" (selectionChange)="cambiarCabezeras()" placeholder="Selecciona el estado">
+                        <mat-option value="1">REGISTRADAS</mat-option>
+                        <mat-option value="2">EN PROCESO</mat-option>
+                        <mat-option value="3">FINALIZADAS</mat-option>
+                        <mat-option value="0">CANCELADAS</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </form>
+        <div class="table-responsive m-t-20">
+            @if(loading()) {
+            <div class="d-flex justify-content-center align-items-center">
+                <mat-spinner diameter="50"></mat-spinner>
+            </div>
+            } @else {
+            @if(store.items()?.operations?.length) {
+            <table mat-table [dataSource]="dataSource" class="w-100">
+
+                <ng-container matColumnDef="id">
+                    <th mat-header-cell *matHeaderCellDef>#</th>
+                    <td mat-cell *matCellDef="let i = index">
+                        {{ (i + pageIndex() * pageSize()) + 1 }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="operation">
+                    <th mat-header-cell *matHeaderCellDef> Operación </th>
+                    <td mat-cell *matCellDef="let element" class="no-wrap">
+                        <div class="d-flex align-items-center">
+                            <span class="f-w-500 f-s-16 m-t-0">
+                                {{ element.typeOperation == "1" ? "COMPRA" : "VENTA" }}
+                                @if(element.typeMpodera == 1) {
+                                    <img [src]="'./assets/images/flag/novodivisas.png'"
+                                    class="m-l-4 icon-20 rounded-circle" alt="Banco" />
+                                }
+                            </span>
+                        </div>
+                        <span class="f-w-600" [ngClass]="element.typeOperation == '1' ? 'text-primary' : 'text-secondary'">
+                            SC-{{element.id.toString().padStart(8, "0")}}
+                        </span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="fecha">
+                    <th mat-header-cell *matHeaderCellDef>Fecha</th>
+                    <td mat-cell *matCellDef="let element">
+                        {{ element.dateCreation | date: "dd/MM/yyyy HH:mm:ss" : 'es'}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="envia">
+                    <th mat-header-cell *matHeaderCellDef>Recibes</th>
+                    <td mat-cell *matCellDef="let element" class="no-wrap">
+                        {{ element.typeOperation == "1" ? "S/": "$"}}
+                        {{ element.typeOperation == "1" ? (element.total| number : ".2-2" : "en") : (element.monto |
+                        number :
+                        ".2-2"
+                        : "en") }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="recibe">
+                    <th mat-header-cell *matHeaderCellDef>Envías</th>
+                    <td mat-cell *matCellDef="let element" class="no-wrap">
+                        {{ element.typeOperation == "1" ? "$": "S/"}}
+                        {{ element.typeOperation == "1" ? (element.monto| number : ".2-2" : "en") : (element.total |
+                        number :
+                        ".2-2"
+                        : "en") }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="tc">
+                    <th mat-header-cell *matHeaderCellDef>T/C</th>
+                    <td mat-cell *matCellDef="let element" class="no-wrap">
+                        S/ {{ element.tipoCambio | number : ".4-4" : "en"}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="cupon">
+                    <th mat-header-cell *matHeaderCellDef> Cupon</th>
+                    <td nowrap mat-cell *matCellDef="let element" class="no-wrap">
+                        <span *ngIf="element.discount">
+                            S/ {{ element.discount | number : ".4-4" : "en"}}
+                        </span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="code">
+                    <th mat-header-cell *matHeaderCellDef>Código</th>
+                    <td mat-cell *matCellDef="let element">
+                        <div class="d-flex align-items-center">
+                            {{ element.codeOperation }}
+                            @if(element.operationImage) {
+                            <button class="m-l-4 d-flex align-items-center justify-content-center" mat-icon-button
+                                (click)="vouchers.abrirVoucher(element.id)">
+                                <i-tabler name="eye" class="icon-18 d-flex align-items-center text-primary"></i-tabler>
+                            </button>
+                            }
+
+                        </div>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="code2">
+                    <th mat-header-cell *matHeaderCellDef>Voucher</th>
+                    <td mat-cell *matCellDef="let element">
+                        @if(element.operationBanks.length == 1) {
+                        <div class="d-flex align-items-center">
+                            {{ element.operationBanks[0].codeOperation }}
+                            @if(element.operationBanks[0].operationImage) {
+                            <button class="m-l-4 d-flex align-items-center justify-content-center" mat-icon-button
+                                (click)="vouchers.abrirVoucherEnvio(element.operationBanks[0].id)">
+                                <i-tabler name="eye" class="icon-18 d-flex align-items-center text-primary"></i-tabler>
+                            </button>
+                            }
+
+                        </div>
+                        }
+
+                        @if(element.operationBanks.length > 1) {
+                        <div class="d-flex align-items-center">
+                            <button class="m-l-4 d-flex align-items-center justify-content-center" mat-icon-button
+                                (click)="openTransfer(element.operationBanks)">
+                                <i-tabler name="basket-dollar"
+                                    class="icon-18 d-flex align-items-center text-primary"></i-tabler>
+                            </button>
+                        </div>
+                        }
+
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="cancela">
+                    <th nowrap mat-header-cell *matHeaderCellDef>Cancelar</th>
+                    <td mat-cell *matCellDef="let element">
+                        <div class="d-flex justify-content-center align-items-center w-100">
+                            <button mat-mini-fab class="bg-error text-white" aria-label="Cancelar Operación"
+                                (click)="cancelarOperation(element)">
+                                <i-tabler class="icon-20 d-flex" name="circle-letter-x"></i-tabler>
+                            </button>
+
+                        </div>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="correlative">
+                    <th nowrap mat-header-cell *matHeaderCellDef>Comprobante</th>
+                    <td mat-cell *matCellDef="let element">
+                        @if(element.pdf || (element.status === '3' && element.correlative > 0)) {
+                        <div class="d-flex justify-content-center align-items-center w-100">
+                            {{element.serie + '-' + element.correlative}}
+                        </div>
+                        }
+
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="pdf">
+                    <th nowrap mat-header-cell *matHeaderCellDef>PDF</th>
+                    <td mat-cell *matCellDef="let element">
+                        <div class="d-flex justify-content-center align-items-center w-100">
+                            @if(element.pdf) {
+                            <a [href]="element.pdf" target="_blank" mat-mini-fab class="bg-error text-white"
+                                aria-label="Descargar Pdf">
+                                <i-tabler class="icon-20 d-flex" name="file-type-pdf"></i-tabler>
+                            </a>
+                            } @else if (element.status === '3' && element.correlative > 0) {
+                            <!-- Comprobante del motor nativo: se descarga con la sesión, no por un enlace público. -->
+                            <button mat-mini-fab class="bg-error text-white" matTooltip="Descargar comprobante"
+                                aria-label="Descargar comprobante" (click)="descargarComprobante(element)">
+                                <i-tabler class="icon-20 d-flex" name="file-type-pdf"></i-tabler>
+                            </button>
+                            }
+
+                        </div>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="xml">
+                    <th nowrap mat-header-cell *matHeaderCellDef>XML</th>
+                    <td mat-cell *matCellDef="let element">
+                        <div class="d-flex justify-content-center align-items-center w-100">
+                            @if(element.xml) {
+                            <a [href]="element.xml" target="_blank" mat-mini-fab class="bg-success text-white"
+                                aria-label="Descargar XML">
+                                <i-tabler class="icon-20 d-flex" name="file-type-xml"></i-tabler>
+                            </a>
+                            }
+
+                        </div>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="confirmaTr">
+                    <th nowrap mat-header-cell *matHeaderCellDef>Confirmar</th>
+                    <td mat-cell *matCellDef="let element">
+                        <div class="d-flex justify-content-center align-items-center w-100">
+                            <button mat-mini-fab class="cursor-pointer bg-success text-white"
+                                (click)="confirmarTransferencia(element)" aria-label="Confirmar Transferencia">
+                                <i-tabler class="icon-20 d-flex" name="checkbox"></i-tabler>
+                            </button>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+            } @else {
+            <!-- Un vacío sin salida es un callejón: se explica y se ofrece la acción. -->
+            <div class="gm-vacio">
+                <span class="gm-vacio__icono"><i-tabler name="receipt"></i-tabler></span>
+                <h3 class="gm-vacio__titulo">Todavía no tienes operaciones</h3>
+                <p class="gm-vacio__texto">
+                    Aquí verás cada cambio que hagas, con su estado y su comprobante.
+                    Prueba a ajustar el rango de fechas o registra tu primera operación.
+                </p>
+                <button mat-flat-button class="gm-vacio__cta" [routerLink]="['/operations/create']">
+                    Cambiar dólares
+                </button>
+            </div>
+            }
+            }
+
+        </div>
+
+        <!-- Resumen por estado al pie: arriba eran cuatro tarjetas que empujaban la tabla media pantalla hacia abajo. -->
+        <div class="resumen-estados">
+
+            <div class="resumen-estados__pildoras">
+                <span class="gm-insignia">Registradas: {{ registradas() }}</span>
+                <span class="gm-insignia gm-insignia--proceso">En proceso: {{ procesadas() }}</span>
+                <span class="gm-insignia gm-insignia--exito">Finalizadas: {{ finalizadas() }}</span>
+                <span class="gm-insignia gm-insignia--error">Canceladas: {{ canceladas() }}</span>
+            </div>
+
+            @if(store.items()?.operations?.length) {
+            <mat-paginator [length]="length()" [pageSize]="pageSize()" [pageSizeOptions]="pageSizeOptions"
+                [pageIndex]="pageIndex()" (page)="onPageChange($event)" showFirstLastButtons>
+            </mat-paginator>
+            }
+
+        </div>
+
+    </mat-card-content>
+</mat-card>

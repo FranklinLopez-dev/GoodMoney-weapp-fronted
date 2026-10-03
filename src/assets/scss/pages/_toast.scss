@@ -1,0 +1,98 @@
+@use "../variables" as *;
+
+// Avisos con la escala de estados: tono suave y texto en el color fuerte, no fondo saturado con texto blanco.
+
+html {
+  .toast-container .ngx-toastr {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 18px;
+    width: 380px;
+    max-width: calc(100vw - 32px);
+    border-radius: var(--gm-radius-xl);
+    border: 1px solid transparent;
+    box-shadow: var(--gm-shadow-lg);
+    background-image: none;
+    /* Opaco de verdad: los tonos `-300` son el color al 50% y el aviso se transparentaba sobre una tarjeta. */
+    background-color: #fff;
+    background-position: 18px center;
+    color: var(--gm-color-texto-principal);
+
+    // El icono por defecto de la librería es una imagen de fondo; se apaga y el borde izquierdo hace de indicador.
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      border-radius: var(--gm-radius-xl) 0 0 var(--gm-radius-xl);
+    }
+
+    position: relative;
+    overflow: hidden;
+  }
+
+  .toast-container .ngx-toastr:hover {
+    box-shadow: var(--gm-shadow-lg);
+    opacity: 1;
+  }
+
+  .toast-title {
+    font-size: var(--gm-font-size-sm);
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 2px;
+  }
+
+  .toast-message {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--gm-plomo-700);
+  }
+
+  .toast-success {
+    background-color: var(--gm-estado-success-500);
+    border-color: var(--gm-color-text-success);
+
+    &::before { background: var(--gm-color-text-success); }
+    .toast-title { color: var(--gm-color-text-success); }
+  }
+
+  .toast-error {
+    background-color: var(--gm-estado-error-500);
+    border-color: var(--gm-color-text-error);
+
+    &::before { background: var(--gm-color-text-error); }
+    .toast-title { color: var(--gm-color-text-error); }
+  }
+
+  .toast-warning {
+    background-color: var(--gm-estado-warning-500);
+    border-color: var(--gm-color-text-warning);
+
+    &::before { background: var(--gm-color-text-warning); }
+    .toast-title { color: var(--gm-color-text-warning); }
+  }
+
+  .toast-info {
+    background-color: var(--gm-estado-info-500);
+    border-color: var(--gm-color-text-info);
+
+    &::before { background: var(--gm-color-text-info); }
+    .toast-title { color: var(--gm-color-text-info); }
+  }
+
+  // El aspa de cerrar seguía el color de la plantilla.
+  .toast-container .toast-close-button {
+    color: var(--gm-plomo-700);
+    opacity: 0.5;
+    text-shadow: none;
+    font-size: 18px;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}

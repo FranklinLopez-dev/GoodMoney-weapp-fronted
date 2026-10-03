@@ -1,0 +1,75 @@
+@use "sass:map";
+@use "@angular/material" as mat;
+
+@include mat.form-field-overrides(
+  (
+    container-height: 40px,
+    outlined-container-shape: var(--mat-sys-corner-small),
+    container-vertical-padding: 8px,
+  )
+);
+
+html {
+  .hide-hint {
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+  }
+
+  // El subscript va en modo dynamic: sin mensaje ya no reserva línea, este mínimo separa los campos.
+  .mat-mdc-form-field-subscript-wrapper {
+    min-height: 22px;
+
+    // Aire entre el mensaje y el campo siguiente; su etiqueta flotante sobresale ~8px y se come parte.
+    .mat-mdc-form-field-hint-wrapper,
+    .mat-mdc-form-field-error-wrapper {
+      padding-bottom: 16px;
+    }
+
+    .su-error {
+      margin-bottom: 0;
+    }
+  }
+
+  // Los campos con prefijo de país desplazan el label y el texto del input;
+  // el mensaje debe arrancar en la misma línea visual, no bajo la bandera.
+  .mat-mdc-form-field:has(.gm-prefijo-pais) {
+    .mat-mdc-form-field-icon-prefix,
+    .mat-mdc-form-field-text-prefix {
+      align-self: stretch;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .gm-prefijo-pais {
+      display: inline-flex;
+      align-items: center;
+      height: 100%;
+    }
+
+    .mat-mdc-form-field-subscript-wrapper {
+      padding-left: 80px;
+    }
+
+    .mat-mdc-text-field-wrapper
+      .mat-mdc-form-field-flex
+      .mat-mdc-floating-label:not(.mdc-floating-label--float-above) {
+      top: calc(var(--mat-form-field-container-height) / 2 + 3px);
+    }
+
+  }
+
+  .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {
+    top: calc(var(--mat-form-field-container-height) / 2.15);
+  }
+
+  .demo-inline-calendar-card {
+    width: 300px;
+  }
+
+  .mat-mdc-slide-toggle
+    .mdc-switch--selected
+    .mdc-switch__handle:has(.mdc-switch__icons) {
+    margin: 0 26px;
+  }
+}

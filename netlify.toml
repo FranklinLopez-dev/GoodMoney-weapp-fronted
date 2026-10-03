@@ -1,0 +1,18 @@
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Cabeceras de seguridad. La CSP de recursos va en Report-Only: no rompe produccion, solo reporta en
+# consola las violaciones para poder afinarla antes de forzarla. `frame-ancestors 'none'` (anti-clickjacking)
+# y el resto de cabeceras si se aplican ya porque no afectan la carga de recursos.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    Content-Security-Policy = "frame-ancestors 'none'"
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' 'unsafe-inline' https://code.iconify.design https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://goodmoney.pseperu.pro https://www.googletagmanager.com https://*.google-analytics.com; connect-src 'self' https://goodmoney.pseperu.pro wss://goodmoney.pseperu.pro https://api.iconify.design https://code.iconify.design https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; frame-src 'self' blob: https://goodmoney.pseperu.pro https://www.google.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'"

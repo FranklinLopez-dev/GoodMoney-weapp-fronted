@@ -1,0 +1,124 @@
+<div class="fdj">
+  <div class="fdj__tarjeta">
+    <img class="fdj__logo" src="assets/images/logos/logo-3d.png" alt="Good Money" />
+    <h1>Declaración jurada de conocimiento del cliente</h1>
+
+    @if (cargando()) {
+    <p class="fdj__nota">Cargando…</p>
+    } @else if (firmada()) {
+    <p class="fdj__ok">Tu declaración quedó firmada. Gracias, ya puedes cerrar esta página.</p>
+    } @else if (!operacion()) {
+    <p class="fdj__error">{{ error() }}</p>
+    } @else if (operacion(); as o) {
+      @if (o.yaFirmada) {
+      <p class="fdj__ok">Esta declaración ya fue firmada. Gracias.</p>
+      } @else {
+      <p class="fdj__nota">
+        {{ o.cliente }}, tu operación <strong>{{ o.codigo }}</strong> ({{ o.tipo }} de USD {{ o.monto | number:'1.2-2' }} a
+        {{ o.tipoCambio | number:'1.3-4' }}, S/ {{ o.total | number:'1.2-2' }}) entra al registro que la SBS nos pide llevar.
+        El enlace vale hasta el {{ o.venceAt | date:'dd/MM/yyyy HH:mm' }}.
+      </p>
+
+      <div class="fdj__campos">
+        <mat-form-field appearance="outline">
+          <mat-label>Origen de los fondos</mat-label>
+          <mat-select [(ngModel)]="origenFondos">
+            @for (x of origenes; track x) { <mat-option [value]="x">{{ x.substring(4) }}</mat-option> }
+          </mat-select>
+        </mat-form-field>
+        @if (origenFondos.startsWith('099')) {
+        <mat-form-field appearance="outline">
+          <mat-label>Detalla el origen</mat-label>
+          <input matInput maxlength="200" [(ngModel)]="origenFondosOtros" />
+        </mat-form-field>
+        }
+        <mat-form-field appearance="outline">
+          <mat-label>Propósito de la relación con Good Money</mat-label>
+          <mat-select [(ngModel)]="proposito">
+            <mat-option value="Compra y venta de moneda extranjera">Compra y venta de moneda extranjera</mat-option>
+            <mat-option value="Pago a proveedores o del exterior">Pago a proveedores o del exterior</mat-option>
+            <mat-option value="Ahorro personal">Ahorro personal</mat-option>
+            <mat-option value="Gastos personales o de viaje">Gastos personales o de viaje</mat-option>
+            <mat-option value="Inversión">Inversión</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        @if (o.esPersonaNatural) {
+        <mat-form-field appearance="outline">
+          <mat-label>Estado civil</mat-label>
+          <mat-select [(ngModel)]="estadoCivil">
+            <mat-option value="001: SOLTERO">Soltero/a</mat-option>
+            <mat-option value="002: CASADO">Casado/a</mat-option>
+            <mat-option value="003: VIUDO">Viudo/a</mat-option>
+            <mat-option value="004: DIVORCIADO">Divorciado/a</mat-option>
+            <mat-option value="005: CONVIVIENTE">Conviviente</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Cónyuge o conviviente (si aplica)</mat-label>
+          <input matInput maxlength="200" [(ngModel)]="conyuge" />
+        </mat-form-field>
+
+        <mat-checkbox [(ngModel)]="esPep">Soy PEP: cumplo funciones públicas o prominentes en una organización internacional</mat-checkbox>
+        <mat-form-field appearance="outline">
+          <mat-label>¿Ha sido PEP en los últimos 2 años?</mat-label>
+          <mat-select [(ngModel)]="pepHistorico">
+            <mat-option [value]="true">Sí, he sido</mat-option>
+            <mat-option [value]="false">No he sido</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>¿Colaborador directo de la máxima autoridad?</mat-label>
+          <mat-select [(ngModel)]="pepColaborador">
+            <mat-option value="SI_SOY">Sí soy</mat-option>
+            <mat-option value="SI_HE_SIDO">Sí he sido</mat-option>
+            <mat-option value="NO_SOY">No soy</mat-option>
+            <mat-option value="NO_HE_SIDO">No he sido</mat-option>
+          </mat-select>
+        </mat-form-field>
+        @if (declaraPep) {
+        <mat-form-field appearance="outline">
+          <mat-label>Cargo</mat-label>
+          <input matInput maxlength="200" [(ngModel)]="pepCargo" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Institución</mat-label>
+          <input matInput maxlength="200" [(ngModel)]="pepInstitucion" />
+        </mat-form-field>
+        }
+
+        <mat-checkbox [(ngModel)]="esFamiliarPep">Soy pariente (hasta 2.º grado) o cónyuge de una PEP</mat-checkbox>
+        @if (esFamiliarPep) {
+        @for (f of familiares; track $index; let i = $index) {
+        <div class="fdj__fila">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombres de la PEP</mat-label>
+            <input matInput maxlength="200" [(ngModel)]="f.nombres" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Parentesco</mat-label>
+            <input matInput maxlength="100" [(ngModel)]="f.parentesco" />
+          </mat-form-field>
+          @if (familiares.length > 1) { <button mat-button type="button" (click)="quitarFamiliar(i)">Quitar</button> }
+        </div>
+        }
+        <button mat-button type="button" (click)="agregarFamiliar()">Agregar otra</button>
+        }
+        }
+
+        <mat-checkbox [(ngModel)]="acepta" class="fdj__acepta">
+          <strong>Declaro bajo juramento</strong> que la información proporcionada es verdadera y que los fondos de esta
+          operación tienen el origen indicado. Acepto que esta confirmación vale como mi firma de la declaración jurada
+          (formato SBS), que queda registrada con la fecha y los datos de esta conexión.
+        </mat-checkbox>
+      </div>
+
+      @if (error()) { <p class="fdj__error">{{ error() }}</p> }
+      <button mat-flat-button color="primary" type="button" class="fdj__boton"
+              [disabled]="enviando() || !acepta || !origenFondos" (click)="firmar()">
+        {{ enviando() ? 'Firmando…' : 'Firmar declaración' }}
+      </button>
+      }
+    }
+  </div>
+</div>

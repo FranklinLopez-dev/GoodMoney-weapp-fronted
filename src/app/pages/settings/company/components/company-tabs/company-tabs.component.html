@@ -1,0 +1,39 @@
+<mat-card class="cardWithShadow">
+    <mat-tab-group mat-stretch-tabs="false" animationDuration="0ms" [selectedIndex]="activeTabIndex"
+        (selectedIndexChange)="handleTabChange($event)">
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <div class="d-flex align-items-center">
+                    <mat-icon class="d-flex align-items-center">
+                        <i-tabler name="home" class="icon-20 m-r-8 d-flex"></i-tabler>
+                    </mat-icon>
+                </div>
+                Información
+            </ng-template>
+            <mat-card-content class="p-y-24">
+                <company-general-tab></company-general-tab>
+                <company-location-tab></company-location-tab>
+            </mat-card-content>
+        </mat-tab>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <div class="d-flex align-items-center">
+                    <mat-icon class="d-flex align-items-center">
+                        <i-tabler name="phone" class="icon-20 m-r-8 d-flex"></i-tabler>
+                    </mat-icon>
+                </div>
+                Contacto
+            </ng-template>
+            <mat-card-content class="p-y-24">
+                <company-contact-tab></company-contact-tab>
+            </mat-card-content>
+        </mat-tab>
+    </mat-tab-group>
+    @if(true) {
+    <div class="text-right p-24 p-t-0">
+        <button (click)="store.cancelEdit()" mat-button class="m-r-8">Cancelar</button>
+        <button (click)="save()" [disabled]="!store.hasChanges() || !areAllFormsValid() || loading()"
+            mat-flat-button>{{ loading() ? 'Guardando...' : 'Guardar' }}</button>
+    </div>
+    }
+</mat-card>

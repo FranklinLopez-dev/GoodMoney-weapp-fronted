@@ -1,0 +1,87 @@
+.ajustes-grupo {
+  margin-bottom: 32px;
+}
+
+.ajustes-grupo__cabecera {
+  margin-bottom: 12px;
+}
+
+.ajustes-grupo__titulo {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gm-color-texto-principal);
+}
+
+.ajustes-grupo__bajada {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--gm-plomo-400);
+}
+
+.ajustes-rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+/* La frase importa más que el icono: sin ella hay que entrar a averiguar qué hay dentro. */
+.ajuste {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--gm-gris-300);
+  border-radius: var(--gm-radius-2xl);
+  background: #fff;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: var(--gm-color-marca-primario);
+    box-shadow: var(--gm-shadow-sm);
+  }
+}
+
+.ajuste__icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: var(--gm-radius-xl);
+  background: var(--gm-color-fondo-crema);
+  color: var(--gm-color-marca-terciario);
+
+  i-tabler {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+.ajuste__texto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ajuste__titulo {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ajuste__descripcion {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--gm-plomo-400);
+}
+
+.ajuste__flecha {
+  width: 18px;
+  height: 18px;
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--gm-gris-500);
+}

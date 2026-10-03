@@ -1,0 +1,10 @@
+<mat-sidenav-container [ngClass]="{
+    cardBorder: options.cardBorder,
+  }" [dir]="options.dir!">
+  <router-outlet></router-outlet>
+</mat-sidenav-container>
+
+<app-loading-splash-host></app-loading-splash-host>
+
+<!-- El asistente también fuera de la sesión; las FAQ salen de `/public`, sin token. -->
+<app-asistente />

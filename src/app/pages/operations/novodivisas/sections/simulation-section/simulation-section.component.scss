@@ -1,0 +1,35 @@
+mat-button-toggle-group.tipo-toggle {
+  border: 1px solid var(--gm-gris-500);
+  border-radius: 999px;
+  overflow: hidden;
+
+  mat-button-toggle {
+    background: #fff;
+    font-size: 14px;
+    color: var(--gm-color-texto-principal);
+    border: 0;
+  }
+
+  .tipo-toggle__etiqueta {
+    font-weight: 600;
+    margin-right: 14px;
+  }
+
+  .mat-button-toggle-checked {
+    background: var(--gm-gris-100);
+
+    .tipo-toggle__etiqueta {
+      font-weight: 700;
+    }
+  }
+}
+
+mat-form-field {
+  .mat-mdc-text-field-wrapper {
+    border-radius: 10px;
+  }
+
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}

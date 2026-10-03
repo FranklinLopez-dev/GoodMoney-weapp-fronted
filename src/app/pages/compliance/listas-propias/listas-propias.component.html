@@ -1,0 +1,194 @@
+<div class="cmp-panel">
+  <p class="cmp-bajada">
+    Las listas que arma el oficial: <strong>PEP</strong>, <strong>Noticias LAFT</strong>,
+    <strong>Relacionados LAFT</strong> y <strong>OFAC</strong> de carga manual. Se cruzan con la cartera
+    al evaluar el riesgo de cada cliente: la PEP <strong>solo por número de documento</strong> (un
+    homónimo no convierte a nadie en PEP); las demás por nombre exacto y por documento cuando lo traen.
+  </p>
+
+  <div class="cmp-tarjetas">
+    @for (r of resumen(); track r.tipoLista) {
+    <button type="button" class="cmp-tarjeta lpr-tarjeta" [class.lpr-tarjeta--activa]="tipo() === r.tipoLista"
+            (click)="elegir(r.tipoLista)">
+      <span class="cmp-tarjeta__cifra">{{ r.activas | number }}</span>
+      <span class="cmp-tarjeta__rotulo">{{ r.nombre }}</span>
+      <span class="cmp-tarjeta__pie">
+        @if (r.ultimaCarga) { Última carga {{ r.ultimaCarga | date:'dd/MM/yyyy' }} } @else { <span class="cmp-tarjeta__falta">sin cargar</span> }
+        @if (r.ultimoPeriodo) { · período {{ r.ultimoPeriodo }} }
+      </span>
+    </button>
+    }
+  </div>
+
+  <h3 class="cmp-titulo">{{ nombreTipo() }}</h3>
+
+  <div class="cmp-filtros">
+    <mat-form-field appearance="outline" class="cmp-filtros__buscar">
+      <mat-label>Nombre o documento</mat-label>
+      <input matInput [ngModel]="buscar()" (ngModelChange)="buscar.set($event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Estado</mat-label>
+      <mat-select [ngModel]="estadoFiltro()" (ngModelChange)="filtrarEstado($event)">
+        <mat-option value="activas">Activas</mat-option>
+        <mat-option value="baja">Dadas de baja</mat-option>
+        <mat-option value="todas">Todas</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="cmp-acciones">
+    <button mat-stroked-button type="button" (click)="plantilla()">Descargar plantilla</button>
+    <button mat-stroked-button type="button" (click)="exportar()">Exportar a Excel</button>
+    @if (puedeCargar) {
+    <button mat-stroked-button type="button" [class.lpr-activo]="panel() === 'alta'" (click)="abrir('alta')">Agregar una entrada</button>
+    <button mat-flat-button color="primary" type="button" (click)="abrir('carga')">Cargar desde Excel</button>
+    }
+  </div>
+
+  @if (panel() === 'carga') {
+  <div class="cmp-edicion lpr-panel">
+    <p class="cmp-aviso">
+      Las columnas se reconocen por su título («Documento», «Apellidos y Nombres», «Cargo», «Delito»,
+      «Periodo informativo»…), en cualquier orden. Si el libro trae una hoja por lista, se usa la de
+      {{ nombreTipo() }}. Una persona que ya estaba se actualiza, no se duplica; las filas marcadas
+      «Dada de baja» (las de una exportación del histórico) no se cargan.
+    </p>
+    <div class="lpr-archivo">
+      <input #xls type="file" accept=".xlsx" (change)="elegirArchivo($event)" />
+      <button mat-stroked-button type="button" (click)="xls.click()">Elegir archivo .xlsx</button>
+      <span>{{ archivo()?.name || 'Ningún archivo elegido' }}</span>
+    </div>
+    <mat-checkbox [ngModel]="reemplazar()" (ngModelChange)="reemplazar.set($event)">
+      Reemplazar la lista vigente (la carga mensual sustituye a la anterior)
+    </mat-checkbox>
+    @if (reemplazar()) {
+    <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+      <mat-label>Motivo de la baja de las entradas vigentes (obligatorio)</mat-label>
+      <input matInput [ngModel]="motivoReemplazo()" (ngModelChange)="motivoReemplazo.set($event)"
+             placeholder="Ej.: carga del período septiembre 2026" />
+    </mat-form-field>
+    }
+    <div class="cmp-acciones">
+      <button mat-flat-button color="primary" type="button" [disabled]="subiendo() || !archivo()" (click)="subir()">
+        {{ subiendo() ? 'Cargando…' : 'Cargar' }}
+      </button>
+      <button mat-button type="button" (click)="panel.set('')">Cancelar</button>
+    </div>
+  </div>
+  }
+
+  @if (resultadoCarga(); as r) {
+  <div class="cmp-nota">
+    Se leyeron {{ r.leidas }} fila(s): {{ r.importadas - r.actualizadas }} nuevas{{ r.actualizadas ? ', ' + r.actualizadas + ' actualizadas' : '' }}{{ r.dadasDeBaja ? ', ' + r.dadasDeBaja + ' dadas de baja de la carga anterior' : '' }}{{ r.descartadas ? ', ' + r.descartadas + ' descartadas' : '' }}.
+    @for (a of r.avisos; track a) { <div class="cmp-aviso">{{ a }}</div> }
+  </div>
+  }
+
+  @if (panel() === 'alta') {
+  <div class="cmp-edicion lpr-panel cmp-formulario">
+    <mat-form-field appearance="outline">
+      <mat-label>Tipo de documento</mat-label>
+      <input matInput [ngModel]="nueva().tipoDocumento" (ngModelChange)="fijar('tipoDocumento', $event)" placeholder="DNI, CE, RUC…" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Número de documento{{ esPep() ? ' (obligatorio)' : '' }}</mat-label>
+      <input matInput [ngModel]="nueva().numberDocument" (ngModelChange)="fijar('numberDocument', $event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+      <mat-label>Apellidos y nombres</mat-label>
+      <input matInput [ngModel]="nueva().nombreCompleto" (ngModelChange)="fijar('nombreCompleto', $event)" />
+    </mat-form-field>
+    @if (esPep()) {
+    <mat-form-field appearance="outline">
+      <mat-label>Cargo</mat-label>
+      <input matInput [ngModel]="nueva().cargo" (ngModelChange)="fijar('cargo', $event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Entidad</mat-label>
+      <input matInput [ngModel]="nueva().entidad" (ngModelChange)="fijar('entidad', $event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Inicio del cargo</mat-label>
+      <input matInput type="date" [ngModel]="nueva().fechaInicio" (ngModelChange)="fijar('fechaInicio', $event || null)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Fin del cargo</mat-label>
+      <input matInput type="date" [ngModel]="nueva().fechaFin" (ngModelChange)="fijar('fechaFin', $event || null)" />
+    </mat-form-field>
+    }
+    @if (llevaDelito()) {
+    <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+      <mat-label>Delito</mat-label>
+      <input matInput [ngModel]="nueva().delito" (ngModelChange)="fijar('delito', $event)" />
+    </mat-form-field>
+    }
+    <mat-form-field appearance="outline">
+      <mat-label>Período informativo</mat-label>
+      <input matInput [ngModel]="nueva().periodoInformativo" (ngModelChange)="fijar('periodoInformativo', $event)" placeholder="30/09/2026" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+      <mat-label>Observación</mat-label>
+      <input matInput [ngModel]="nueva().observacion" (ngModelChange)="fijar('observacion', $event)" />
+    </mat-form-field>
+    <div class="cmp-acciones cmp-formulario__ancho">
+      <button mat-flat-button color="primary" type="button" [disabled]="guardando()" (click)="guardarNueva()">
+        {{ guardando() ? 'Guardando…' : 'Agregar' }}
+      </button>
+      <button mat-button type="button" (click)="panel.set('')">Cancelar</button>
+    </div>
+  </div>
+  }
+
+  @if (cargando() && !entradas().length) {
+  <p class="cmp-nota">Cargando…</p>
+  } @else if (!entradas().length) {
+  <p class="cmp-nota">
+    {{ buscar() ? 'Nadie coincide con la búsqueda.' : activas() === false ? 'No hay entradas dadas de baja.' : 'La lista está vacía. Cárgala desde Excel o agrega entradas una a una.' }}
+  </p>
+  } @else {
+  <div class="cmp-tabla lpr-tabla">
+    <div class="cmp-fila cmp-fila--cabecera">
+      <span>Documento</span><span>Apellidos y nombres</span><span>{{ esPep() ? 'Cargo · entidad' : 'Delito' }}</span>
+      <span>Período</span><span>Estado</span><span></span>
+    </div>
+    @for (e of entradas(); track e.id) {
+    <div class="cmp-fila" [class.lpr-fila--baja]="!e.activo">
+      <span data-label="Documento">{{ e.numberDocument || '—' }}<small class="cmp-doc">{{ e.tipoDocumento }}</small></span>
+      <span data-label="Nombre"><strong>{{ e.nombreCompleto || '—' }}</strong>
+        @if (e.observacion) { <small class="cmp-doc">{{ e.observacion }}</small> }</span>
+      <span data-label="Detalle">{{ detalle(e) }}
+        @if (e.fechaInicio || e.fechaFin) { <small class="cmp-doc">{{ e.fechaInicio | date:'dd/MM/yyyy':'UTC' }} – {{ e.fechaFin ? (e.fechaFin | date:'dd/MM/yyyy':'UTC') : 'vigente' }}</small> }</span>
+      <span data-label="Período">{{ e.periodoInformativo || '—' }}</span>
+      <span data-label="Estado">
+        @if (e.activo) { <span class="cmp-chip cmp-chip--ok">Activa</span> }
+        @else {
+        <span class="cmp-chip cmp-chip--baja">De baja</span>
+        <small class="cmp-doc">{{ e.motivoEliminacion }}</small>
+        <small class="cmp-doc">{{ e.eliminadoAt | date:'dd/MM/yyyy' }}{{ e.eliminadoPor ? ' · ' + e.eliminadoPor : '' }}</small>
+        }
+      </span>
+      <span>
+        @if (puedeCargar) {
+          @if (e.activo) { <button mat-button type="button" (click)="pedirBaja(e)">Dar de baja</button> }
+          @else { <button mat-button type="button" (click)="reactivar(e)">Reactivar</button> }
+        }
+      </span>
+    </div>
+    @if (enBaja() === e.id) {
+    <div class="cmp-edicion">
+      <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+        <mat-label>Motivo de la baja (obligatorio)</mat-label>
+        <input matInput [ngModel]="motivoBaja()" (ngModelChange)="motivoBaja.set($event)"
+               placeholder="Ej.: dejó el cargo el 31/08/2026" (keyup.enter)="confirmarBaja(e)" />
+      </mat-form-field>
+      <button mat-flat-button color="warn" type="button" (click)="confirmarBaja(e)">Dar de baja</button>
+      <button mat-button type="button" (click)="enBaja.set(null)">Cancelar</button>
+    </div>
+    }
+    }
+  </div>
+  <mat-paginator [length]="total()" [pageIndex]="pagina()" [pageSize]="tamano()" [pageSizeOptions]="[50, 100]"
+                 (page)="cambiarPagina($event)"></mat-paginator>
+  }
+</div>

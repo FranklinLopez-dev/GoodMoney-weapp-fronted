@@ -1,0 +1,64 @@
+<div class="row">
+    @for (profile of profiles(); track profile.profile.id) {
+    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 m-t-16">
+        <mat-card class="profile-card" (click)="selectProfile(profile.profile)">
+
+            <div class="profile-photo">
+                <!-- Sin la guarda, un perfil sin foto pedía `<api>/null`: un 404 por cada fila del listado. -->
+                <img [src]="profile.profile.profilePhoto | archivoPrivado | async" alt="Perfil" [fallbackImg]="profile.profile.documentTypeIsNatural ? 'person' : 'company'" />
+            </div>
+
+            <h4 class="profile-name">
+                {{ profile.profile.names }} {{ profile.profile.lastNames }}
+            </h4>
+
+            <span class="profile-type">
+                {{ getProfileType(profile.profile) }}
+            </span>
+
+            <div class="profile-doc">
+                {{ profile.profile.documentTypeName }}: <strong>{{ profile.profile.documentNumber }}</strong>
+            </div>
+
+            <!-- Con el pin delante: sin él la dirección se confundía con una línea más de datos del documento. -->
+            <div class="profile-address">
+                <i-tabler name="map-pin"></i-tabler>
+                {{ profile.profile.address || 'Sin dirección registrada' }}
+            </div>
+
+            <div class="profile-actions">
+                <button type="button" class="administrar-btn"
+                    (click)="editProfile(profile.profile); $event.stopPropagation()">
+                    <img src="assets/images/iconos3d/sol.svg" alt="" />
+                    Administrar
+                </button>
+
+                <mat-slide-toggle hideIcon [checked]="profile.profile.flagCheck"
+                    (click)="$event.stopPropagation()"
+                    (change)="toggleProfile(profile.profile, $event)">
+                </mat-slide-toggle>
+            </div>
+
+        </mat-card>
+    </div>
+    }
+
+    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 m-t-16">
+        <mat-card class="profile-card add-profile" (click)="createProfile()">
+
+            <img class="add-profile-img" src="assets/images/iconos3d/mas-3d.webp" alt="" />
+
+            <div class="add-profile-text">
+                Agregar Perfil
+            </div>
+
+        </mat-card>
+    </div>
+
+</div>
+
+@if (changingProfile) {
+  <div class="loading-overlay">
+    <mat-spinner diameter="60"></mat-spinner>
+  </div>
+}

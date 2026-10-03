@@ -1,0 +1,239 @@
+// Informe de alertas: resumen arriba, tabla ordenada por cercanía debajo.
+
+.inf-bajada {
+  margin: 0 0 16px;
+  max-width: 90ch;
+  font-size: 13px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+.inf-resumen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.inf-tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  border: 1px solid var(--gm-gris-300);
+  border-radius: 12px;
+}
+
+.inf-tarjeta__valor { font-size: 24px; font-weight: 700; line-height: 1.1; }
+.inf-tarjeta__rotulo { font-size: 12.5px; font-weight: 700; }
+.inf-tarjeta__pie { font-size: 11.5px; color: var(--gm-plomo-300, #a3a3a3); }
+
+// Verde el lado que trae dólares a la casa, rojo el que los saca: la misma pareja que ve el cliente en sus alertas.
+.inf-tarjeta--vender  { border-color: var(--gm-verde-200, #cde8ab); .inf-tarjeta__valor { color: var(--gm-verde-600, #4f9a1f); } }
+.inf-tarjeta--comprar { border-color: #f3c9c9; .inf-tarjeta__valor { color: var(--gm-color-error, #ca4444); } }
+
+.inf-filtros {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+// El tema da width:100% a mat-form-field: sin acotarlo cada filtro se come una fila entera.
+.inf-filtros mat-form-field { flex: 0 0 auto; width: 200px; }
+// Más específica que la de arriba: su `flex: 0 0 auto` ganaba y el buscador no crecía.
+.inf-filtros mat-form-field.inf-filtros__buscar { flex: 1 1 260px; width: auto !important; max-width: 380px; }
+
+.inf-tabla {
+  display: grid;
+  border: 1px solid var(--gm-gris-300);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.inf-fila {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) 140px 100px 130px 120px 150px;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  border-top: 1px solid var(--gm-gris-300);
+  font-size: 13px;
+}
+
+.inf-fila:first-child { border-top: 0; }
+
+.inf-fila--cabecera {
+  background: var(--gm-color-fondo-crema);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+// Lo que está a un centavo se marca: es a quien hay que llamar hoy.
+.inf-fila--inminente:not(.inf-fila--cabecera) { background: #fffdf3; }
+
+.inf-cliente { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.inf-cliente__nombre { font-weight: 700; }
+.inf-cliente__dato,
+.inf-cliente__nota {
+  font-size: 11.5px;
+  color: var(--gm-plomo-400, #7b7979);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.inf-cliente__nota { font-style: italic; }
+
+.inf-que { font-weight: 700; }
+.inf-que--vender  { color: var(--gm-verde-600, #4f9a1f); }
+.inf-que--comprar { color: var(--gm-color-error, #ca4444); }
+
+.inf-precio { font-size: 15px; font-weight: 700; }
+
+.inf-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--gm-plomo-050, #f0f0f0);
+  color: var(--gm-plomo-400, #7b7979);
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.inf-chip--cerca { background: #fdf3e0; color: #b57614; }
+.inf-chip--ya    { background: var(--gm-verde-050, #eef7e3); color: var(--gm-verde-600, #4f9a1f); }
+
+.inf-fecha { font-size: 11.5px; line-height: 1.35; color: var(--gm-plomo-400, #7b7979); }
+.inf-fecha--suave { color: var(--gm-plomo-300, #a3a3a3); }
+
+.inf-cliente__sincontacto {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #b57614;
+}
+
+.inf-acciones { display: flex; align-items: center; gap: 4px; }
+
+// Enlaces de contacto con texto y no solo icono: en una tabla de nombres, dos iconos sueltos no dicen a quien llaman.
+.inf-wa,
+.inf-tel {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.inf-wa  { background: var(--gm-verde-050, #eef7e3); color: var(--gm-verde-600, #4f9a1f); }
+.inf-tel { background: var(--gm-plomo-050, #f0f0f0); color: var(--gm-plomo-400, #7b7979); }
+
+.inf-paginador {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+  padding-bottom: 84px; // hueco del asistente
+  font-size: 12.5px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+.inf-nota { margin: 16px 0; font-size: 13px; color: var(--gm-plomo-400, #7b7979); }
+
+// En móvil las pistas fijas no caben y las columnas se encimaban: cada alerta pasa a ser una tarjeta vertical.
+@media (max-width: 767px) {
+  // El auto-fit de 180px cae a una columna y el resumen comía media pantalla: van 2×2 compactas.
+  .inf-resumen {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .inf-tarjeta { padding: 12px 14px; }
+  .inf-tarjeta__valor { font-size: 19px; }
+
+  .inf-tabla {
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+    gap: 12px;
+  }
+
+  .inf-fila--cabecera {
+    display: none;
+  }
+
+  .inf-fila {
+    grid-template-columns: 1fr;
+    gap: 7px;
+    padding: 12px 16px;
+    border: 1px solid var(--gm-gris-300);
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgb(0 0 0 / 6%);
+  }
+
+  // El cliente hace de cabecera de la tarjeta.
+  .inf-cliente {
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgb(0 0 0 / 6%);
+  }
+
+  // Hacia abajo hay espacio de sobra: correo y nota completos, sin recortar.
+  .inf-cliente__dato,
+  .inf-cliente__nota {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .inf-que,
+  .inf-precio,
+  .inf-falta,
+  .inf-fecha {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .inf-que::before    { content: "Qué quiere"; }
+  .inf-precio::before { content: "A qué precio"; }
+  .inf-falta::before  { content: "Cuánto falta"; }
+  .inf-fecha::before  { content: "Vigencia"; }
+
+  .inf-que::before,
+  .inf-precio::before,
+  .inf-falta::before,
+  .inf-fecha::before {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--gm-plomo-400, #7b7979);
+    flex-shrink: 0;
+  }
+
+  .inf-fecha__valor {
+    text-align: right;
+  }
+
+  // El contacto como pie de la tarjeta, que es a lo que se viene aquí.
+  .inf-acciones {
+    justify-content: center;
+    margin-top: 2px;
+    padding-top: 8px;
+    border-top: 1px solid rgb(0 0 0 / 6%);
+  }
+
+  // El paginador centrado; el hueco del asistente sobra en esta disposición.
+  .inf-paginador {
+    justify-content: center;
+    flex-wrap: wrap;
+    padding-bottom: 24px;
+  }
+}

@@ -1,0 +1,278 @@
+// Panel de soporte: tres pestañas con la misma rejilla y las mismas pastillas.
+
+.sop-panel { padding: 18px 4px 8px; }
+
+.sop-bajada {
+  margin: 0 0 16px;
+  max-width: 90ch;
+  font-size: 13px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+.sop-filtros {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+// El tema da width:100% a mat-form-field: sin acotarlos cada selector se come una fila entera.
+.sop-filtros mat-form-field { flex: 0 0 auto; width: 180px; }
+// Más específica que la de arriba: su `flex: 0 0 auto` ganaba y el buscador no crecia.
+.sop-filtros mat-form-field.sop-filtros__buscar { flex: 1 1 260px; width: auto !important; max-width: 420px; }
+
+// Tabla
+
+.sop-tabla {
+  display: grid;
+  border: 1px solid var(--gm-gris-300);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.sop-fila {
+  display: grid;
+  grid-template-columns: 130px 100px 1fr 1.4fr 190px 80px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--gm-gris-300);
+  font-size: 13px;
+}
+
+.sop-tabla--cola .sop-fila { grid-template-columns: 120px 1.4fr 2fr 140px 90px; }
+.sop-tabla--registro .sop-fila { grid-template-columns: 150px 110px 1fr; align-items: start; }
+
+// :first-child y no :nth-of-type: las filas son divs hermanos que repinta el @for.
+.sop-fila:first-child { border-top: 0; }
+
+.sop-fila--cabecera {
+  background: var(--gm-color-fondo-crema);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.sop-truncado {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sop-mensaje { word-break: break-word; }
+
+// "Omitido" es neutro, no rojo: es el canal apagado o el cliente que no lo quiere.
+
+.sop-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sop-chip--ok     { background: var(--gm-verde-050, #eef7e3); color: var(--gm-verde-600, #4f9a1f); }
+.sop-chip--mal    { background: #fdeaea; color: var(--gm-color-error, #ca4444); }
+.sop-chip--aviso  { background: #fdf3e0; color: #b57614; }
+.sop-chip--neutro { background: var(--gm-plomo-050, #f0f0f0); color: var(--gm-plomo-400, #7b7979); }
+
+.sop-http {
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+// Contadores de la cola
+
+.sop-contadores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 12px 0 18px;
+}
+
+.sop-contador {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--gm-gris-300);
+  border-radius: 12px;
+
+  strong { font-size: 22px; }
+  span { font-size: 12px; color: var(--gm-plomo-400, #7b7979); }
+}
+
+.sop-contador--mal strong { color: var(--gm-color-error, #ca4444); }
+
+// Paginador y notas
+
+.sop-paginador {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+.sop-nota {
+  margin: 16px 0;
+  font-size: 13px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+// Detalle
+
+.sop-velo {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.sop-modal {
+  position: fixed;
+  z-index: 61;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(720px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  overflow: auto;
+  padding: 20px 24px 24px;
+  background: #fff;
+  border-radius: var(--gm-radius-2xl, 16px);
+  box-shadow: var(--gm-shadow-lg);
+}
+
+.sop-modal__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  h3 { margin: 0; font-size: 17px; font-weight: 700; }
+}
+
+.sop-modal__titulo {
+  margin: 18px 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.sop-modal__acciones {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.sop-datos {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 6px 12px;
+  margin: 14px 0 0;
+  font-size: 13px;
+
+  dt { font-weight: 700; color: var(--gm-plomo-400, #7b7979); }
+  dd { margin: 0; word-break: break-word; }
+}
+
+.sop-cuerpo {
+  margin: 0;
+  padding: 12px 14px;
+  max-height: 280px;
+  overflow: auto;
+  background: var(--gm-color-fondo-crema);
+  border-radius: 10px;
+  font-size: 12.5px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.sop-cuerpo--crudo { font-family: monospace; }
+
+.sop-excepcion {
+  margin-top: 6px;
+
+  summary { cursor: pointer; font-size: 12px; color: var(--gm-color-error, #ca4444); }
+  pre {
+    margin: 6px 0 0;
+    padding: 8px 10px;
+    max-height: 220px;
+    overflow: auto;
+    background: var(--gm-color-fondo-crema);
+    border-radius: 8px;
+    font-size: 11.5px;
+    white-space: pre-wrap;
+  }
+}
+
+// El asistente flota fijo abajo a la derecha y se come la esquina.
+.sop-paginador { padding-bottom: 8px; }
+
+// En móvil las pistas fijas no caben: cada fila pasa a ser una tarjeta con su data-label a la izquierda.
+@media (max-width: 767px) {
+  .sop-tabla {
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+    gap: 12px;
+  }
+
+  .sop-fila--cabecera { display: none; }
+
+  .sop-fila {
+    grid-template-columns: 1fr !important; // pisa las pistas por pestaña
+    gap: 7px;
+    padding: 12px 16px;
+    border: 1px solid var(--gm-gris-300);
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgb(0 0 0 / 6%);
+  }
+
+  .sop-fila [data-label] {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .sop-fila [data-label]::before {
+    content: attr(data-label);
+    // margin-right además de space-between: en celdas con varios nodos todo lo que no es etiqueta se agrupa a la derecha.
+    margin-right: auto;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--gm-plomo-400, #7b7979);
+    flex-shrink: 0;
+  }
+
+  // El mensaje del registro es un párrafo: etiqueta arriba y texto a lo ancho.
+  .sop-fila .sop-mensaje {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+
+  // El filete solo cuando hay botón: en la cola solo aparece con permiso de gestión.
+  .sop-fila .sf-acciones {
+    display: flex;
+    justify-content: center;
+  }
+
+  .sop-fila .sf-acciones:has(button) {
+    margin-top: 2px;
+    padding-top: 8px;
+    border-top: 1px solid rgb(0 0 0 / 6%);
+  }
+
+  .sop-paginador { justify-content: center; flex-wrap: wrap; }
+}

@@ -1,0 +1,88 @@
+.horario-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.horario-titulo {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.horario-bajada {
+  margin: 0;
+  font-size: 13px;
+  color: var(--gm-plomo-400);
+}
+
+.horario-dias {
+  display: grid;
+  gap: 4px;
+}
+
+/* Una fila por día: nombre, interruptor y las dos horas en línea; en estrecho se apila sin romperse. */
+.horario-dia {
+  display: grid;
+  grid-template-columns: 110px 120px 150px 150px minmax(160px, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px;
+  border-radius: var(--gm-radius-xl);
+
+  &:nth-child(odd) {
+    background: var(--gm-color-fondo-crema);
+  }
+}
+
+/* El día cerrado se apaga: sus horas dejan de importar. */
+.horario-dia--cerrado {
+  .horario-dia__hora,
+  .horario-dia__nota {
+    opacity: 0.45;
+    pointer-events: none;
+  }
+}
+
+.horario-dia__nombre {
+  font-weight: 600;
+}
+
+.horario-dia__hora ::ng-deep .mat-mdc-form-field-subscript-wrapper,
+.horario-dia__nota ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.horario-previa {
+  margin-top: 22px;
+  padding: 14px 18px;
+  border: 1px dashed var(--gm-gris-500);
+  border-radius: var(--gm-radius-xl);
+}
+
+.horario-previa__linea {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.horario-acciones {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 22px;
+}
+
+@media (max-width: 900px) {
+  .horario-dia {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 8px;
+    padding: 12px;
+  }
+
+  /* Nombre e interruptor hacen de cabecera; la nota a media columna quedaba truncada en "Nota (opci…". */
+  .horario-dia__cerrado { justify-self: end; }
+  .horario-dia__nota { grid-column: 1 / -1; }
+}

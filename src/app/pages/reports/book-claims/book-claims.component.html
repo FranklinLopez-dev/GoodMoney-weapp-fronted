@@ -1,0 +1,249 @@
+<mat-card class="cardWithShadow">
+    <mat-card-content>
+
+        <div name="eventForm" class="row justify-content-between gap-16">
+            <form [formGroup]="form" class="col-lg-6 row">
+
+                <div class="col-md-6">
+                    <mat-form-field appearance="outline" class="w-100">
+                        <mat-label>Desde</mat-label>
+                        <input matInput appDateMask maxlength="10" placeholder="dd/mm/yyyy" formControlName="fromDate"
+                            [matDatepicker]="fromPicker" (dateChange)="loadData()" />
+                        <mat-datepicker-toggle matSuffix [for]="fromPicker" />
+                        <mat-datepicker #fromPicker />
+
+                        @if (control.fromDate.touched && control.fromDate.invalid) {
+                        <mat-hint class="su-error">Fecha inicial inválida</mat-hint>
+                        }
+                    </mat-form-field>
+                </div>
+
+                <div class="col-md-6">
+                    <mat-form-field appearance="outline" class="w-100">
+                        <mat-label>Hasta</mat-label>
+                        <input matInput appDateMask maxlength="10" placeholder="dd/mm/yyyy" formControlName="toDate"
+                            [matDatepicker]="toPicker" (dateChange)="loadData()" />
+                        <mat-datepicker-toggle matSuffix [for]="toPicker" />
+                        <mat-datepicker #toPicker />
+
+                        @if (control.toDate.touched && control.toDate.invalid) {
+                        <mat-hint class="su-error">
+                            @if (control.toDate.errors?.['required']) {
+                            Fecha final inválida
+                            }
+                            @if (control.toDate.errors?.['rangeInvalid']) {
+                            La fecha "Desde" no puede ser mayor que "Hasta"
+                            }
+                        </mat-hint>
+                        }
+                    </mat-form-field>
+                </div>
+
+
+            </form>
+            @if(mode === 'clients') {
+            <div class="col-lg-4 d-flex align-items-center justify-content-end">
+                <button class="m-l-2" mat-flat-button color="secondary" (click)="agregarReclamo()">Agregar</button>
+                <button class="m-l-2" mat-flat-button color="primary" (click)="openDialog('Nuevo', {})">Nuevo</button>
+            </div>
+            }
+        </div>
+
+        <!-- TABLA (se queda con mat-table porque hay expand) -->
+        @if (store.loading()) {
+        <div class="d-flex justify-content-center align-items-center" style="min-height: 320px">
+            <mat-spinner diameter="50"></mat-spinner>
+        </div>
+        } @else {
+        <div class="table-responsive m-t-16 tabla-reclamos">
+            <table mat-table [dataSource]="dataSource" multiTemplateDataRows class="w-100 f-w-500">
+
+                <ng-container matColumnDef="id">
+                    <th mat-header-cell *matHeaderCellDef>#</th>
+                    <td mat-cell *matCellDef="let element, let i = index" class="f-w-500">
+                        {{ (dataSource.data.indexOf(element) + pageIndex() * pageSize()) + 1 }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="service">
+                    <th mat-header-cell *matHeaderCellDef> Servicio </th>
+                    <td mat-cell *matCellDef="let element" data-label="Servicio"> {{element.serviceType == '1' ? 'COMPRA':'VENTA'}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="operation">
+                    <th mat-header-cell *matHeaderCellDef> Operación </th>
+                    <td mat-cell *matCellDef="let element" data-label="Operación"> CD-{{element.operationNumber.toString().padStart(8,
+                        "0")}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="amount">
+                    <th mat-header-cell *matHeaderCellDef> Monto </th>
+                    <td mat-cell *matCellDef="let element" data-label="Monto"> {{element.productAmount| number : ".2-2" : "en"}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="clainType">
+                    <th mat-header-cell *matHeaderCellDef> Tipo </th>
+                    <td mat-cell *matCellDef="let element" data-label="Tipo"> {{element.claimType == '1' ? 'RECLAMO':'QUEJA'}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                    <th nowrap mat-header-cell *matHeaderCellDef>Estado</th>
+                    <td mat-cell *matCellDef="let element" class="no-wrap" data-label="Estado">
+                        <span class="p-x-8 p-y-4 f-w-500 rounded-pill f-s-12" [ngStyle]="{
+                                    'background-color':
+                                    element.status === '1'
+                                        ? 'rgb(0, 161, 255)'
+                                        : element.status === '2'
+                                        ? 'rgb(255, 174, 31)'
+                                        : element.status === '3'
+                                        ? 'rgb(19, 222, 185)'
+                                        : 'rgb(255, 102, 146)',
+                                    color: 'white'
+                                }">
+                            {{ element.status === '1'
+                            ? 'Pendiente'
+                            : element.status === '2'
+                            ? 'En proceso'
+                            : element.status === '3'
+                            ? 'Resuelto'
+                            : 'Rechazado' }}
+                        </span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="expand">
+                    <th mat-header-cell *matHeaderCellDef aria-label="row actions">
+                        &nbsp;
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                        <button mat-icon-button aria-label="expand row" (click)="
+                            expandedElement = expandedElement === element ? null : element;
+                            $event.stopPropagation()">
+                            @if(expandedElement !== element) {
+                            <mat-icon>keyboard_arrow_down</mat-icon>
+                            } @if(expandedElement === element) {
+                            <mat-icon>keyboard_arrow_up</mat-icon>
+                            }
+                        </button>
+                    </td>
+                </ng-container>
+                <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+                <ng-container matColumnDef="expandedDetail">
+                    <td mat-cell *matCellDef="let element" [attr.colspan]="columnsToDisplay.length">
+                        <div [@detailExpand]="element === expandedElement ? 'expanded' : 'collapsed'">
+                            <div class="p-15 rounded b-1 m-b-16 m-x-18 detalle-caja">
+                                <div class="d-flex justify-content-between align-items-center detalle-cabecera">
+                                    <div class="d-flex align-items-center gap-16 detalle-autor">
+                                        <!-- Quien reclama es una CUENTA, no un perfil (fase 3 del modelo de personas), y una cuenta no tiene foto. -->
+                                        <img src="" alt="user"
+                                            width="40" class="rounded-circle" fallbackImg="person" />
+                                        <h6 class="f-s-16 f-w-600">{{
+                                            element.createdByUser?.names || element.names}}</h6>
+                                        <span class="f-s-12 d-flex align-items-center gap-4 lh-sm">
+                                            <i-tabler class="op-5 d-flex icon-6" name="circle-filled"></i-tabler>
+                                            {{ element.dateCreation | date : 'dd/MM/yyyy HH:mm' }}
+                                        </span>
+                                    </div>
+                                    @if(element.status == '1' && mode !== 'clients') {
+                                    <button (click)="updateStatus(element)" mat-mini-fab class="bg-success text-white"
+                                        matTooltip="Pasar a en proceso">
+                                        <i-tabler class="icon-20 d-flex" name="player-play"></i-tabler>
+                                    </button>
+                                    }
+                                </div>
+
+                                <p class="f-s-14"> <strong>Detalle: </strong> {{ element.claimDetail }}</p>
+                                <p class="f-s-14"> <strong>Pedido: </strong> {{ element.request }}</p>
+
+                                @if (element.bookClaimImage) {
+                                <img (click)="openImagen(element.bookClaimImage)"
+                                    [src]="element.bookClaimImage | archivoPrivado | async" alt="featured image"
+                                    fallbackImg="default" class="rounded-8 m-b-16" width="200" />
+                                }
+
+                                @for(post of element.bookClaimResponses; track post.id) {
+                                <mat-card class="cardWithShadow shadow-none b-1">
+                                    <mat-card-content>
+                                        <div class="d-flex align-items-center gap-16 detalle-autor">
+                                            <!-- Quien responde lo hace como empleado: el endpoint es anónimo, así que puede no haber responsable. -->
+                                            <img src="" alt="user"
+                                                width="40" class="rounded-circle" fallbackImg="person" />
+                                            <h6 class="f-s-16 f-w-600">{{
+                                                post.responsible?.names || 'Good Money'
+                                                }}</h6>
+                                            <span class="f-s-12 d-flex align-items-center gap-4 lh-sm">
+                                                <i-tabler class="op-5 d-flex icon-6" name="circle-filled"></i-tabler>
+                                                {{ post.dateResponse | date : 'dd/MM/yyyy HH:mm' }}
+                                            </span>
+                                        </div>
+
+                                        <p class="f-s-14 m-t-16">{{ post.responseText }}</p>
+
+                                        @if (post.attachmentPath) {
+                                        <img (click)="openImagen(post.attachmentPath)"
+                                            [src]="post.attachmentPath | archivoPrivado | async" alt="featured image"
+                                            fallbackImg="default" class="rounded-8 m-b-16" width="200" />
+                                        }
+                                    </mat-card-content>
+                                </mat-card>
+                                }
+
+                                @if(element.status == '2') {
+                                <div class="b-t-1">
+                                    <mat-form-field appearance="outline" class="w-100 m-t-8" color="primary">
+                                        <textarea #response matInput cdkTextareaAutosize maxlength="2000"
+                                            placeholder="Comentario" [value]="comentario()"
+                                            (input)="comentario.set(response.value)"></textarea>
+                                        <mat-hint align="end">{{ comentario().length }}/2000</mat-hint>
+                                    </mat-form-field>
+                                    <div class="d-flex justify-content-between align-items-center gap-12 detalle-barra">
+                                        <div class="d-flex align-items-center gap-8">
+                                            <div class="d-flex align-items-center gap-8">
+                                                <button mat-mini-fab class="bg-primary text-white icon-30">
+                                                    <i-tabler name="photo" class="icon-18 d-block"></i-tabler>
+                                                </button>
+                                                <button (click)="fileInput.click()" mat-button matTooltip="Máximo 5 MB"> Foto</button>
+
+                                                <input (change)="onselectImage($event, element)" type="file" #fileInput
+                                                    accept="image/*" style="display: none" />
+                                            </div>
+
+
+                                        </div>
+
+                                        <div class="detalle-botones">
+                                            @if (mode !== 'clients') {
+                                            <button (click)="finalizar(element)" mat-flat-button
+                                                class="bg-success m-l-4 ms-auto">Resuelto</button>
+                                            <button (click)="cancelar(element)" mat-flat-button
+                                                class="bg-error m-l-4 ms-auto">Rechazado</button>
+                                            }
+
+                                            <button (click)="saveResponse(element)" mat-flat-button
+                                                class="ms-auto m-l-4">Comentar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                }
+                            </div>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="columnsToDisplayWithExpand"></tr>
+                <tr mat-row *matRowDef="let element; columns: columnsToDisplayWithExpand" class="example-element-row"
+                    [class.example-expanded-row]="expandedElement === element" (click)="toggleRow(element)"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
+            </table>
+        </div>
+        }
+
+        @if(store.items().length) {
+        <mat-paginator [length]="length()" [pageSize]="pageSize()" [pageSizeOptions]="pageSizeOptions"
+            [pageIndex]="pageIndex()" (page)="onPageChange($event)" showFirstLastButtons>
+        </mat-paginator>
+        }
+
+
+    </mat-card-content>
+</mat-card>

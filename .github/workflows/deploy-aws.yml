@@ -1,0 +1,84 @@
+name: Deploy Frontend (AWS)
+
+# Al hacer merge a main, o a mano desde Actions. Solo corre desde main: es la
+# unica rama que el rol de AWS acepta.
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-aws-frontend
+  cancel-in-progress: false
+
+permissions:
+  id-token: write # OIDC: AWS entrega credenciales temporales, sin claves guardadas
+  contents: read
+
+jobs:
+  desplegar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      # El panel apunta a la API de AWS (variable API_URL del repositorio), no a
+      # la del servidor actual que trae environment.prod.ts.
+      - name: Apuntar a la API de AWS
+        env:
+          API_URL: ${{ vars.API_URL }}
+        run: |
+          test -n "$API_URL" || { echo "::error::Falta la variable API_URL"; exit 1; }
+          sed -i "s#apiUrl: '[^']*'#apiUrl: '$API_URL'#" src/environments/environment.prod.ts
+          grep -q "apiUrl: '$API_URL'" src/environments/environment.prod.ts \
+            || { echo "::error::No se pudo fijar apiUrl"; exit 1; }
+
+      - name: Build produccion
+        run: npx ng build
+
+      - name: Credenciales de AWS
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ secrets.AWS_ROL_DESPLIEGUE }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      # Los archivos con hash en el nombre no cambian nunca: cache de un año.
+      # index.html se revalida siempre, para que el navegador tome la version nueva.
+      - name: Publicar en S3
+        env:
+          BUCKET: ${{ vars.BUCKET_PANEL }}
+        run: |
+          aws s3 sync dist/goodmoney/browser/ "s3://$BUCKET/" --delete \
+            --exclude index.html --cache-control "public, max-age=31536000, immutable"
+          aws s3 cp dist/goodmoney/browser/index.html "s3://$BUCKET/index.html" \
+            --cache-control "no-cache"
+
+      - name: Refrescar CloudFront
+        run: |
+          aws cloudfront create-invalidation --distribution-id "${{ vars.DISTRIBUCION_PANEL }}" \
+            --paths /index.html > /dev/null
+
+      - name: Health check
+        env:
+          URL: ${{ vars.URL_PANEL }}
+        run: |
+          code=000
+          for _ in $(seq 1 10); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$URL") || true
+            [ "$code" = "200" ] && { echo "Panel OK ($URL)"; exit 0; }
+            sleep 10
+          done
+          echo "::error::El panel no responde 200 (ultimo codigo: $code)"; exit 1

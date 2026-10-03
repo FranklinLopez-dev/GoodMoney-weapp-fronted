@@ -1,0 +1,24 @@
+@if (isJuridico()) {
+<ng-content select="[juridico]"></ng-content>
+}
+
+@if (isNatural()) {
+<ng-content select="[natural]"></ng-content>
+}
+
+<mat-divider class="m-t-16" ></mat-divider>
+
+<div class="d-flex justify-content-end gap-12 m-t-16">
+    <button mat-button (click)="cancelEdit()">
+        Cancelar
+    </button>
+
+    <button mat-flat-button color="primary" [disabled]="activeForm.invalid || saving" (click)="save()">
+
+        @if (saving) {
+        <mat-spinner diameter="18"></mat-spinner>
+        } @else {
+        Guardar
+        }
+    </button>
+</div>

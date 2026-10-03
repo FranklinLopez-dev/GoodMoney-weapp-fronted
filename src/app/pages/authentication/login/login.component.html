@@ -1,0 +1,119 @@
+@if (!isLoading()) {
+
+<div class="auth-screen">
+
+  <div class="auth-screen__main">
+
+    <img class="auth-brand" src="assets/images/logos/logo-good-money.webp" width="600" height="238"
+      fetchpriority="high" alt="Good Money" />
+
+    @if (esperandoCodigo()) {
+
+    <h1 class="auth-title">Verifica que eres tú</h1>
+    <p class="auth-subtitle">
+      Te enviamos un código de 6 dígitos a {{ form.value.email }}. Escríbelo para entrar.
+    </p>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Código de ingreso</mat-label>
+      <mat-icon matPrefix>shield</mat-icon>
+      <input matInput inputmode="numeric" maxlength="6" autocomplete="one-time-code"
+        [value]="codigo()" (input)="escribirCodigo($event.target)" />
+    </mat-form-field>
+
+    @if (errorCodigo()) {
+    <p class="su-error">{{ errorCodigo() }}</p>
+    }
+
+    <div class="auth-actions">
+      <button mat-stroked-button class="gm-btn" type="button" (click)="volverAlLogin()">
+        Volver
+      </button>
+      <button mat-flat-button class="gm-btn gm-btn--accent" type="button"
+        [disabled]="codigo().length < 6" (click)="confirmarCodigo()">
+        Entrar
+      </button>
+    </div>
+
+    } @else {
+
+    <h1 class="auth-title">Inicia sesión</h1>
+    <p class="auth-subtitle">Tu dinero, seguro y al mejor cambio</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Correo electrónico</mat-label>
+        <mat-icon matPrefix>mail</mat-icon>
+
+        <input matInput type="email" formControlName="email" maxlength="100" autocomplete="email" appTrim="all" />
+
+        @if (form.controls['email'].touched && form.controls['email'].invalid) {
+        <mat-hint class="su-error">
+          @if (form.controls['email'].errors?.['required']) {
+          El correo electrónico es obligatorio.
+          }
+          @if (form.controls['email'].errors?.['email']) {
+          Ingresa un correo electrónico válido.
+          }
+        </mat-hint>
+        }
+      </mat-form-field>
+
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Contraseña</mat-label>
+        <mat-icon matPrefix>lock</mat-icon>
+
+        <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password" maxlength="64"
+          autocomplete="current-password" />
+
+        <button mat-icon-button matSuffix type="button" (click)="hidePassword.set(!hidePassword())">
+          <mat-icon>
+            {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+          </mat-icon>
+        </button>
+
+        @if (form.controls['password'].touched && form.controls['password'].invalid) {
+        <mat-hint class="su-error">
+          @if (form.controls['password'].errors?.['required']) {
+          La contraseña es obligatoria.
+          }
+          @if (form.controls['password'].errors?.['minlength']) {
+          La contraseña debe tener al menos
+          {{ form.controls['password'].errors?.['minlength'].requiredLength }}
+          caracteres.
+          }
+        </mat-hint>
+        }
+      </mat-form-field>
+
+
+      <div class="auth-options">
+        <mat-checkbox formControlName="rememberMe">
+          Recuérdame
+        </mat-checkbox>
+
+        <a [routerLink]="['/authentication/forgot-password']">
+          ¿Olvidaste tu contraseña?
+        </a>
+      </div>
+
+      <div class="auth-actions">
+        <button mat-flat-button class="gm-btn gm-btn--accent" [disabled]="form.invalid">
+          Inicia sesión
+        </button>
+      </div>
+
+    </form>
+    }
+  </div>
+
+  <app-auth-aside
+    title="¿Aún no tienes una cuenta en Good Money?"
+    text="Inicia tu camino con nosotros creando una cuenta en minutos"
+    cta="Crear cuenta"
+    link="/authentication/register" />
+
+</div>
+}

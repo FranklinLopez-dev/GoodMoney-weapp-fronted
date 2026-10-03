@@ -1,0 +1,40 @@
+// Imita a `mat-tab-group` a propósito, pero cada pestaña es un enlace de verdad, con su URL y su permiso.
+
+.cmp-nav {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--gm-gris-300);
+}
+
+.cmp-nav__enlace {
+  position: relative;
+  padding: 14px 20px;
+  color: var(--gm-plomo-400, #7b7979);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color .15s ease;
+
+  &:hover { color: var(--gm-color-texto, #2b2b2b); }
+}
+
+.cmp-nav__enlace--activo {
+  color: var(--gm-color-texto, #2b2b2b);
+  font-weight: 700;
+
+  // ::after y no border-bottom, para que no empuje el texto dos píxeles al activarse.
+  &::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: -1px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--gm-verde-600, #4f9a1f);
+  }
+}

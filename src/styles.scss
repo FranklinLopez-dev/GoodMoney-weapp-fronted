@@ -1,0 +1,394 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+/* Poppins es la tipografía de la biblioteca; esta regla carga después de _container y tiene que ganarle. */
+body { margin: 0; font-family: "Poppins", sans-serif; }
+
+html .table-responsive th.no-wrap,
+html .table-responsive td.no-wrap,
+html .table-responsive mat-header-cell.no-wrap,
+html .table-responsive mat-cell.no-wrap {
+  white-space: nowrap !important;
+}
+
+
+.create-step {
+  max-width: 520px;
+  margin: auto;
+}
+
+/* Heading 2 de la biblioteca: 24 px / 700. */
+.create-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* Cabecera compartida de los pasos del flujo (frames 455/459 del mockup). */
+.paso-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.paso-titulo {
+  /* 92px dejan libre el chip del temporizador y a 18px el título más largo entra en una línea en 520px. */
+  margin: 4px 92px 0;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* La reserva del tipo de cambio venció: el mismo chip, en rojo y como botón para renovarla. */
+.paso-timer--vencido {
+  border: 0;
+  cursor: pointer;
+  background: var(--gm-color-error, #ca4444) !important;
+  font-family: inherit;
+
+  &:disabled { opacity: .7; cursor: default; }
+}
+
+/* Plomo con letra blanca, como el contador de "Cotiza". */
+.paso-timer {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--gm-plomo-400);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  i-tabler {
+    width: 15px;
+    height: 15px;
+  }
+}
+
+/* Resumen USD/PEN de los pasos Registra y Transfiere (frames 455/484). */
+.resume-amounts {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 34px;
+  flex-wrap: wrap;
+  margin: 6px 0 26px;
+}
+
+.resume-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.resume-moneda {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  img {
+    width: 34px;
+    height: 22px;
+    object-fit: cover;
+    border-radius: 3px;
+  }
+}
+
+.resume-moneda__datos {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+
+  strong {
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  small {
+    font-size: 12px;
+    opacity: 0.65;
+  }
+}
+
+.resume-monto {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.resume-swap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--gm-color-marca-primario);
+  box-shadow: var(--gm-shadow-md);
+
+  i-tabler {
+    width: 24px;
+    height: 24px;
+    color: var(--gm-color-texto-principal);
+  }
+}
+
+/* Acciones de paso: dos píldoras verdes centradas (frames 455/459/484). */
+.paso-acciones {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 28px;
+
+  button {
+    min-width: 160px;
+    font-weight: 700;
+  }
+}
+
+/* Móvil de los pasos. Va DESPUÉS de las reglas base: a igual especificidad gana el orden. */
+/* El chip baja bajo el título, el resumen USD/PEN se compacta y los botones de 160px se salían. */
+@media (max-width: 599px) {
+  .paso-cabecera {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .paso-titulo {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .paso-timer {
+    position: static;
+  }
+
+  .resume-amounts {
+    flex-wrap: nowrap;
+    gap: 12px;
+  }
+
+  .resume-moneda {
+    gap: 8px;
+
+    img {
+      width: 28px;
+      height: 18px;
+    }
+  }
+
+  .resume-moneda__datos strong {
+    font-size: 14px;
+  }
+
+  .resume-moneda__datos small {
+    font-size: 11px;
+  }
+
+  .resume-monto {
+    font-size: 17px;
+    white-space: nowrap;
+  }
+
+  .resume-swap {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+
+    i-tabler {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .paso-acciones {
+    gap: 12px;
+
+    button {
+      min-width: 0;
+      flex: 1;
+      max-width: 200px;
+    }
+  }
+}
+
+/* La píldora oscura "COMPRA - TC 3.4500" del frame 484. */
+.resume-tc {
+  display: block;
+  max-width: 440px;
+  margin: 0 auto 22px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: var(--gm-color-marca-terciario);
+  color: var(--gm-color-texto-contraste);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.rate-timer {
+  font-size: 14px;
+  opacity: 0.75;
+
+  strong {
+    color: var(--mat-sys-primary);
+    font-weight: 700;
+  }
+}
+
+/* Banner de cupones (frames 453/455/459/460); los márgenes negativos anulan el padding del pageWrapper. */
+/* `margin-top: auto` la empuja al pie; necesita que `.pageWrapper` sea una columna flexible. */
+.banner-promo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  margin: 8px -15px -24px;
+  margin-top: auto;
+  padding: 10px 32px;
+  background: var(--gm-color-marca-primario);
+}
+
+.banner-promo__texto {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.banner-promo__titulo {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--gm-color-texto-principal);
+
+  span {
+    color: var(--gm-color-texto-contraste);
+  }
+}
+
+.banner-promo__detalle {
+  margin: 0;
+  max-width: 260px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gm-color-texto-principal);
+}
+
+.banner-promo__ilustracion {
+  height: 118px;
+  width: auto;
+}
+
+@media (max-width: 700px) {
+  .banner-promo__ilustracion {
+    display: none;
+  }
+}
+
+
+.drawer-container {
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .drawer-breadcrumb {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mat-sys-tertiary)
+  }
+}
+
+.drawer-title {
+  margin: 8px 0 16px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.drawer-list {
+  flex: 1;
+  overflow-y: auto;
+  width: 100% !important;
+  display: inline;
+}
+
+.drawer-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .hint {
+    font-size: 13px;
+    text-align: center;
+  }
+
+  button {
+    height: 48px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+}
+
+.drawer-botones {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+}
+
+// Color directo y no `color="primary"`: esta versión de Material ya no lee los tokens --mdc-*-button-*.
+.boton-pildora.mat-mdc-unelevated-button:not(:disabled) {
+  border-radius: var(--gm-radius-xl);
+  background: var(--gm-verde-500, #87ba30);
+  color: #fff;
+  font-weight: 700;
+}
+
+.boton-pildora-gris.mat-mdc-unelevated-button:not(:disabled) {
+  border-radius: var(--gm-radius-xl);
+  background: var(--gm-gris-500);
+  color: #fff;
+  font-weight: 700;
+}
+
+.bg-info {
+  background-color: rgb(0, 161, 255) !important;
+}
+
+.bg-whatsapp {
+  background-color: #25d366 !important;
+}
+
+
+.bg-light-info {
+  background-color: rgb(0, 161, 255, .15) !important;
+}
+
+.no-wrap-element {
+  min-width: 350px !important;
+  white-space: normal !important;
+}
+
+.bg-black {
+  background-color: black;
+}

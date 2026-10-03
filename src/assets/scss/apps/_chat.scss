@@ -1,0 +1,93 @@
+@use "../variables" as *;
+
+.chat-list {
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 1rem;
+  display: flex;
+
+  &.even {
+    -webkit-box-pack: end;
+    -ms-flex-pack: end;
+    -moz-justify-content: flex-end;
+    justify-content: flex-end;
+    text-align: right;
+  }
+}
+
+.chat-app {
+  .mat-drawer {
+    width: 320px;
+  }
+  .ng-scroll-content {
+    display: block !important;
+  }
+}
+
+.chat-listing {
+  .mdc-list-item {
+    height: 75px;
+    display: flex;
+    align-items: center;
+
+    .mdc-list-item__primary-text {
+      margin-bottom: -23px !important;
+    }
+  }
+}
+
+// En movil todo el chat estaba a tamano escritorio (sidenav 320px, padding 24px, avatar 40px por
+// mensaje, burbujas sin tope de ancho), por eso se veia grande y desproporcionado.
+@media (max-width: 767px) {
+  .chat-app {
+    .mat-drawer {
+      width: min(320px, 85vw);
+    }
+
+    .chat-right-panel {
+      min-height: 56px;
+      height: 56px;
+      padding-inline: 4px;
+
+      .d-flex.gap-16 {
+        min-width: 0;
+
+        > div {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+    }
+
+    .chat-middle-box {
+      padding: 12px !important;
+    }
+
+    .chat-list {
+      margin-bottom: 0.6rem;
+
+      // Ancho de burbuja tipo chat, no bloques que cruzan toda la pantalla.
+      > div {
+        max-width: 82%;
+      }
+
+      .p-10 {
+        padding: 8px 12px !important;
+      }
+
+      // El avatar que se repite en cada mensaje recibido, mas pequeno.
+      &.odd img.rounded-circle {
+        width: 30px !important;
+        height: 30px !important;
+      }
+    }
+
+    div.d-flex.p-t-20.p-x-24 {
+      padding-top: 10px !important;
+      padding-left: 10px !important;
+      padding-right: 10px !important;
+    }
+  }
+}

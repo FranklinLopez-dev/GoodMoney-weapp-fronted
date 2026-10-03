@@ -1,0 +1,128 @@
+.bm {
+  width: min(520px, 92vw);
+  padding: 18px 18px 14px;
+  border-radius: 18px;
+
+  background: #fff;
+}
+
+.bm-header {
+  display: grid;
+  grid-template-columns: 44px 1fr 40px;
+  align-items: start;
+  gap: 12px;
+}
+
+.bm-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+}
+
+.bm-title {
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+  }
+
+  .bm-subtitle {
+    margin: 4px 0 0;
+    font-size: 13px;
+    opacity: 0.75;
+    line-height: 1.35;
+  }
+}
+
+.bm-close {
+  margin-left: auto;
+}
+
+.bm-body {
+  margin-top: 14px;
+}
+
+.bm-message {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.9;
+  line-height: 1.45;
+}
+
+.bm-list {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+
+  li {
+    font-size: 14px;
+    opacity: 0.85;
+    line-height: 1.35;
+  }
+}
+
+.bm-note {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(2, 132, 199, 0.08);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    opacity: 0.85;
+  }
+
+  span {
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0.9;
+  }
+}
+
+.bm-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  button {
+    border-radius: 14px;
+    font-weight: 700;
+    padding: 10px 14px;
+  }
+}
+
+.bm.danger .bm-icon {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  mat-icon { color: var(--gm-color-text-error); }
+}
+
+.bm.warning .bm-icon {
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  mat-icon { color: var(--gm-color-text-warning); }
+}
+
+.bm.info .bm-icon {
+  background: rgb(135 186 48 / 12%);
+  border: 1px solid rgb(135 186 48 / 25%);
+  mat-icon { color: var(--gm-color-text-info); }
+}

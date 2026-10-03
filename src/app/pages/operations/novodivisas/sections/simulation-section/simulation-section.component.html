@@ -1,0 +1,67 @@
+<form [formGroup]="form">
+  <mat-button-toggle-group formControlName="exchange" class="tipo-toggle m-b-24 w-100 d-flex" (change)="swapAmounts()"
+    aria-label="Tipo de cambio">
+    <mat-button-toggle class="w-100" value="1">
+      <span class="tipo-toggle__etiqueta">COMPRA</span>
+      <span class="tipo-toggle__valor">{{exchangeRate?.priceCompra | number:'.2-4':'en'}}</span>
+    </mat-button-toggle>
+    <mat-button-toggle class="w-100" value="2">
+      <span class="tipo-toggle__etiqueta">VENTA</span>
+      <span class="tipo-toggle__valor">{{exchangeRate?.priceVenta | number:'.2-4':'en'}}</span>
+    </mat-button-toggle>
+  </mat-button-toggle-group>
+
+  <div class="row">
+    <div class="col-md-6">
+      <mat-label class="f-s-14 f-w-600 d-block m-b-4">Operaciones:</mat-label>
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-select formControlName="typeOperation" placeholder="Selecciona la operación">
+          <mat-option (click)="control['exchange'].setValue('1')" value="BUY">COMPRA</mat-option>
+          <mat-option (click)="control['exchange'].setValue('2')" value="SELL">VENTA</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="col-md-6">
+      <mat-label class="f-s-14 f-w-600 d-block m-b-4">Comprobante:</mat-label>
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-select formControlName="documentType" placeholder="Selecciona el comprobante">
+          <mat-option value="01">FACTURA</mat-option>
+          <mat-option value="03">BOLETA</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <mat-label class="f-s-14 f-w-600 d-block m-b-4">
+        {{control['exchange'].value != '1' ? 'El cliente recibe:':'El cliente envía:'}}
+      </mat-label>
+      <mat-form-field appearance="outline" class="w-100" color="primary">
+        <input #amountUsdInput class="f-s-16 f-w-500" formControlName="amountUsd" matInput appAmountInput
+          (keydown.enter)="focusExchangeRate()" />
+        <span matSuffix class="m-r-16">USD</span>
+      </mat-form-field>
+    </div>
+    <div class="col-md-6">
+      <mat-label class="f-s-14 f-w-600 d-block m-b-4">Tipo de cambio:</mat-label>
+      <mat-form-field appearance="outline" class="w-100" color="primary">
+        <input #exchangeRateInput class="f-s-16 f-w-500" formControlName="exchangeRate" matInput type="number"
+          step="0.01" (keydown.enter)="focusAmountPen()" />
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <mat-label class="f-s-14 f-w-600 d-block m-b-4">
+        {{control['exchange'].value == '1' ? 'El cliente recibe:':'El cliente envía:'}}
+      </mat-label>
+      <mat-form-field appearance="outline" class="w-100" color="primary">
+        <input #amountPenInput class="f-s-16 f-w-500" formControlName="amountPen" matInput appAmountInput
+          (keydown.enter)="goToDocumentNumber()" />
+        <span matSuffix class="m-r-16">PEN</span>
+      </mat-form-field>
+    </div>
+  </div>
+</form>

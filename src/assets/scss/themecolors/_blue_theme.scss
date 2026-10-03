@@ -1,0 +1,29 @@
+// El amarillo de Figma es rol de MARCA, no `primary`: mapearlo dejaria la app en amarillo ilegible. La accion es verde.
+html.blue_theme {
+  // Verde: botones y acciones principales
+  --mat-sys-primary: var(--gm-color-marca-acento);
+  --mat-sys-on-primary: var(--gm-color-texto-contraste);
+  --mat-sys-primary-fixed-dim: var(--gm-verde-100);
+
+  // Amarillo: marca, cabecera, item de menu activo
+  --mat-sys-secondary: var(--gm-color-marca-primario);
+  --mat-sys-on-secondary: var(--gm-color-marca-terciario);
+  --mat-sys-secondary-fixed-dim: var(--gm-amarillo-100);
+
+  // Plomo oscuro: sidebar y jerarquia de texto
+  --mat-sys-tertiary: var(--gm-color-marca-terciario);
+  --mat-sys-on-tertiary: var(--gm-color-texto-contraste);
+  --mat-sys-tertiary-fixed-dim: var(--gm-plomo-100);
+
+  --mat-sys-error: var(--gm-color-text-error);
+  --mat-sys-error-fixed-dim: var(--gm-estado-error-300);
+
+  --mat-sys-level1: var(--gm-shadow-sm);
+  --mat-sys-level2: var(--gm-shadow-md);
+  --mat-sys-level3: var(--gm-shadow-md);
+  --mat-sys-level4: var(--gm-shadow-lg);
+
+  // Radios: la biblioteca asigna 12px a botones e inputs y 16px a cards
+  --mat-sys-corner-small: var(--gm-radius-xl);
+  --mat-sys-corner-medium: var(--gm-radius-2xl);
+}

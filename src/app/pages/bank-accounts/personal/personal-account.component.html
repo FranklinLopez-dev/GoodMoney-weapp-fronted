@@ -1,0 +1,171 @@
+<h2 mat-dialog-title> {{ title() }} </h2>
+<mat-dialog-content class="mat-typography">
+    <div class="p-16 rounded bg-light-primary">
+        <div class="f-s-14">
+            <span class="f-w-600">¡Importante!</span> Tus cuentas propias pueden funcionar tanto para transferir a
+            Good Money como para recibir el monto cambiado.
+        </div>
+    </div>
+    <form class="row m-t-16" [formGroup]="form">
+        <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Tipo de cuenta</mat-label>
+                <mat-select formControlName="typeAccount" placeholder="Selecciona tipo">
+                    @for(option of typeAccounts; track option.id) {
+                    <mat-option [value]="option.id">{{ option.name
+                        }}</mat-option>
+                    }
+                </mat-select>
+                @if(control['typeAccount'].touched &&
+                control['typeAccount'].invalid) {
+                <mat-hint class="su-error">
+                    @if( control['typeAccount'].errors &&
+                    control['typeAccount'].errors['required'])
+                    {
+                    Tipo de cuenta es obligatorio
+                    }
+                </mat-hint>
+                }
+            </mat-form-field>
+        </div>
+        <div class="col-md-6">
+            <app-select-search-async class="w-100" label="Banco" [items]="filteredBanks" valueKey="id" labelKey="name"
+                imageKey="icon" imageAltKey="name" [control]="bankControl" (search)="loadBanks($event)"
+                (selectionChange)="setBank($event)">
+            </app-select-search-async>
+        </div>
+
+        @if (control['bankId'].valid) {
+        <div class="col-12">
+            @if (hasCompanyAccount()) {
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Número de cuenta</mat-label>
+                <input matInput formControlName="accountNumber" [maxLengthValue]="bank()?.maxAcount!"
+                    [appInputMask]="'numeric'" />
+                @if(control['accountNumber'].touched && control['accountNumber'].invalid) {
+                <mat-hint class="su-error">
+                    {{ validators.getErrorMessage(
+                    control['accountNumber'],
+                    'Número de cuenta') }}
+                </mat-hint>
+                }
+            </mat-form-field>
+            } @else {
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>CCI</mat-label>
+                <input matInput formControlName="accountNumberCci" [maxLengthValue]="bank()?.maxAcountInter!"
+                    [appInputMask]="'numeric'" />
+                @if(control['accountNumberCci'].touched && control['accountNumberCci'].invalid) {
+                <mat-hint class="su-error">
+                    {{ validators.getErrorMessage(
+                    control['accountNumberCci'],
+                    'Número de cci') }}
+                </mat-hint>
+                }
+            </mat-form-field>
+            }
+        </div>
+        }
+
+        <div class="col-12">
+            <div class="d-flex align-items-center">
+                <div class="w-100">
+                    <div class="d-flex align-items-center justify-content-center w-100">
+                        <h4 class="f-w-600"> {{data.isNatural ? 'Declaro que mi cuenta es personal': 'Declaro que mi cuenta esta vinculada a una empresa'}}</h4>
+                        <mat-slide-toggle formControlName="isMe" class="m-l-auto"></mat-slide-toggle>
+                    </div>
+                </div>
+            </div>
+            <mat-divider class="m-y-16"></mat-divider>
+        </div>
+
+        <div class="col-12 m-b-16">
+            <div class="d-flex align-items-center">
+                <div class="w-100">
+                    <h4 class="f-w-600">¿Es una cuenta mancomunada?</h4>
+                    <div class="d-flex align-items-center justify-content-center w-100">
+                        <h5>Es una cuenta compartida por dos titulares</h5>
+                        <mat-slide-toggle formControlName="isMancomunada" class="m-l-auto"></mat-slide-toggle>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (control['isMancomunada'].value) {
+        <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Tipo de documento</mat-label>
+                <mat-select formControlName="documentTypeManId" (selectionChange)="setDocumentType($event.value)" placeholder="Selecciona el tipo de documento">
+                    @for(option of documentTypes(); track option.code) {
+                    <mat-option [value]="option.id">{{ option.name
+                        }}</mat-option>
+                    }
+                </mat-select>
+                @if(control['documentTypeManId'].touched &&
+                control['documentTypeManId'].invalid) {
+                <mat-hint class="su-error">
+                    @if( control['documentTypeManId'].errors &&
+                    control['documentTypeManId'].errors['required'])
+                    {
+                    Tipo de documento es obligatorio
+                    }
+                </mat-hint>
+                }
+            </mat-form-field>
+        </div>
+        <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Número de {{documentType()?.name ? documentType()?.name:'documento'}}</mat-label>
+                <input matInput formControlName="documentNumberMan" [maxLengthValue]="documentType()?.sizeMax!"
+                    [appInputMask]="documentType()?.isNumeric ? 'numeric' : 'text'" />
+                @if(control['documentNumberMan'].touched && control['documentNumberMan'].invalid) {
+                <mat-hint class="su-error">
+                    {{ validators.getErrorMessage(
+                    control['documentNumberMan'],
+                    'Número de ' + (documentType()?.name ?? 'documento')) }}
+                </mat-hint>
+                }
+            </mat-form-field>
+        </div>
+        <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Nombres</mat-label>
+                <input matInput formControlName="nameMan" maxlength="300" />
+                @if(control['nameMan'].touched && control['nameMan'].invalid) {
+                <mat-hint class="su-error">
+                    @if(control['nameMan'].errors && control['nameMan'].errors['required'])
+                    {
+                    Nombres es obligatorio
+                    }
+                </mat-hint>
+                }
+            </mat-form-field>
+        </div>
+        <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Apellidos</mat-label>
+                <input matInput formControlName="lastNameMan" maxlength="300" />
+                @if(control['lastNameMan'].touched && control['lastNameMan'].invalid) {
+                <mat-hint class="su-error">
+                    @if(control['lastNameMan'].errors && control['lastNameMan'].errors['required'])
+                    {
+                    Apellidos es obligatorio
+                    }
+                </mat-hint>
+                }
+            </mat-form-field>
+        </div>
+        }
+
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancelar</button>
+    <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.invalid || form.disabled || isSaving()">
+        @if(isSaving()) {
+        Cargando ...
+        } @else {
+        Guardar
+        }
+    </button>
+</mat-dialog-actions>

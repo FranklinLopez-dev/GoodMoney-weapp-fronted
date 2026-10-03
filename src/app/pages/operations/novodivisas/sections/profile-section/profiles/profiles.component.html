@@ -1,0 +1,106 @@
+<div mat-dialog-title class="d-flex align-items-center justify-content-between">
+    <h3>Perfiles</h3>
+    <button mat-icon-button mat-dialog-close class="d-flex justify-content-center">
+        <i-tabler name="x" class="icon-20 d-flex"></i-tabler>
+    </button>
+</div>
+<mat-dialog-content>
+
+    <form class="row" [formGroup]="searchForm" (ngSubmit)="loadData()">
+
+        <div class="col-4">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-select formControlName="searchColumn" [placeholder]="'[ SELECCIONAR ]'"
+                    (selectionChange)="loadData()">
+                    @for (column of columns$; track column) {
+                    <mat-option [value]="column.clave">{{column.valor | titlecase}}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        @if(searchForm.value.searchColumn! == 'DocumentTypeId') {
+        <div class="col-4">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-select formControlName="documentTypeId" [placeholder]="'[ SELECCIONAR ]'"
+                    (selectionChange)="loadData()">
+                    @for (document of documentTypes; track document) {
+                    <mat-option [value]="document.id">{{document.name}}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </div>
+        }
+
+        <div class="{{ searchForm.value.searchColumn! == 'DocumentTypeId' ? 'col-4' : 'col-8' }}">
+            <mat-form-field appearance="outline" class="w-100">
+                <input matInput #input [autocomplete]="'off'" formControlName="searchTerm" [placeholder]="'Buscar perfiles'">
+                <button mat-mini-fab type="submit" class="bg-primary text-white rounded-right" matSuffix>
+                    <i-tabler name="search" class="icon-18 d-flex"></i-tabler>
+                </button>
+            </mat-form-field>
+        </div>
+    </form>
+
+    @if (profileStore.loading()) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 320px">
+        <mat-spinner diameter="50"></mat-spinner>
+    </div>
+    } @else {
+    <div class="table-responsive m-t-8">
+        <table mat-table [dataSource]="dataSource" class="w-100 f-w-500">
+            <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">#</th>
+                <td mat-cell *matCellDef="let i = index" class="f-w-500">
+                    {{ (i + pageIndex() * pageSize()) + 1 }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="nombres">
+                <th mat-header-cell *matHeaderCellDef> Nombres </th>
+                <td mat-cell *matCellDef="let element" class="no-wrap-element">
+                    @if(element.isBlackListed)
+                    {
+                    <span class="bg-black f-s-12 f-w-500 p-x-10 p-y-4 rounded-pill text-white">
+                        LISTA NEGRA
+                    </span>
+                    }
+                    <div class="d-flex align-items-center gap-16">
+                        <img [fallbackImg]="element.documentTypeIsNatural ? 'person':'company'" class="rounded-circle"
+                            [src]="element.profilePhoto | archivoPrivado | async" width="45" height="45" />
+                        <div>
+                            <h6 class="f-w-600 f-s-16 m-t-0">
+                                {{element.names }} {{element.lastNames }}
+                            </h6>
+                            <span class="f-s-14"> {{element.documentTypeName }}: {{element.documentNumber}}</span>
+                        </div>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="email">
+                <th mat-header-cell *matHeaderCellDef> Correo </th>
+                <td mat-cell *matCellDef="let element"> {{element.email}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="action" [stickyEnd]="true">
+                <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600"></th>
+                <td mat-cell *matCellDef="let element" class="action-link">
+                    <button mat-mini-fab (click)="selectedProfile(element)" class="m-r-10 bg-secondary text-white">
+                        <i-tabler name="hand-finger" class="icon-20"></i-tabler>
+                    </button>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr mat-row (dblclick)="selectedProfile(row)" *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+    </div>
+    }
+
+    @if(profileStore.items()?.length) {
+    <mat-paginator [length]="length()" [pageSize]="pageSize()" [pageSizeOptions]="pageSizeOptions"
+        [pageIndex]="pageIndex()" (page)="onPageChange($event)" showFirstLastButtons>
+    </mat-paginator>
+    }
+</mat-dialog-content>

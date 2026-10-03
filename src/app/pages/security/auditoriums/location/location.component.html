@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>Locación</h2>
+<mat-dialog-content>
+  @if (location?.status == 'success') {
+  <table class="location-datos" cdkFocusInitial>
+    <tr>
+      <td>País</td>
+      <td>{{ location.country }}</td>
+    </tr>
+    <tr>
+      <td>Región</td>
+      <td>{{ location.region }}</td>
+    </tr>
+    <tr>
+      <td>Ciudad</td>
+      <td>{{ location.city }}</td>
+    </tr>
+    <tr>
+      <td>Zona Horaria</td>
+      <td>{{ location.timezone }}</td>
+    </tr>
+  </table>
+
+  <iframe class="location-mapa" height="380" loading="lazy" allowfullscreen
+    referrerpolicy="no-referrer-when-downgrade" [src]="urlLocation">
+  </iframe>
+  } @else {
+  <p>{{ location?.message }}</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>
+    Cerrar
+  </button>
+</mat-dialog-actions>

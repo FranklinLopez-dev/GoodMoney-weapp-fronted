@@ -1,0 +1,311 @@
+/* Editor de plantillas de correo: HTML a la izquierda, resultado a la derecha. */
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  height: 86vh;
+  max-height: 900px;
+}
+
+/* Cabecera */
+
+.editor__cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--gm-gris-300);
+}
+
+.editor__titulo {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--gm-color-texto-principal);
+}
+
+.editor__bajada {
+  margin: 0;
+  font-size: 13px;
+  color: var(--gm-plomo-400);
+}
+
+/* Cuerpo a dos columnas */
+
+.editor__cuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+}
+
+.editor__form {
+  padding: 20px 24px;
+  overflow-y: auto;
+  border-right: 1px solid var(--gm-gris-300);
+}
+
+/* Campos al estilo del mockup: etiqueta arriba con asterisco rojo y caja redondeada. */
+
+.campo {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.campo__etiqueta {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gm-color-texto-principal);
+}
+
+.campo__req {
+  margin-left: 2px;
+  color: var(--gm-color-text-error);
+}
+
+.campo__input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--gm-gris-500);
+  border-radius: var(--gm-radius-xl);
+  background: #fff;
+  font: inherit;
+  color: var(--gm-color-texto-principal);
+
+  &:focus {
+    outline: none;
+    border-color: var(--gm-color-marca-acento);
+  }
+
+  &.ng-touched.ng-invalid {
+    border-color: var(--gm-color-text-error);
+    box-shadow: 0 0 0 1px var(--gm-color-text-error);
+  }
+}
+
+.campo__area {
+  font-family: 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.campo__ayuda,
+.campo__error {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.campo__ayuda {
+  color: var(--gm-plomo-400);
+}
+
+.campo__error {
+  color: var(--gm-color-text-error);
+  font-weight: 600;
+}
+
+/* Paleta de variables */
+
+.variables {
+  margin: 4px 0 18px;
+  padding: 14px 16px;
+  background: var(--gm-color-fondo-crema);
+  border-radius: var(--gm-radius-xl);
+}
+
+.variables__titulo {
+  margin: 0 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gm-plomo-400);
+}
+
+.variables__grupo {
+  margin-bottom: 10px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.variables__nombre {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gm-plomo-700);
+}
+
+.variables__fichas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.variable {
+  padding: 4px 10px;
+  border: 1px solid var(--gm-gris-500);
+  border-radius: 999px;
+  background: #fff;
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  color: var(--gm-plomo-700);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    border-color: var(--gm-color-marca-acento);
+    background: var(--gm-verde-100);
+  }
+}
+
+/* Los bloques Liquid insertan varias líneas: se distinguen de las variables. */
+.variable--bloque {
+  font-family: inherit;
+  font-weight: 600;
+  border-style: dashed;
+}
+
+/* Vista previa */
+
+.editor__previa {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--gm-color-fondo-crema);
+}
+
+.editor__previa-barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--gm-gris-300);
+  background: #fff;
+}
+
+.editor__previa-titulo {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gm-plomo-700);
+}
+
+.editor__previa-estado {
+  font-size: 12px;
+  color: var(--gm-plomo-400);
+}
+
+.editor__previa-estado--error {
+  color: var(--gm-color-text-error);
+  font-weight: 600;
+}
+
+/* `sandbox=""` aísla la previa: el HTML de la plantilla no ejecuta nada ni navega desde el panel. */
+.editor__iframe {
+  flex: 1;
+  width: 100%;
+  border: 0;
+  background: #fff;
+}
+
+/* Pie */
+
+.editor__pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 14px 24px;
+  border-top: 1px solid var(--gm-gris-300);
+}
+
+.editor__prueba {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 10px;
+
+  button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+
+.editor__prueba-campo {
+  width: 340px;
+  flex: 0 0 340px;
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+.editor__acciones {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.editor__guardar {
+  height: 44px;
+  padding: 0 26px;
+  border-radius: var(--gm-radius-xl);
+  background: var(--gm-color-marca-acento);
+  color: var(--gm-color-texto-contraste);
+  font-weight: 600;
+}
+
+@media (max-width: 1100px) {
+  .editor__cuerpo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .editor__previa {
+    min-height: 320px;
+  }
+}
+
+@media (max-width: 767px) {
+  .editor {
+    height: 92vh;
+  }
+
+  .editor__cabecera { padding: 16px 16px 12px; }
+  .editor__form { padding: 16px; border-right: 0; }
+
+  /* Mitad formulario, mitad previa, cada una con su scroll: sueltas, la previa empujaba el pie fuera del diálogo. */
+  .editor__cuerpo {
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .editor__previa { min-height: 0; }
+
+  /* El campo fijo de 340px se salía de la caja del diálogo. */
+  .editor__pie {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 12px 16px;
+  }
+
+  .editor__prueba { flex-wrap: wrap; }
+
+  .editor__prueba-campo {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .editor__acciones { justify-content: flex-end; }
+}

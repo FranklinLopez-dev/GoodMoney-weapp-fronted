@@ -1,0 +1,145 @@
+@if (cargando()) {
+<mat-card>
+  <mat-card-content>
+    <p class="dosp-cargando">Cargando…</p>
+  </mat-card-content>
+</mat-card>
+} @else {
+
+<mat-card>
+  <mat-card-content>
+
+    <div class="dosp-cabecera">
+      <div class="dosp-cabecera__icono" [class.dosp-cabecera__icono--activa]="activa()">
+        <i-tabler name="shield-lock" class="icon-24"></i-tabler>
+      </div>
+      <div>
+        <h2 class="dosp-titulo">Verificación en dos pasos</h2>
+        <p class="dosp-bajada">
+          Con esto activado, además de tu contraseña te pediremos un código de 6 dígitos que
+          enviamos a tu correo cada vez que entres. Si alguien consigue tu contraseña, no le
+          alcanza para entrar.
+        </p>
+      </div>
+    </div>
+
+    <div class="dosp-estado" [class.dosp-estado--activa]="activa()">
+      <span class="dosp-estado__punto"></span>
+      <span class="dosp-estado__texto">
+        {{ activa() ? 'Activada' : 'Desactivada' }}
+      </span>
+      @if (activa() && correo()) {
+      <span class="dosp-estado__correo">— el código llega a {{ correo() }}</span>
+      }
+    </div>
+
+    @if (paso() === 'estado') {
+    <div class="dosp-acciones">
+      @if (activa()) {
+      <!-- `mat-error`: quitar una protección no puede verse igual que confirmar algo. -->
+      <button mat-stroked-button class="mat-error" type="button" (click)="empezarDesactivacion()">
+        Desactivar
+      </button>
+      } @else {
+      <button mat-flat-button color="primary" type="button" (click)="empezarActivacion()">
+        Activar verificación en dos pasos
+      </button>
+      }
+    </div>
+    }
+
+    <!-- Paso 1 de la activación: contraseña -->
+    @if (paso() === 'clave') {
+    <div class="dosp-paso">
+      <p class="dosp-paso__titulo">Paso 1 de 2 — Confirma tu contraseña</p>
+      <p class="dosp-paso__ayuda">
+        La pedimos para que nadie pueda cambiar esta configuración desde una sesión que hayas
+        dejado abierta.
+      </p>
+
+      <mat-form-field appearance="outline" class="dosp-campo">
+        <mat-label>Contraseña</mat-label>
+        <input matInput type="password" autocomplete="current-password" [ngModel]="clave()"
+          (ngModelChange)="clave.set($event)" (keyup.enter)="pedirCodigo()" />
+      </mat-form-field>
+
+      @if (error()) {
+      <p class="dosp-error">{{ error() }}</p>
+      }
+
+      <div class="dosp-acciones">
+        <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+        <button mat-flat-button color="primary" type="button" [disabled]="!clave() || trabajando()"
+          (click)="pedirCodigo()">
+          {{ trabajando() ? 'Enviando…' : 'Enviarme el código' }}
+        </button>
+      </div>
+    </div>
+    }
+
+    <!-- Paso 2 de la activación: el código del correo -->
+    @if (paso() === 'codigo') {
+    <div class="dosp-paso">
+      <p class="dosp-paso__titulo">Paso 2 de 2 — Escribe el código</p>
+      <p class="dosp-paso__ayuda">
+        Te enviamos un código de 6 dígitos a <strong>{{ correo() }}</strong>. Caduca en 10 minutos.
+        Hasta que no lo confirmes, la verificación no queda activada: así nos aseguramos de que el
+        correo te llega antes de exigírtelo para entrar.
+      </p>
+
+      <mat-form-field appearance="outline" class="dosp-campo dosp-campo--codigo">
+        <mat-label>Código</mat-label>
+        <input matInput inputmode="numeric" maxlength="6" autocomplete="one-time-code"
+          [ngModel]="codigo()" (ngModelChange)="codigo.set($event)"
+          (keyup.enter)="confirmarActivacion()" />
+      </mat-form-field>
+
+      @if (error()) {
+      <p class="dosp-error">{{ error() }}</p>
+      }
+
+      <div class="dosp-acciones">
+        <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+        <button mat-button type="button" [disabled]="trabajando()" (click)="reenviarCodigo()">
+          Reenviar código
+        </button>
+        <button mat-flat-button color="primary" type="button"
+          [disabled]="codigo().length < 6 || trabajando()" (click)="confirmarActivacion()">
+          {{ trabajando() ? 'Activando…' : 'Confirmar y activar' }}
+        </button>
+      </div>
+    </div>
+    }
+
+    <!-- Apagarla: contraseña, sin código -->
+    @if (paso() === 'apagar') {
+    <div class="dosp-paso dosp-paso--aviso">
+      <p class="dosp-paso__titulo">Desactivar la verificación en dos pasos</p>
+      <p class="dosp-paso__ayuda">
+        Tu cuenta quedará protegida solo por la contraseña. Confirma con tu contraseña para
+        continuar.
+      </p>
+
+      <mat-form-field appearance="outline" class="dosp-campo">
+        <mat-label>Contraseña</mat-label>
+        <input matInput type="password" autocomplete="current-password" [ngModel]="clave()"
+          (ngModelChange)="clave.set($event)" (keyup.enter)="confirmarDesactivacion()" />
+      </mat-form-field>
+
+      @if (error()) {
+      <p class="dosp-error">{{ error() }}</p>
+      }
+
+      <div class="dosp-acciones">
+        <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+        <button mat-flat-button class="mat-warn" type="button"
+          [disabled]="!clave() || trabajando()" (click)="confirmarDesactivacion()">
+          {{ trabajando() ? 'Desactivando…' : 'Desactivar' }}
+        </button>
+      </div>
+    </div>
+    }
+
+  </mat-card-content>
+</mat-card>
+}

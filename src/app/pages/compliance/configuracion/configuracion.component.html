@@ -1,0 +1,193 @@
+<div class="cmp-panel">
+  <p class="cmp-bajada">
+    Los umbrales que deciden qué se reporta a la UIF y qué se marca como inusual.
+    Los valores de fábrica son los de la SBS para empresas de compra y venta de
+    divisas: <strong>USD 5.000</strong> por operación y USD 5.000 acumulados en el mes.
+  </p>
+
+  @if (cargando()) {
+  <p class="cmp-nota">Cargando…</p>
+  } @else if (configuracion(); as c) {
+
+  <h3 class="cmp-titulo">Registro de Operaciones</h3>
+  <div class="cmp-formulario">
+    <mat-form-field appearance="outline">
+      <mat-label>Umbral por operación (USD)</mat-label>
+      <input matInput type="number" [ngModel]="c.roUmbralIndividualUsd"
+             (ngModelChange)="fijar('roUmbralIndividualUsd', +$event)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Acumulado del mes (USD)</mat-label>
+      <input matInput type="number" [ngModel]="c.roUmbralAcumuladoMensualUsd"
+             (ngModelChange)="fijar('roUmbralAcumuladoMensualUsd', +$event)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Días hábiles para remitir</mat-label>
+      <input matInput type="number" [ngModel]="c.roDiasHabilesRemision"
+             (ngModelChange)="fijar('roDiasHabilesRemision', +$event)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Ubigeo de la oficina</mat-label>
+      <input matInput [ngModel]="c.roUbigeoOficina"
+             (ngModelChange)="fijar('roUbigeoOficina', $event)" placeholder="150122" />
+    </mat-form-field>
+  </div>
+  <p class="cmp-aviso">
+    Sin ubigeo se usa el distrito de la ficha de empresa. El plazo cuenta días
+    hábiles de verdad: salta sábados, domingos y los feriados configurados.
+  </p>
+
+  <h3 class="cmp-titulo">Detección de operaciones inusuales</h3>
+  <div class="cmp-formulario">
+    <mat-form-field appearance="outline">
+      <mat-label>Ventana (días)</mat-label>
+      <input matInput type="number" [ngModel]="c.alertaVentanaDias"
+             (ngModelChange)="fijar('alertaVentanaDias', +$event)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Mínimo de operaciones</mat-label>
+      <input matInput type="number" [ngModel]="c.alertaMinOperaciones"
+             (ngModelChange)="fijar('alertaMinOperaciones', +$event)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Cercanía (0,80 = 80 %)</mat-label>
+      <input matInput type="number" step="0.05" [ngModel]="c.alertaPorcentajeCercania"
+             (ngModelChange)="fijar('alertaPorcentajeCercania', +$event)" />
+    </mat-form-field>
+  </div>
+
+  <h3 class="cmp-titulo">Score de riesgo</h3>
+  <div class="cmp-formulario">
+    <mat-form-field appearance="outline">
+      <mat-label>En lista negra</mat-label>
+      <input matInput type="number" [ngModel]="c.pesoListaNegra"
+             (ngModelChange)="fijar('pesoListaNegra', +$event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>PEP</mat-label>
+      <input matInput type="number" [ngModel]="c.pesoPep"
+             (ngModelChange)="fijar('pesoPep', +$event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Familiar de PEP</mat-label>
+      <input matInput type="number" [ngModel]="c.pesoFamiliarPep"
+             (ngModelChange)="fijar('pesoFamiliarPep', +$event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Sin documento real</mat-label>
+      <input matInput type="number" [ngModel]="c.pesoIdentificacionPendiente"
+             (ngModelChange)="fijar('pesoIdentificacionPendiente', +$event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Tercero sin carta poder</mat-label>
+      <input matInput type="number" [ngModel]="c.pesoRespaldoPendiente"
+             (ngModelChange)="fijar('pesoRespaldoPendiente', +$event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Alerta de operación inusual</mat-label>
+      <input matInput type="number" [ngModel]="c.pesoAlertaInusual"
+             (ngModelChange)="fijar('pesoAlertaInusual', +$event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Volumen alto</mat-label>
+      <input matInput type="number" [ngModel]="c.pesoVolumenAlto"
+             (ngModelChange)="fijar('pesoVolumenAlto', +$event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Ocupación de riesgo</mat-label>
+      <input matInput type="number" [ngModel]="c.pesoOcupacionRiesgo"
+             (ngModelChange)="fijar('pesoOcupacionRiesgo', +$event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Zona o país de riesgo</mat-label>
+      <input matInput type="number" [ngModel]="c.pesoZonaRiesgo"
+             (ngModelChange)="fijar('pesoZonaRiesgo', +$event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Datos sin reconfirmar</mat-label>
+      <input matInput type="number" [ngModel]="c.pesoDatosDesactualizados"
+             (ngModelChange)="fijar('pesoDatosDesactualizados', +$event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Figura en listas (ONU, OFAC, UE, LAFT)</mat-label>
+      <input matInput type="number" [ngModel]="c.pesoCoincidenciaListas"
+             (ngModelChange)="fijar('pesoCoincidenciaListas', +$event)" />
+    </mat-form-field>
+  </div>
+
+  <div class="cmp-formulario">
+    <mat-form-field appearance="outline">
+      <mat-label>Umbral ámbar</mat-label>
+      <input matInput type="number" [ngModel]="c.umbralAmbar"
+             (ngModelChange)="fijar('umbralAmbar', +$event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Umbral rojo</mat-label>
+      <input matInput type="number" [ngModel]="c.umbralRojo"
+             (ngModelChange)="fijar('umbralRojo', +$event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Reconfirmar cada (meses)</mat-label>
+      <input matInput type="number" [ngModel]="c.mesesActualizacionDatos"
+             (ngModelChange)="fijar('mesesActualizacionDatos', +$event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Declaración PEP vale (días)</mat-label>
+      <input matInput type="number" [ngModel]="c.pepVigenciaDias" [disabled]="!c.exigirDeclaracionPep"
+             (ngModelChange)="fijar('pepVigenciaDias', +$event)" />
+    </mat-form-field>
+    <mat-checkbox [ngModel]="c.exigirDeclaracionPep" (ngModelChange)="fijar('exigirDeclaracionPep', $event)">
+      Pedir la declaración PEP vencida al registrar una operación
+    </mat-checkbox>
+  </div>
+
+  <h3 class="cmp-titulo">Verificación de identidad (KYC)</h3>
+  <p class="cmp-bajada">
+    La cola está en Personas → KYC. Exigirla deja sin cotizar ni registrar a todo el que no esté validado; hoy,
+    casi todos. Enciéndela recién cuando la cola esté al día.
+  </p>
+  <div class="cmp-formulario">
+    <mat-form-field appearance="outline">
+      <mat-label>La validación vale (meses)</mat-label>
+      <input matInput type="number" min="1" max="120" [ngModel]="c.kycVigenciaMeses"
+             (ngModelChange)="fijar('kycVigenciaMeses', +$event)" />
+    </mat-form-field>
+    <mat-checkbox [ngModel]="c.kycAutoValidar" (ngModelChange)="fijar('kycAutoValidar', $event)">
+      Validar sola a la persona que cumple todas las reglas
+    </mat-checkbox>
+    <mat-checkbox [ngModel]="c.kycExigirParaOperar" (ngModelChange)="fijar('kycExigirParaOperar', $event)">
+      Exigir KYC validado para operar
+    </mat-checkbox>
+  </div>
+
+  <div class="cmp-formulario">
+    <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+      <mat-label>Ocupaciones de riesgo — códigos separados por coma</mat-label>
+      <input matInput [ngModel]="c.ocupacionesRiesgoCodigos"
+             (ngModelChange)="fijar('ocupacionesRiesgoCodigos', $event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+      <mat-label>Ubigeos de riesgo (por prefijo: 08 = todo Cusco)</mat-label>
+      <input matInput [ngModel]="c.ubigeosRiesgo"
+             (ngModelChange)="fijar('ubigeosRiesgo', $event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+      <mat-label>Países de riesgo (separados por coma)</mat-label>
+      <input matInput [ngModel]="c.paisesRiesgo"
+             (ngModelChange)="fijar('paisesRiesgo', $event)" />
+    </mat-form-field>
+  </div>
+
+  <div class="cmp-acciones gm-reserva-asistente">
+    <button mat-flat-button color="primary" type="button"
+            [disabled]="guardando()" (click)="guardar()">
+      {{ guardando() ? 'Guardando…' : 'Guardar cambios' }}
+    </button>
+  </div>
+  }
+</div>

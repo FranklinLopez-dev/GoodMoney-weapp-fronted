@@ -1,0 +1,64 @@
+.reglas-titulo {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.reglas-bajada {
+  margin: 0 0 20px;
+  max-width: 80ch;
+  font-size: 13px;
+  color: var(--gm-plomo-400);
+}
+
+.reglas-rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  /* Filas independientes: si una estira su alto por una ayuda larga, las demás no la siguen. */
+  align-items: start;
+  gap: 4px 16px;
+}
+
+/* La ayuda no usa `mat-hint`: Material la posiciona en absoluto y caía sobre la etiqueta de la fila siguiente. */
+.reglas-campo {
+  display: flex;
+  flex-direction: column;
+}
+
+.reglas-campo ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.reglas-campo__ayuda {
+  /* Sin margen negativo: al ocultar el hueco de Material, tirar del texto hacia arriba lo metía dentro de la caja. */
+  margin: 6px 4px 16px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--gm-plomo-400);
+}
+
+/* Cada interruptor con su explicación debajo: qué pasa si lo enciendes es más útil que su nombre. */
+.reglas-interruptores {
+  display: grid;
+  gap: 18px;
+}
+
+.reglas-interruptor__ayuda {
+  margin: 6px 0 0 52px;
+  max-width: 80ch;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--gm-plomo-400);
+}
+
+.reglas-acciones {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.reglas-cargando {
+  margin: 24px 0;
+  text-align: center;
+  color: var(--gm-plomo-400);
+}

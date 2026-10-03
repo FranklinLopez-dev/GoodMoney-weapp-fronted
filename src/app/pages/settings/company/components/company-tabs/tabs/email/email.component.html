@@ -1,0 +1,149 @@
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <mat-card class="cardWithShadow">
+            <mat-card-content class="p-y-24">
+                <mat-card-title>Correo electrónico</mat-card-title>
+                <mat-card-subtitle class="f-s-14">Variables para la configuración de envíos de correos
+                    electrónicos</mat-card-subtitle>
+                <form class="row m-t-24" [formGroup]="form">
+                    <div class="col-md-6 m-b-16">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Color primario</mat-label>
+                            <input matInput formControlName="emailPrimaryColor" />
+                            @if(control['emailPrimaryColor'].touched &&
+                            control['emailPrimaryColor'].invalid) {
+                            <mat-hint class="su-error">
+                                @if(control['emailPrimaryColor'].errors &&
+                                control['emailPrimaryColor'].errors['required']) {
+                                Color primario es obligatorio
+                                }
+                            </mat-hint>
+                            }
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-6 m-b-16">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Color secundario</mat-label>
+                            <input matInput formControlName="emailSecondaryColor" />
+                            @if(control['emailSecondaryColor'].touched &&
+                            control['emailSecondaryColor'].invalid) {
+                            <mat-hint class="su-error">
+                                @if(control['emailSecondaryColor'].errors &&
+                                control['emailSecondaryColor'].errors['required']) {
+                                Color secundario es obligatorio
+                                }
+                            </mat-hint>
+                            }
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-6 m-b-16">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Color de fondo</mat-label>
+                            <input matInput formControlName="emailBackgroundColor" />
+                            @if(control['emailBackgroundColor'].touched &&
+                            control['emailBackgroundColor'].invalid) {
+                            <mat-hint class="su-error">
+                                @if(control['emailBackgroundColor'].errors &&
+                                control['emailBackgroundColor'].errors['required']) {
+                                Color de fondo es obligatorio
+                                }
+                            </mat-hint>
+                            }
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-6 m-b-16">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Color del texto</mat-label>
+                            <input matInput formControlName="emailTextColor" />
+                            @if(control['emailTextColor'].touched &&
+                            control['emailTextColor'].invalid) {
+                            <mat-hint class="su-error">
+                                @if(control['emailTextColor'].errors &&
+                                control['emailTextColor'].errors['required']) {
+                                Color del texto es obligatorio
+                                }
+                            </mat-hint>
+                            }
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-6 m-b-16">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Texto del footer</mat-label>
+                            <input matInput formControlName="emailFooterText" />
+                            @if(control['emailFooterText'].touched &&
+                            control['emailFooterText'].invalid) {
+                            <mat-hint class="su-error">
+                                @if(control['emailFooterText'].errors &&
+                                control['emailFooterText'].errors['required']) {
+                                Texto del footer es obligatorio
+                                }
+                            </mat-hint>
+                            }
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-6 m-b-16">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Correo de soporte</mat-label>
+                            <input matInput formControlName="emailSupportEmail" />
+                            @if(control['emailSupportEmail'].touched &&
+                            control['emailSupportEmail'].invalid) {
+                            <mat-hint class="su-error">
+                                @if(control['emailSupportEmail'].errors &&
+                                control['emailSupportEmail'].errors['required']) {
+                                Correo de soporte es obligatorio
+                                }
+                            </mat-hint>
+                            }
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-6 m-b-16">
+                        <input #fileImagePc type="file" [multiple]="false" hidden accept="image/*"
+                            (change)="setFileLogo($event)" />
+                        @if(!emailLogoUrl()) {
+                        <div class="border-dropzone" (click)="fileImagePc.click()">
+                            <div class="dropzone-content preview flex-col">
+                                <img src="./assets/images/publicidad.png" fallbackImg="default" alt="Imagen"
+                                    class="upload-icon m-b-4" style="max-height: 200px !important;" />
+                                <span class="f-s-14 text-center">Seleccione imagen de logo</span>
+                            </div>
+                        </div>
+                        } @else {
+                        <div class="border-dropzone" (click)="removeFileLogo()">
+                            <div class="dropzone-content preview">
+                                <img [src]="emailLogoUrl()" alt="Imagen" fallbackImg="default"
+                                    class="upload-icon m-b-4" />
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    <div class="col-md-6 m-b-16">
+                        <input #fileImageTablet type="file" [multiple]="false" hidden accept="image/*"
+                            (change)="setFileMascota($event)" />
+                        @if(!emailMascotUrl()) {
+                        <div class="border-dropzone" (click)="fileImageTablet.click()">
+                            <div class="dropzone-content preview flex-col">
+                                <img src="./assets/images/publicidad.png" fallbackImg="default" alt="Imagen"
+                                    class="upload-icon m-b-4" style="max-height: 200px !important;" />
+                                <span class="f-s-14 text-center">Seleccione imagen de mascota</span>
+                            </div>
+                        </div>
+                        } @else {
+                        <div class="border-dropzone" (click)="removeFileMascota()">
+                            <div class="dropzone-content preview">
+                                <img [src]="emailMascotUrl()" alt="Imagen" fallbackImg="default"
+                                    class="upload-icon m-b-4" />
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

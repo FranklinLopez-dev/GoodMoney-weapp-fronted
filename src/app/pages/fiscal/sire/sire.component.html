@@ -1,0 +1,128 @@
+<div class="cmp-panel">
+
+  @if (!abierto()) {
+  <p class="cmp-bajada">
+    Cada mes SUNAT arma una propuesta del Registro de Ventas con los comprobantes que recibió. Aquí se descarga
+    sola, se compara con lo que emitimos y se acepta. Lo primero que hay que mirar: <strong>emitidos que SUNAT
+    no tiene</strong> — son comprobantes que no llegaron.
+  </p>
+
+  @if (configurado() === false) {
+  <p class="fis-beta">Faltan las credenciales de API del SIRE. Regístralas en Configuración → Facturación electrónica.</p>
+  }
+
+  @if (puedeGestionar && configurado()) {
+  <div class="fis-acciones">
+    <button mat-stroked-button type="button" [disabled]="ocupado() === 'probar'" (click)="probar()">Probar conexión</button>
+    <button mat-stroked-button type="button" [disabled]="ocupado() === 'sincronizar'" (click)="sincronizar()">
+      {{ ocupado() === 'sincronizar' ? 'Consultando SUNAT…' : 'Traer períodos de SUNAT' }}
+    </button>
+  </div>
+  }
+
+  @if (cargando() && !periodos().length) {
+  <p class="cmp-nota">Cargando…</p>
+  } @else if (!periodos().length) {
+  <p class="cmp-nota">
+    Todavía no hay períodos.
+    {{ configurado() ? 'Se traen solos cada mañana, o con «Traer períodos de SUNAT».' : 'Se traerán solos cada mañana cuando estén las credenciales.' }}
+  </p>
+  } @else {
+  <div class="cmp-tabla fis-tabla--sire">
+    <div class="cmp-fila cmp-fila--cabecera">
+      <span>Período</span><span>Estado</span><span class="cmp-numero">Propuesta</span>
+      <span>Conciliación</span><span></span>
+    </div>
+    @for (p of periodos(); track p.id) {
+    <div class="cmp-fila" [class.cmp-fila--vencida]="p.estado === 'Omiso' || p.cntSoloSistema > 0">
+      <span><strong>{{ legible(p.periodo) }}</strong><small class="cmp-doc">{{ p.desEstadoSunat }}</small></span>
+      <span>
+        <span class="cmp-chip" [ngClass]="claseEstado(p.estado)">{{ nombreEstado(p.estado) }}</span>
+        @if (p.aceptadaAt) { <small class="cmp-doc">{{ p.aceptadaAt | date:'dd/MM/yyyy' }} · {{ p.aceptadaPor }}</small> }
+      </span>
+      <span class="cmp-numero">
+        @if (p.fechaPropuesta) { {{ p.totalLineas }} doc. · S/ {{ p.totalMonto | number:'1.2-2' }} } @else { — }
+      </span>
+      <span>
+        @if (p.fechaConciliacion) {
+          @if (p.cntSoloSistema > 0) { <span class="cmp-chip cmp-chip--alta">{{ p.cntSoloSistema }} no llegaron</span> }
+          @if (p.cntDifieren > 0) { <span class="cmp-chip cmp-chip--media">{{ p.cntDifieren }} difieren</span> }
+          @if (p.cntSoloSistema === 0 && p.cntDifieren === 0) { <span class="cmp-chip cmp-chip--ok">Cuadra</span> }
+          <small class="cmp-doc">{{ p.cntCoinciden }} coinciden · {{ p.cntSoloSunat }} solo en SUNAT</small>
+        } @else { <small class="cmp-doc">Sin conciliar</small> }
+      </span>
+      <span>
+        @if (p.fechaPropuesta) { <button mat-button type="button" (click)="abrir(p)">Ver</button> }
+        @if (puedeGestionar) {
+          @if (p.procesoEnCurso) {
+          <button mat-button type="button" [disabled]="ocupado() === 'p' + p.id" (click)="consultar(p)">Consultar ticket</button>
+          } @else if (!p.fechaPropuesta && p.estado !== 'Aceptado' && p.estado !== 'Registrado') {
+          <button mat-button type="button" [disabled]="ocupado() === 'p' + p.id" (click)="pedirPropuesta(p)">Pedir propuesta</button>
+          }
+        }
+      </span>
+    </div>
+    }
+  </div>
+  }
+
+  } @else if (abierto(); as p) {
+
+  <div class="cmp-detalle-cabecera">
+    <button mat-button type="button" (click)="cerrar()">← Volver</button>
+    <h3>Registro de Ventas {{ legible(p.periodo) }}</h3>
+    <span class="cmp-chip" [ngClass]="claseEstado(p.estado)">{{ nombreEstado(p.estado) }}</span>
+  </div>
+
+  @if (puedeGestionar) {
+  <div class="fis-acciones">
+    <button mat-stroked-button type="button" [disabled]="ocupado() === 'p' + p.id" (click)="conciliar(p)">Volver a conciliar</button>
+    <button mat-stroked-button type="button" [disabled]="ocupado() === 'p' + p.id" (click)="pedirPropuesta(p)">Descargar la propuesta de nuevo</button>
+    @if (p.estado !== 'Aceptado' && p.estado !== 'Registrado') {
+    <button mat-flat-button color="primary" type="button" [disabled]="ocupado() === 'p' + p.id" (click)="aceptar(p)">Aceptar propuesta</button>
+    }
+  </div>
+  }
+
+  <div class="cmp-filtros">
+    @for (c of cubetas; track c.valor) {
+    <button type="button" mat-stroked-button [class.fis-activo]="cubeta() === c.valor" (click)="filtrar(c.valor)">
+      {{ c.nombre }} ({{ c.valor === 4 ? p.cntSoloSistema : c.valor === 2 ? p.cntDifieren : c.valor === 3 ? p.cntSoloSunat : p.cntCoinciden }})
+    </button>
+    }
+    <button type="button" mat-button [class.fis-activo]="cubeta() === null" (click)="filtrar(null)">Todas</button>
+  </div>
+
+  @if (cubeta() === 4 && p.cntSoloSistema > 0) {
+  <p class="fis-beta">
+    Estos comprobantes los emitimos pero SUNAT no los tiene: revísalos en la pestaña Comprobantes (reintentar el envío
+    o declarar en resumen) antes de aceptar la propuesta.
+  </p>
+  }
+
+  @if (!lineas().length) {
+  <p class="cmp-nota">No hay líneas en este grupo.</p>
+  } @else {
+  <div class="cmp-tabla fis-tabla--sire-lineas">
+    <div class="cmp-fila cmp-fila--cabecera">
+      <span>Comprobante</span><span>Fecha</span><span>Cliente</span><span class="cmp-numero">Total</span><span>Resultado</span>
+    </div>
+    @for (l of lineas(); track l.id) {
+    <div class="cmp-fila">
+      <span><strong>{{ l.serie }}-{{ l.numero }}</strong><small class="cmp-doc">Tipo {{ l.tipoDoc }}</small></span>
+      <span>{{ l.fechaEmision | date:'dd/MM/yyyy' }}</span>
+      <span>{{ l.clienteNombre || '—' }}<small class="cmp-doc">{{ l.clienteDocNumero }}</small></span>
+      <span class="cmp-numero">{{ l.moneda === 'USD' ? '$' : 'S/' }} {{ l.total | number:'1.2-2' }}</span>
+      <span>
+        <span class="cmp-chip" [ngClass]="claseCubeta(l.cubeta)">{{ nombreCubeta(l.cubeta) }}</span>
+        @if (l.diferenciaDetalle) { <small class="fis-motivo">{{ l.diferenciaDetalle }}</small> }
+      </span>
+    </div>
+    }
+  </div>
+  <mat-paginator [length]="totalLineas()" [pageIndex]="pagina()" [pageSize]="tamano()" [pageSizeOptions]="[50, 100]"
+                 (page)="cambiarPagina($event)"></mat-paginator>
+  }
+
+  }
+</div>

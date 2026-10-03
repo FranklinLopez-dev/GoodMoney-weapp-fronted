@@ -1,0 +1,147 @@
+<mat-card>
+    <mat-card-content>
+
+        <div class="row justify-content-between gap-16">
+            <div class="col-md-4">
+                <mat-form-field appearance="outline" class="w-100 hide-hint">
+                    <input matInput placeholder="Buscar bancos" (keyup)="applyFilter($any($event.target).value)" />
+                    <mat-icon matSuffix>
+                        <i-tabler name="search" class="icon-20 d-flex m-t-2"></i-tabler>
+                    </mat-icon>
+                </mat-form-field>
+            </div>
+            @if(canCreate()) {
+            <div class="col-md-4 d-flex align-items-center justify-content-end">
+                <button (click)="openCreate()" type="button" mat-flat-button color="primary">
+                    Nuevo Banco
+                </button>
+            </div>
+            }
+        </div>
+
+        <div class="table-responsive m-t-16 w-100 tabla-tarjetas">
+            @if(loading()) {
+            <div class="d-flex justify-content-center align-items-center" style="min-height: 300px;">
+                <mat-spinner diameter="50"></mat-spinner>
+            </div>
+            } @else {
+            @if(store.items()?.length) {
+            <table mat-table [dataSource]="dataSource" class="w-100 f-w-500 no-wrap">
+                <ng-container matColumnDef="num">
+                    <th mat-header-cell *matHeaderCellDef>#</th>
+                    <td mat-cell *matCellDef="let element" class="f-w-500">
+                        {{dataSource.filteredData.indexOf(element)+1}}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="codigo">
+                    <th mat-header-cell *matHeaderCellDef> Código </th>
+                    <td mat-cell *matCellDef="let element" data-label="Código"> {{element.code}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="banco">
+                    <th mat-header-cell *matHeaderCellDef> Banco </th>
+                    <td mat-cell *matCellDef="let element" class="td-cabecera">
+                        <div class="d-flex align-items-center">
+                            <img appImageNoPhoto [src]="'data:image/jpeg;base64,' + element.icon" alt="banco"
+                                class="icon-40 rounded-7" fallbackImg="default"/>
+                            <div class="m-l-16">
+                                <h6 class="text-truncate-2 f-s-14 lh-sm">
+                                    {{element.name}}
+                                </h6>
+                            </div>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="minAcount">
+                    <th mat-header-cell *matHeaderCellDef> Min </th>
+                    <td mat-cell *matCellDef="let element" data-label="Min"> {{element.minAcount}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="maxAcount">
+                    <th mat-header-cell *matHeaderCellDef> Max </th>
+                    <td mat-cell *matCellDef="let element" data-label="Max"> {{element.maxAcount}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="minAcountInter">
+                    <th mat-header-cell *matHeaderCellDef class="no-wrap"> Min CCI </th>
+                    <td mat-cell *matCellDef="let element" data-label="Min CCI"> {{element.minAcountInter}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="maxAcountInter">
+                    <th mat-header-cell *matHeaderCellDef class="no-wrap"> Max CCI </th>
+                    <td mat-cell *matCellDef="let element" data-label="Max CCI"> {{element.maxAcountInter}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="comitionPen">
+                    <th mat-header-cell *matHeaderCellDef class="no-wrap"> Comision PEN </th>
+                    <td mat-cell *matCellDef="let element" data-label="Comisión PEN"> {{element.comitionPen}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="comitionUsd">
+                    <th mat-header-cell *matHeaderCellDef class="no-wrap"> Comision USD </th>
+                    <td mat-cell *matCellDef="let element" data-label="Comisión USD"> {{element.comitionUsd}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="estado">
+                    <th mat-header-cell *matHeaderCellDef> Estado </th>
+                    <td mat-cell *matCellDef="let element" data-label="Estado">
+                        @if(element.status == '1') {
+                        <span class="p-x-8 p-y-4 f-w-500 rounded-pill f-s-14 text-success">
+                            Activo
+                        </span>
+                        } @else {
+                        <span class="p-x-8 p-y-4 f-w-500 rounded-pill f-s-14 text-error">
+                            Inactivo
+                        </span>
+                        }
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="action" [stickyEnd]="true">
+                    <th mat-header-cell *matHeaderCellDef>
+                        Acciones
+                    </th>
+                    <td mat-cell *matCellDef="let element" class="action-link">
+                        @if(canEdit()) {
+                        <a (click)="openEdit(element)" class="m-r-10 cursor-pointer">
+                            <i-tabler name="edit" class="icon-18"></i-tabler>
+                        </a>
+                        }
+                        @if(canDelete()) {
+                        <a (click)="delete(element)" class="m-r-10 cursor-pointer"><i-tabler name="trash"
+                                class="icon-18"></i-tabler>
+                        </a>
+                        }
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+            } @else {
+            <div class="d-flex justify-content-center align-items-center" >
+              <p class="text-muted">No hay registros de bancos</p>
+            </div>
+            }
+            }
+        </div>
+
+        @if(store.items()?.length) {
+        <mat-paginator [pageSizeOptions]="pageSizeOptions" showFirstLastButtons></mat-paginator>
+        }
+
+    </mat-card-content>
+</mat-card>
+
+<ng-template #bankDrawer>
+    <app-banks-dialog [data]="selected" (close)="layout.closeGlobalDrawer()" (saved)="onSaved()">
+    </app-banks-dialog>
+</ng-template>

@@ -1,0 +1,99 @@
+<mat-card>
+    <mat-card-content>
+
+        <div class="row justify-content-between gap-16">
+            <form [formGroup]="form" class="col-lg-6 row">
+                <div class="col-md-6">
+                    <mat-form-field appearance="outline" class="w-100">
+                        <mat-label>Desde</mat-label>
+                        <input appDateMask matInput maxlength="10" formControlName="fromDate" placeholder="dd/mm/yyyy"
+                            [matDatepicker]="fromDatePicker" (dateChange)="loadData()"/>
+                        <mat-datepicker-toggle matIconSuffix [for]="fromDatePicker" />
+                        <mat-datepicker #fromDatePicker />
+                        @if(control['fromDate'].touched && control['fromDate'].invalid) {
+                        <mat-hint class="su-error">
+                            Fecha inicial inválida
+                        </mat-hint>
+                        }
+                    </mat-form-field>
+                </div>
+
+                <div class="col-md-6">
+                    <mat-form-field appearance="outline" class="w-100">
+                        <mat-label>Hasta</mat-label>
+                        <input appDateMask matInput maxlength="10" formControlName="toDate" placeholder="dd/mm/yyyy"
+                            [matDatepicker]="toDatePicker" (dateChange)="loadData()"/>
+                        <mat-datepicker-toggle matIconSuffix [for]="toDatePicker" />
+                        <mat-datepicker #toDatePicker />
+                        @if (control['toDate'].touched && control['toDate'].invalid) {
+                        <mat-hint class="su-error">
+                            @if (control['toDate'].errors?.['required']) {
+                            Fecha final inválida
+                            }
+                            @if (control['toDate'].errors?.['rangeInvalid']) {
+                            La fecha "Desde" no puede ser mayor que "Hasta"
+                            }
+                        </mat-hint>
+                        }
+                    </mat-form-field>
+                </div>
+            </form>
+
+            <div class="col-md-4 d-flex align-items-center justify-content-end">
+                <button (click)="openCreate()" type="button" mat-flat-button color="primary">
+                    Nueva tasa
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive m-t-20 tabla-tarjetas">
+            @if(loading()) {
+            <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
+                <mat-spinner diameter="50"></mat-spinner>
+            </div>
+            } @else {
+            @if(store.items()?.length) {
+            <table mat-table [dataSource]="dataSource" class="w-100">
+
+                <ng-container matColumnDef="num">
+                    <th mat-header-cell *matHeaderCellDef>#</th>
+                    <td mat-cell *matCellDef="let element">
+                        {{dataSource.filteredData.indexOf(element)+1}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="dateRegister">
+                    <th mat-header-cell *matHeaderCellDef>Fecha</th>
+                    <td mat-cell *matCellDef="let element" data-label="Fecha">{{ element.dateRegister | date:'dd/MM/yyyy HH:mm:ss a' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="priceCompra">
+                    <th mat-header-cell *matHeaderCellDef>Compra</th>
+                    <td mat-cell *matCellDef="let element" data-label="Compra">{{ element.priceCompra | number:'1.4-4' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="priceVenta">
+                    <th mat-header-cell *matHeaderCellDef>Venta</th>
+                    <td mat-cell *matCellDef="let element" data-label="Venta">{{ element.priceVenta | number:'1.4-4' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="user">
+                    <th mat-header-cell *matHeaderCellDef>Usuario</th>
+                    <td mat-cell *matCellDef="let element" data-label="Usuario">{{ element.applicationUserNames }}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+            } @else {
+            <div class="d-flex justify-content-center align-items-center">
+              <p class="text-muted">No hay registros de tipos de cambio</p>
+            </div>
+            }
+            }
+        </div>
+        @if(store.items()?.length) {
+        <mat-paginator [pageSizeOptions]="pageSizeOptions" showFirstLastButtons></mat-paginator>
+        }
+    </mat-card-content>
+</mat-card>

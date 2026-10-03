@@ -1,0 +1,124 @@
+<form class="row" [formGroup]="form">
+
+    <!-- Es el nombre con el que el CLIENTE le ve en el chat; su nombre real no se le muestra nunca. -->
+    @if (form.get('isAdmin')?.value) {
+    <div class="col-md-6 col-lg-4">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Alias para el cliente</mat-label>
+            <input matInput formControlName="nickname" maxlength="60"
+                placeholder="Ej. Asesora Ana" />
+            <mat-hint>Así le ve el cliente en el chat. Si lo dejas vacío, saldrá "Asesor 1", "Asesor 2"…</mat-hint>
+        </mat-form-field>
+    </div>
+    }
+
+    <div class="col-md-6 col-lg-4">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Correo electrónico</mat-label>
+            <input matInput formControlName="email" />
+            @if(control['email'].touched && control['email'].invalid) {
+            <mat-hint class="su-error">
+                @if(control['email'].errors &&
+                control['email'].errors['required']) {
+                Correo electrónico es obligatorio
+                }
+                @if(control['email'].errors &&
+                control['email'].errors['pattern']) {
+                Correo electrónico es inválido
+                }
+            </mat-hint>
+            }
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Teléfono</mat-label>
+            <input [appInputMask]="'numeric'" matInput formControlName="phone" />
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Celular</mat-label>
+            <input [appInputMask]="'numeric'" formControlName="cellPhone" matInput>
+            <span class="m-r-4 gm-prefijo-pais" matPrefix>
+                <span class="d-flex align-items-center m-l-16 m-r-8">
+                    <img class="option-image" fallbackImg="default" [src]="selectedCountry()?.flags?.svg"
+                        [alt]="selectedCountry()?.name?.common" class="option-image">
+                    <span
+                        class="m-l-4 font-medium text-default">{{selectedCountry()?.idd?.root}}{{selectedCountry()?.idd?.suffixes?.[0]}}</span>
+                </span>
+            </span>
+            @if(control['cellPhone'].touched && control['cellPhone'].invalid) {
+            <mat-hint class="su-error">
+                @if(control['cellPhone'].errors &&
+                control['cellPhone'].errors['required']) {
+                Celular es obligatorio
+                }
+            </mat-hint>
+            }
+        </mat-form-field>
+    </div>
+
+    @if(!control['status']) {
+    <div class="col-md-6 col-lg-4">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Fecha de nacimiento</mat-label>
+            <input matInput [max]="maxBirthDate" appDateMask maxlength="10" placeholder="dd/mm/yyyy" formControlName="dateOfBirth"
+                [matDatepicker]="picker">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            @if(control['dateOfBirth'].touched && control['dateOfBirth'].invalid) {
+            <mat-hint class="su-error">
+                Fehca de nacimiento inválida
+            </mat-hint>
+            }
+        </mat-form-field>
+    </div>
+    }
+
+    <div class="col-12">
+        <mat-card-title>Preferencias de notificación</mat-card-title>
+        <mat-card-subtitle class="f-s-14">Seleccione por donde desea recibir sus notificaciones. Tenga en cuenta que no
+            puede optar por no recibir mensajes de servicio, como notificaciones de sus operaciones.</mat-card-subtitle>
+    </div>
+
+    <div class="col-12 d-flex align-items-center m-t-24">
+        <button mat-mini-fab class="bg-light-primary shadow-none rounded icon-48">
+            <i-tabler name="mail" class="icon-20 d-flex text-primary"></i-tabler>
+        </button>
+        <div class="m-l-16 w-100">
+            <h5 class="f-s-16 f-w-600 m-0 m-b-4">Correo electrónico</h5>
+            <div class="d-flex align-items-center justify-content-center w-100">
+                <span class="f-s-14">Activa la notificación por correo electrónico para recibir publicidad</span>
+                <mat-slide-toggle formControlName="flagEmail" class="m-l-auto"></mat-slide-toggle>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 d-flex align-items-center m-t-24">
+        <button mat-mini-fab class="bg-light-primary shadow-none rounded icon-48">
+            <i-tabler name="brand-whatsapp" class="icon-20 d-flex text-primary"></i-tabler>
+        </button>
+        <div class="m-l-16 w-100">
+            <h5 class="f-s-16 f-w-600 m-0 m-b-4">Whastapp</h5>
+            <div class="d-flex align-items-center justify-content-center w-100">
+                <span class="f-s-14">Su numero de celular cuenta con whastapp</span>
+                <mat-slide-toggle formControlName="isWhatsapp" class="m-l-auto"></mat-slide-toggle>
+            </div>
+        </div>
+    </div>
+
+    @if(control['isWhatsapp'].value) {
+    <div class="col-12 d-flex align-items-center m-t-24">
+        <div class="m-l-16 w-100">
+            <div class="d-flex align-items-center justify-content-center w-100">
+                <span class="f-s-14">Activa la notificación por whastapp para recibir publicidad</span>
+                <mat-slide-toggle formControlName="flagCellPhone" class="m-l-auto"></mat-slide-toggle>
+            </div>
+        </div>
+    </div>
+    }
+
+</form>

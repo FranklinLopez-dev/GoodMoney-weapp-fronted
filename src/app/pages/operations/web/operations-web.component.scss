@@ -1,0 +1,53 @@
+.no-wrap-element {
+  min-width: 350px !important;
+  white-space: normal !important;
+}
+
+// Bandeja: cuánto lleva esperando lo que ya pagó el cliente, cuánto le queda a lo registrado y su KYC.
+.bandeja-chip {
+  display: block;
+  width: fit-content;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.bandeja-chip--ok       { background: var(--gm-estado-info-100);    color: var(--gm-color-text-info); }
+.bandeja-chip--atencion { background: var(--gm-estado-warning-100); color: var(--gm-color-text-warning); }
+.bandeja-chip--tarde    { background: var(--gm-estado-error-100);   color: var(--gm-color-text-error); }
+
+.bandeja-aviso {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  background: var(--gm-estado-info-100);
+  color: var(--gm-color-text-info);
+}
+
+.bandeja-aviso--atencion { background: var(--gm-estado-warning-100); color: var(--gm-color-text-warning); }
+.bandeja-aviso--tarde    { background: var(--gm-estado-error-100);   color: var(--gm-color-text-error); }
+
+.bandeja-kyc {
+  display: block;
+  width: fit-content;
+  margin-top: 4px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  background: var(--gm-gris-100);
+  color: var(--gm-plomo-700);
+}
+
+.bandeja-kyc--validado   { background: var(--gm-estado-success-100); color: var(--gm-color-text-success); }
+.bandeja-kyc--observado,
+.bandeja-kyc--vencido,
+.bandeja-kyc--en_revision { background: var(--gm-estado-warning-100); color: var(--gm-color-text-warning); }
+.bandeja-kyc--suspendido { background: var(--gm-estado-error-100);   color: var(--gm-color-text-error); }

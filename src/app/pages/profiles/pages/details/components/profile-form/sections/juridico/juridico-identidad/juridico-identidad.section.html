@@ -1,0 +1,111 @@
+<div class="row">
+    <div class="col-md-6">
+        <mat-card class="cardWithShadow">
+            <mat-card-content class="p-y-24">
+                <mat-card-title>Cambiar logo</mat-card-title>
+                <mat-card-subtitle class="f-s-14">Cambia tu logo de perfil desde aquí</mat-card-subtitle>
+                <div class="text-center m-t-24">
+                    <img [src]="frontFile() | archivoPrivado | async" fallbackImg="company" class="rounded-circle" width="120" height="120" />
+                    <div class="m-t-24">
+                        <input type="file" accept="image/jpeg,image/png" hidden (change)="setFileFront($event)"
+                            #fileInput />
+                        <button mat-flat-button color="primary" class="m-r-8" (click)="fileInput.click()">
+                            Subir
+                        </button>
+                        <button mat-stroked-button color="warn" (click)="removeFileFront()">Quitar</button>
+                    </div>
+                    <span class="f-s-14 m-t-24 d-block">Se permiten archivos JPG o PNG. Tamaño máximo: 800 K.</span>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+    <div class="col-md-6">
+        <mat-card class="cardWithShadow">
+            <mat-card-content class="p-y-24">
+                <mat-card-title>Datos personales</mat-card-title>
+                <mat-card-subtitle class="f-s-14">
+                    Información personal del perfil
+                    @if (rucResponse()) {
+                    @if (rucResponse()?.data?.estado) {
+                    <span
+                        [ngClass]="{ 'bg-success': rucResponse()?.data?.estado === 'ACTIVO', 'bg-error': rucResponse()?.data?.estado !== 'ACTIVO' }"
+                        class="f-s-12 f-w-500 p-x-10 p-y-4 rounded-pill text-white">
+                        {{ rucResponse()?.data?.estado | titlecase }}
+                    </span>
+                    }
+
+                    @if (rucResponse()?.data?.condicion) {
+                    <span
+                        [ngClass]="{ 'bg-success': rucResponse()?.data?.condicion === 'HABIDO', 'bg-error': rucResponse()?.data?.condicion !== 'HABIDO' }"
+                        class="f-s-12 f-w-500 p-x-10 p-y-4 rounded-pill m-l-8 text-white">
+                        {{ rucResponse()?.data?.condicion | titlecase }}
+                    </span>
+                    }
+                    }
+                </mat-card-subtitle>
+                <form [formGroup]="form" class="m-t-24">
+                    <mat-form-field appearance="outline" class="w-100">
+                        <mat-label>Tipo de documento</mat-label>
+                        <mat-select formControlName="documentTypeId" (selectionChange)="setDocumentType($event.value)" placeholder="Selecciona el tipo de documento">
+                            @for (type of documentTypes(); track type.id) {
+                            <mat-option [value]="type.id">
+                                {{ type.name }}
+                            </mat-option>
+                            }
+                        </mat-select>
+
+                        @if(control['documentTypeId'].touched &&
+                        control['documentTypeId'].invalid) {
+                        <mat-hint class="su-error">
+                            @if( control['documentTypeId'].errors &&
+                            control['documentTypeId'].errors['required'])
+                            {
+                            Tipo de documento es obligatorio
+                            }
+                        </mat-hint>
+                        }
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="w-100">
+                        <mat-label>Número de {{documentType()?.name ? documentType()?.name:'documento'}}</mat-label>
+                        <input matInput formControlName="documentNumber" [maxLengthValue]="documentType()?.sizeMax!"
+                            [appInputMask]="documentType()?.isNumeric ? 'numeric' : 'text'" />
+                        @if(control['documentNumber'].touched && control['documentNumber'].invalid) {
+                        <mat-hint class="su-error">
+                            {{ validatorsService.getErrorMessage(
+                            control['documentNumber'],
+                            'Número de ' + (documentType()?.name ?? 'documento')) }}
+                        </mat-hint>
+                        }
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="w-100">
+                        <mat-label>Razon Social</mat-label>
+                        <textarea matInput formControlName="names" maxlength="300" cdkTextareaAutosize></textarea>
+                        @if(control['names'].touched && control['names'].invalid) {
+                        <mat-hint class="su-error">
+                            @if(control['names'].errors && control['names'].errors['required'])
+                            {
+                            Razon Social es obligatorio
+                            }
+                        </mat-hint>
+                        }
+                    </mat-form-field>
+                    <app-select-search-async [create]="context === 'admin'" class="w-100" label="Actividad económica" [items]="filteredActivities"
+                        valueKey="id" labelKey="description" [control]="activity" (search)="loadActivities($event)" (save)="create()" >
+                    </app-select-search-async>
+                    @if(rucResponse()?.data?.estado != 'ACTIVO' && rucResponse()?.success) {
+                    <div class="m-t-16 col-12">
+                        <div class="p-24 rounded bg-light-error -t-16">
+                            <div class="f-s-14 text-error">
+                                <span class="f-w-600">¡Importante!</span> Los comprobantes de pago o
+                                notas de débito emitidos por este contribuyente no dan derecho a
+                                crédito fiscal del IGV, en tanto se encuentra con estado de <span
+                                    class="f-w-600">{{rucResponse()?.data?.estado}}</span>.
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

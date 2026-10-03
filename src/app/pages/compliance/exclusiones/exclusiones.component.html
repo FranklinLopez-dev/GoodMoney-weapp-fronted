@@ -1,0 +1,131 @@
+<div class="cmp-panel">
+  <p class="cmp-bajada">
+    Personas que <strong>no son materia del Registro de Operaciones</strong>: el personal
+    de la casa cuando registra una operación de la propia empresa, y lo que el oficial
+    sustente. No se les pide declaración de origen de fondos, no levantan alerta de
+    operación inusual y sus operaciones no salen en el registro que se remite a la UIF.
+  </p>
+
+  <p class="cmp-aviso">
+    Se excluye <strong>a la persona</strong>, no a un número de documento: el DNI de
+    relleno <code>00000000</code> lo comparten 411 personas distintas, y excluir por
+    documento las sacaría a todas del registro con una sola fila. El filtro se aplica al
+    leer, así que desactivar una exclusión devuelve sus operaciones al registro
+    <strong>también hacia atrás</strong>, sin recalcular nada.
+  </p>
+
+  @if (puedeRevisar) {
+  <h3 class="cmp-titulo">Excluir a una persona</h3>
+
+  @if (!elegida()) {
+  <div class="cmp-filtros">
+    <mat-form-field appearance="outline" class="cmp-filtros__buscar">
+      <mat-label>Documento o nombre de la persona</mat-label>
+      <input matInput [ngModel]="busquedaPersona()" (ngModelChange)="busquedaPersona.set($event)"
+             (keyup.enter)="buscarPersona()" />
+    </mat-form-field>
+    <button mat-flat-button color="primary" type="button"
+            [disabled]="buscando()" (click)="buscarPersona()">
+      {{ buscando() ? 'Buscando…' : 'Buscar' }}
+    </button>
+  </div>
+
+  @if (candidatas().length) {
+  <div class="cmp-tabla cmp-tabla--candidatas">
+    <div class="cmp-fila cmp-fila--cabecera">
+      <span>Documento</span><span>Nombre</span><span>Operaciones</span><span></span>
+    </div>
+    @for (p of candidatas(); track p.id) {
+    <div class="cmp-fila">
+      <span>{{ p.documentNumber }} <small class="cmp-regla">{{ p.documentType }}</small></span>
+      <span><strong>{{ p.fullName || '—' }}</strong></span>
+      <span>{{ p.operations }}</span>
+      <span><button mat-button type="button" (click)="elegir(p)">Elegir</button></span>
+    </div>
+    }
+  </div>
+  }
+
+  } @else if (elegida(); as p) {
+  <div class="cmp-alta">
+    <p class="cmp-cifras">
+      <strong>{{ p.fullName || 'Sin nombre' }}</strong>
+      <small class="cmp-regla">{{ p.documentType }} {{ p.documentNumber }} · {{ p.operations }} operaciones</small>
+    </p>
+
+    <div class="cmp-formulario">
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo</mat-label>
+        <mat-select [ngModel]="tipo()" (ngModelChange)="tipo.set($event)" placeholder="Selecciona el tipo">
+          <mat-option value="Personal">Personal de la casa</mat-option>
+          <mat-option value="Empresa">La propia empresa</mat-option>
+          <mat-option value="Otro">Otro</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+        <mat-label>Por qué se excluye (obligatorio)</mat-label>
+        <textarea matInput rows="2" [ngModel]="motivo()" (ngModelChange)="motivo.set($event)"
+                  placeholder="Ej.: cajera de la oficina; registra los cambios de caja de la empresa."></textarea>
+      </mat-form-field>
+    </div>
+
+    <div class="cmp-acciones">
+      <button mat-flat-button color="primary" type="button"
+              [disabled]="guardando()" (click)="excluir()">
+        {{ guardando() ? 'Guardando…' : 'Excluir del registro' }}
+      </button>
+      <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+    </div>
+
+    <p class="cmp-aviso">
+      El motivo es el sustento que se enseña si la SBS pregunta por qué esas operaciones
+      no están en el registro.
+    </p>
+  </div>
+  }
+  }
+
+  <h3 class="cmp-titulo">Personas excluidas</h3>
+
+  <div class="cmp-filtros">
+    <mat-checkbox [ngModel]="verInactivas()" (ngModelChange)="verInactivas.set($event); cargar()">
+      Ver también las desactivadas
+    </mat-checkbox>
+  </div>
+
+  @if (cargando()) {
+  <p class="cmp-nota">Cargando…</p>
+  } @else if (!exclusiones().length) {
+  <p class="cmp-nota">
+    Ninguna persona está excluida: todas las operaciones que cruzan el umbral entran al registro.
+  </p>
+  } @else {
+  <div class="cmp-tabla cmp-tabla--exclusiones">
+    <div class="cmp-fila cmp-fila--cabecera">
+      <span>Persona</span><span>Tipo</span><span>Motivo</span>
+      <span>Operaciones fuera</span><span>Desde</span><span></span>
+    </div>
+    @for (x of exclusiones(); track x.id) {
+    <div class="cmp-fila" [class.cmp-fila--inactiva]="!x.active">
+      <span>
+        <strong>{{ x.fullName || '—' }}</strong>
+        <small class="cmp-doc">{{ x.documentNumber }}</small>
+      </span>
+      <span>
+        <span class="cmp-chip cmp-chip--baja">{{ x.type }}</span>
+        @if (!x.active) { <small class="cmp-regla">desactivada</small> }
+      </span>
+      <span><small>{{ x.reason }}</small></span>
+      <span class="cmp-numero">{{ x.operacionesAfectadas }}</span>
+      <span>{{ x.createdAt | date:'dd/MM/yyyy' }}</span>
+      <span>
+        @if (puedeRevisar && x.active) {
+        <button mat-button type="button" (click)="desactivar(x)">Quitar</button>
+        }
+      </span>
+    </div>
+    }
+  </div>
+  }
+</div>

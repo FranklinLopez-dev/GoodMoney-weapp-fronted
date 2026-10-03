@@ -1,0 +1,174 @@
+// Embudo del cambio en línea: tarjetas arriba, el embudo con barras y, debajo, cancelaciones, top y serie por día.
+
+.emb-bajada {
+  margin: 0 0 16px;
+  max-width: 90ch;
+  font-size: 13px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+.emb-filtros {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+// El tema da width:100% a mat-form-field: sin acotarlo cada fecha se come una fila entera.
+.emb-filtros mat-form-field { flex: 0 0 auto; width: 170px; }
+
+.emb-atajos { display: flex; flex-wrap: wrap; gap: 6px; }
+.emb-atajos button { font-size: 12.5px; }
+.emb-atajo--activo {
+  background: var(--gm-color-fondo-crema);
+  border-color: var(--gm-color-marca-primario) !important;
+  font-weight: 700;
+}
+
+.emb-aviso {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--gm-estado-warning-100);
+  color: var(--gm-color-text-warning);
+  font-size: 12.5px;
+}
+
+.emb-aviso--error {
+  background: var(--gm-estado-error-100);
+  color: var(--gm-color-text-error);
+}
+
+.emb-contenido { transition: opacity .15s; }
+// Mientras llega la consulta nueva se ve la anterior atenuada: no salta la pantalla.
+.emb-contenido--cargando { opacity: .5; pointer-events: none; }
+
+.emb-periodo { margin: 12px 0; font-size: 12.5px; color: var(--gm-plomo-400, #7b7979); }
+
+.emb-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.emb-tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  border: 1px solid var(--gm-gris-300);
+  border-radius: 12px;
+}
+
+.emb-tarjeta__valor { font-size: 24px; font-weight: 700; line-height: 1.1; }
+.emb-tarjeta__rotulo { font-size: 12.5px; font-weight: 700; }
+.emb-tarjeta__pie { font-size: 11.5px; color: var(--gm-plomo-400, #7b7979); }
+
+.emb-tarjeta--bien { border-color: var(--gm-verde-200); .emb-tarjeta__valor { color: var(--gm-color-text-success); } }
+.emb-tarjeta--aviso { border-color: var(--gm-estado-warning-300); }
+
+.emb-titulo { margin: 24px 0 10px; font-size: 15px; font-weight: 700; }
+
+.emb-cotizaron {
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  border: 1px dashed var(--gm-gris-300);
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.emb-cotizaron__cifra { font-size: 18px; font-weight: 700; }
+
+.emb-nota { margin: 6px 0 0; font-size: 12px; color: var(--gm-plomo-400, #7b7979); }
+.emb-suave { color: var(--gm-plomo-400, #7b7979); font-size: 12px; }
+
+// Si aun así no cabe, se desplaza la tabla y no se corta la última columna.
+.emb-tabla {
+  display: grid;
+  border: 1px solid var(--gm-gris-300);
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.emb-fila {
+  display: grid;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--gm-gris-300);
+  font-size: 13px;
+}
+
+.emb-fila:first-child { border-top: 0; }
+
+.emb-fila--cabecera {
+  background: var(--gm-color-fondo-crema);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.emb-tabla--embudo .emb-fila { grid-template-columns: minmax(140px, 1.2fr) minmax(60px, 2fr) 90px 110px 60px 60px 110px; }
+.emb-fila--dos { grid-template-columns: minmax(0, 1fr) 70px; }
+.emb-fila--top { grid-template-columns: 24px minmax(0, 1fr) 140px; }
+.emb-fila--dia { grid-template-columns: 90px minmax(80px, 1fr) 110px 90px 120px; }
+
+.emb-num { text-align: right; font-variant-numeric: tabular-nums; }
+.emb-paso { font-weight: 600; }
+
+.emb-barra {
+  display: block;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--gm-gris-100);
+  overflow: hidden;
+}
+
+.emb-barra__relleno {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+  background: var(--gm-color-marca-primario);
+}
+
+// Menos del 70 % pasó al siguiente paso: ahí se está cayendo gente.
+.emb-caida { color: var(--gm-color-text-error); font-weight: 700; }
+
+.emb-columnas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 24px;
+}
+
+.emb-cliente { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.emb-cliente__nombre { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.emb-leyenda { display: flex; gap: 16px; margin-bottom: 8px; font-size: 12px; }
+.emb-punto { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: -1px; }
+
+.emb-dia { display: flex; flex-direction: column; gap: 3px; }
+.emb-dia__barra { display: block; height: 6px; border-radius: 3px; min-width: 2px; }
+
+.emb-punto--registradas,
+.emb-dia__barra--registradas { background: var(--gm-gris-500); }
+.emb-punto--finalizadas,
+.emb-dia__barra--finalizadas { background: var(--gm-verde-500); }
+
+// Con el menú abierto, el contenido baja de ~800 px ya en pantallas de 1200: ahí se pasa a la versión corta.
+@media (max-width: 1200px) {
+  .emb-columnas { grid-template-columns: 1fr; }
+  // En angosto se esconde la barra y los montos por sentido: queda el paso, la cifra y la caída.
+  .emb-tabla--embudo .emb-fila { grid-template-columns: minmax(0, 1fr) 70px 90px 100px; }
+  .emb-tabla--embudo .emb-fila > :nth-child(2),
+  .emb-tabla--embudo .emb-fila > :nth-child(5),
+  .emb-tabla--embudo .emb-fila > :nth-child(6) { display: none; }
+  .emb-fila--dia { grid-template-columns: 80px minmax(40px, 1fr) 90px 100px; }
+  .emb-fila--dia > :nth-child(4) { display: none; }
+}
+
+@media (max-width: 576px) {
+  .emb-tabla--embudo .emb-fila { grid-template-columns: minmax(0, 1fr) 60px 80px; gap: 8px; padding: 10px 12px; }
+  .emb-tabla--embudo .emb-fila > :nth-child(7) { display: none; }
+  .emb-fila--dia { grid-template-columns: 76px minmax(30px, 1fr) 70px; gap: 8px; padding: 10px 12px; }
+  .emb-fila--dia > :nth-child(5) { display: none; }
+}

@@ -1,0 +1,124 @@
+<h2 mat-dialog-title>
+  {{ soloPep ? 'Actualiza tu declaración PEP' : 'Declaración jurada de conocimiento del cliente' }}
+</h2>
+
+<mat-dialog-content class="p-y-16">
+  @if (soloPep) {
+  <p class="f-s-14 m-b-16">
+    La SBS nos pide confirmar cada {{ requisito?.pepVigenciaDias || 180 }} días si eres o has sido persona expuesta
+    políticamente (PEP) o pariente de una. Revisa tus datos y confírmalos para registrar la operación.
+  </p>
+  } @else {
+  <p class="f-s-14 m-b-16">
+    @if (requisito?.motivo === 'Individual') {
+    Esta operación iguala o supera los USD {{ requisito?.umbralIndividualUsd | number:'1.0-0' }}
+    } @else if (requisito?.motivo === 'Acumulado') {
+    Con esta operación, lo que cambiaste este mes llega a USD {{ requisito?.umbralAcumuladoUsd | number:'1.0-0' }}
+    } @else {
+    Esta operación entra al registro que se reporta a la SBS
+    }
+    y, por norma de la SBS, necesitamos tu declaración jurada. Tus respuestas se guardan con la operación.
+  </p>
+  }
+
+  @if (loadingProfile()) {
+  <div class="d-flex justify-content-center p-y-32">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+  } @else {
+  <app-natural-pep-section [form]="form"></app-natural-pep-section>
+
+  <form [formGroup]="form" class="row m-t-8">
+    @if (!soloPep && pideDetalleOrigen) {
+    <div class="col-md-12">
+      <mat-form-field class="w-100" appearance="outline">
+        <mat-label>Detalla el origen de los fondos</mat-label>
+        <input matInput maxlength="200" formControlName="origenFondosOtros">
+      </mat-form-field>
+    </div>
+    }
+    @if (!soloPep) {
+    <div class="col-md-6">
+      <mat-form-field class="w-100" appearance="outline">
+        <mat-label>Propósito de la relación con Good Money</mat-label>
+        <mat-select formControlName="proposito">
+          <mat-option value="Compra y venta de moneda extranjera">Compra y venta de moneda extranjera</mat-option>
+          <mat-option value="Pago a proveedores o del exterior">Pago a proveedores o del exterior</mat-option>
+          <mat-option value="Ahorro personal">Ahorro personal</mat-option>
+          <mat-option value="Gastos personales o de viaje">Gastos personales o de viaje</mat-option>
+          <mat-option value="Inversión">Inversión</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="col-md-6">
+      <mat-form-field class="w-100" appearance="outline">
+        <mat-label>Nombres y apellidos del cónyuge o conviviente</mat-label>
+        <input matInput maxlength="200" formControlName="conyuge" placeholder="Si aplica">
+      </mat-form-field>
+    </div>
+    }
+    @if (!soloPep) {
+    <div class="col-md-6">
+      <mat-form-field class="w-100" appearance="outline">
+        <mat-label>¿Ha sido PEP en los últimos 2 años?</mat-label>
+        <mat-select formControlName="pepHistorico">
+          <mat-option [value]="true">Sí, he sido</mat-option>
+          <mat-option [value]="false">No he sido</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="col-md-6">
+      <mat-form-field class="w-100" appearance="outline">
+        <mat-label>¿Colaborador directo de la máxima autoridad?</mat-label>
+        <mat-select formControlName="pepColaborador">
+          <mat-option value="SI_SOY">Sí soy</mat-option>
+          <mat-option value="SI_HE_SIDO">Sí he sido</mat-option>
+          <mat-option value="NO_SOY">No soy</mat-option>
+          <mat-option value="NO_HE_SIDO">No he sido</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    }
+    @if (pideCargoFueraDelToggle) {
+    <!-- Ha sido PEP o colaborador, sin serlo hoy: el formato pide cargo e institución igual. -->
+    <div class="col-md-6">
+      <mat-form-field class="w-100" appearance="outline">
+        <mat-label>Cargo</mat-label>
+        <input matInput maxlength="300" formControlName="cargo">
+      </mat-form-field>
+    </div>
+    <div class="col-md-6">
+      <mat-form-field class="w-100" appearance="outline">
+        <mat-label>Institución</mat-label>
+        <input matInput maxlength="300" formControlName="institution">
+      </mat-form-field>
+    </div>
+    }
+    <div class="col-12 m-t-8">
+      <mat-checkbox formControlName="acepta" color="primary">
+        <span class="f-s-14">
+          @if (soloPep) {
+          <strong>Declaro bajo juramento</strong> que la información sobre mi condición de persona expuesta políticamente
+          (y la de mis parientes) es verdadera y está actualizada.
+          } @else {
+          <strong>Declaro bajo juramento</strong> que la información proporcionada es verdadera y que los fondos de esta
+          operación tienen el origen indicado. Acepto que esta confirmación vale como mi firma de la declaración jurada
+          (formato SBS), que queda registrada con la fecha y los datos de esta sesión.
+          }
+        </span>
+      </mat-checkbox>
+    </div>
+  </form>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancelar</button>
+  <button mat-flat-button color="primary" [disabled]="form.invalid || saving()" (click)="save()">
+    @if (saving()) {
+    <mat-spinner diameter="18"></mat-spinner>
+    } @else {
+    {{ soloPep ? 'Confirmar y continuar' : 'Firmar y continuar' }}
+    }
+  </button>
+</mat-dialog-actions>

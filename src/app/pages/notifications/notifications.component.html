@@ -1,0 +1,174 @@
+<div class="row">
+  <div class="col-12">
+
+    <mat-card class="mat-card-top cardWithShadow position-relative overflow-hidden">
+
+      <mat-sidenav-container class="bg-white" style="min-height: 80vh" [ngClass]="{
+          'side-panel-opened': sidePanelOpened(),
+          'side-panel-closed': !sidePanelOpened()
+        }">
+
+        <!-- SIDEBAR -->
+        <mat-sidenav #chatnav class="app-left-sidebar bg-white" [mode]="isOver() ? 'over' : 'side'" [opened]="!isOver()"
+          (open)="sidePanelOpened.set(true)" (close)="sidePanelOpened.set(false)" position="start">
+
+          <mat-toolbar class="bg-white">
+            <h4 class="f-w-500 f-s-18 m-0">Notificaciones</h4>
+          </mat-toolbar>
+
+          <div class="m-x-12">
+            <mat-nav-list>
+
+              <mat-list-item class="m-b-2" (click)="selectionlblClick(0)"
+                [class.bg-light-primary]="selectedCategory() === 2">
+                <div class="d-flex align-items-center w-100">
+                  <span class="f-s-14 text-body">Todos</span>
+                  <div class="m-l-auto">
+                    <span class="p-x-8 badge-todos text-white rounded">
+                      {{ (store.items()?.totalRead ?? 0) + (store.items()?.totalUnread ?? 0) }}
+                    </span>
+                  </div>
+                </div>
+              </mat-list-item>
+
+              <mat-list-item class="m-b-2" (click)="selectionlblClick(0)"
+                [class.bg-light-primary]="selectedCategory() === 0">
+                <div class="d-flex align-items-center w-100">
+                  <span class="f-s-14 text-body">No leídos</span>
+                  <div class="m-l-auto">
+                    <span class="p-x-8 badge-no-leidos text-white rounded">
+                      {{ store.items()?.totalUnread ?? 0 }}
+                    </span>
+                  </div>
+                </div>
+              </mat-list-item>
+
+              <mat-list-item class="m-b-2" (click)="selectionlblClick(1)"
+                [class.bg-light-primary]="selectedCategory() === 1">
+                <div class="d-flex align-items-center w-100">
+                  <span class="f-s-14 text-body">Leídos</span>
+                  <div class="m-l-auto">
+                    <span class="p-x-8 badge-leidos text-white rounded">
+                      {{ store.items()?.totalRead ?? 0 }}
+                    </span>
+                  </div>
+                </div>
+              </mat-list-item>
+
+            </mat-nav-list>
+          </div>
+        </mat-sidenav>
+
+        <!-- CONTENT -->
+        <mat-sidenav-content class="bg-white">
+
+          <mat-toolbar class="bg-white">
+            <div class="d-flex align-items-center justify-content-between w-100">
+
+              <div class="d-flex align-items-center gap-2">
+                <button mat-icon-button (click)="chatnav.toggle()">
+                  <i-tabler name="align-left" class="icon-20"></i-tabler>
+                </button>
+
+                <mat-checkbox color="primary" [checked]="store.allSelected()" (change)="toggleSelectAll($event)">
+                  {{ store.allSelected() ? 'Desmarcar todo' : 'Marcar todo' }}
+                </mat-checkbox>
+              </div>
+
+              <div class="d-flex gap-2">
+                <button mat-icon-button [disabled]="!store.hasSelected()" matTooltip="Marcar como leídos"
+                  (click)="toggleReadAllStatus(true)">
+                  <i-tabler name="check" class="icon-18 text-success"></i-tabler>
+                </button>
+
+                <button mat-icon-button [disabled]="!store.hasSelected()" matTooltip="Marcar como no leídos"
+                  (click)="toggleReadAllStatus(false)">
+                  <i-tabler name="circle-off" class="icon-18 text-error"></i-tabler>
+                </button>
+
+                <button mat-icon-button [disabled]="!store.hasSelected()" matTooltip="Eliminar seleccionados"
+                  (click)="deleteSelected()">
+                  <i-tabler name="trash" class="icon-18"></i-tabler>
+                </button>
+              </div>
+
+            </div>
+          </mat-toolbar>
+
+          <mat-divider></mat-divider>
+          <div class="p-16">
+            <div class="row justify-content-between align-items-center">
+              <div class="col-sm-6 col-lg-5 col-12">
+                <mat-form-field appearance="outline" class="w-100 hide-hint">
+                  <input matInput [value]="searchTerm()"
+                  (input)="searchTerm.set($any($event.target).value)"
+                   (keydown.enter)="onSearch()"
+                    placeholder="Buscar" />
+                </mat-form-field>
+              </div>
+              <div class="col-sm-6 col-lg-6 col-12">
+                <mat-paginator class="truncate-line" [length]="length()" [pageSize]="pageSize()"
+                  [pageIndex]="pageIndex()" [hidePageSize]="true" [showFirstLastButtons]="false"
+                  (page)="onPageChange($event)">
+                </mat-paginator>
+              </div>
+            </div>
+          </div>
+          <mat-divider></mat-divider>
+
+          <!-- LISTADO -->
+          <mat-card-content class="p-x-0">
+
+            @for (notification of store.items()?.notifications ?? []; track notification.id) {
+
+            <div #fila [id]="'notificacion-' + notification.id" class="todo-item p-y-12 p-x-8 b-b-1"
+              [class.bg-light-primary]="notification.id === idDestacado()">
+              <div class="d-flex align-items-center w-100">
+
+                <div class="w-100">
+                  <!-- Fuera del label del checkbox: el checkbox selecciona, y pulsar el texto marca como leído y navega. -->
+                  <div class="d-flex align-items-center">
+                    <mat-checkbox color="primary" [checked]="notification.status"
+                      (change)="toggleTodoCompletion(notification)">
+                    </mat-checkbox>
+
+                    <span class="f-s-16 f-w-500 cursor-pointer" [class.completed]="notification.isRead"
+                      (click)="abrirNotificacion(notification)">
+                      {{ notification.message }}
+                    </span>
+                  </div>
+
+                  <p class="m-t-0 f-s-14 m-l-24 p-l-20 text-muted">
+                    {{ notification.dateCreation | date:'short' }}
+                  </p>
+                </div>
+
+                <div class="m-l-auto d-flex gap-2">
+                  <button mat-icon-button
+                    matTooltip="{{ notification.isRead ? 'Marcar como no leído' : 'Marcar como leído' }}"
+                    (click)="toggleReadStatus(notification)">
+                    <i-tabler [name]="notification.isRead ? 'circle-off' : 'check'" class="icon-18"
+                      [ngClass]="notification.isRead ? 'text-error' : 'text-success'">
+                    </i-tabler>
+                  </button>
+
+                  <button mat-icon-button matTooltip="Eliminar" (click)="deleteNotification(notification)">
+                    <i-tabler name="trash" class="icon-18"></i-tabler>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+            }
+
+          </mat-card-content>
+
+        </mat-sidenav-content>
+
+      </mat-sidenav-container>
+
+    </mat-card>
+
+  </div>
+</div>

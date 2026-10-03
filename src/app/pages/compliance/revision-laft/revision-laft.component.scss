@@ -1,0 +1,11 @@
+.rvl-tabla .cmp-fila { grid-template-columns: 1.2fr 1.8fr 140px 1.4fr 1.6fr; }
+
+.rvl-motivo { display: inline-block; margin: 0 4px 4px 0; }
+
+@media (max-width: 767px) {
+  .rvl-tabla .cmp-fila--cabecera { display: none; }
+  .rvl-tabla .cmp-fila { grid-template-columns: 1fr; gap: 4px; }
+  .rvl-tabla .cmp-numero { text-align: left; }
+}
+
+.rvl-ejecutante { color: #b57614; }

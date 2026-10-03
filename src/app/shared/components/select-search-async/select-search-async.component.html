@@ -1,0 +1,50 @@
+<mat-form-field appearance="outline" class="w-100">
+  <mat-label>{{ label }}</mat-label>
+  <mat-select [formControl]="control" placeholder="Selecciona una opción">
+    <mat-select-trigger>
+      @if(getSelectedItem(); as selected) {
+      <span class="trigger-content" [matTooltip]="resolve(selected, labelKey)">
+        @if(imageKey) {
+        <img fallbackImg="default" [src]="resolve(selected, imageKey)"
+          [alt]="imageAltKey ? resolve(selected, imageAltKey) : ''" class="option-image">
+        }
+        {{ resolve(selected, labelKey) }}
+      </span>
+      }
+    </mat-select-trigger>
+    <mat-option>
+      <ngx-mat-select-search [formControl]="searchControl" [placeholderLabel]="placeholder"
+        noEntriesFoundLabel="No se encontraron resultados">
+        @if(loading) {
+        <mat-progress-spinner diameter="18" mode="indeterminate">
+        </mat-progress-spinner>
+        }
+
+      </ngx-mat-select-search>
+    </mat-option>
+
+    @for (item of items; track resolve(item, valueKey)) {
+    <mat-option [value]="resolve(item, valueKey)">
+      <span class="option-content">
+        @if(imageKey) {
+        <img [src]="resolve(item, imageKey)" [alt]="imageAltKey ? resolve(item, imageAltKey) : ''" class="option-image">
+        }
+        {{ resolve(item, labelKey) }}
+      </span>
+    </mat-option>
+    }
+  </mat-select>
+  @if(control.invalid && control.touched) {
+  <mat-hint class="su-error">
+    {{label}} es obligatorio
+  </mat-hint>
+  }
+  @if(create) {
+  <ng-container matSuffix>
+    <button (click)="save.emit(); $event.stopPropagation()" mat-mini-fab class="bg-primary text-white rounded-right" type="button"
+      [matTooltip]="'Nueva ' + label">
+      <i-tabler name="plus" class="icon-20 d-flex"></i-tabler>
+    </button>
+  </ng-container>
+  }
+</mat-form-field>

@@ -1,0 +1,67 @@
+table {
+  width: 100%;
+}
+
+tr.example-detail-row {
+  height: 0;
+}
+
+// El padding 0 solo en la fila del detalle: en todas las celdas salía "#SERVICIOOPERACION" amontonado.
+.mdc-data-table__cell,
+.mdc-data-table__header-cell {
+  padding: 14px 12px !important;
+}
+
+th.mdc-data-table__header-cell {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+// El modo tarjetas está en assets/scss/style.scss (`.tabla-reclamos`): Material crea thead/tbody en runtime.
+
+tr.example-detail-row td {
+  padding: 0 !important;
+}
+
+.example-element-row td {
+  border-bottom-width: 0;
+}
+
+// El global `.table-responsive` pone `nowrap` a todo td, y el reclamo entero salía en una sola línea.
+td.mat-column-expandedDetail {
+  white-space: normal;
+
+  p {
+    // Un token sin espacios (una URL pegada, por ejemplo) tampoco debe desbordar.
+    overflow-wrap: anywhere;
+  }
+
+  // Los adjuntos vienen con width fijo (200): que nunca excedan la caja.
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+// En tablet y móvil los bloques de la cabecera y de la barra de respuesta saltan de línea en vez de desbordar.
+.detalle-cabecera,
+.detalle-autor,
+.detalle-barra {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+.detalle-botones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+// En modo tarjetas la caja del detalle se alinea con ellas: sin el margen lateral de 18px del modo tabla.
+@media (max-width: 767px) {
+  .detalle-caja {
+    margin-inline: 0 !important;
+    padding: 12px;
+  }
+}

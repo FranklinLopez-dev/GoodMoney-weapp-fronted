@@ -1,0 +1,382 @@
+// Formulario y listado en dos columnas; por debajo de 900 px se apilan con el listado primero.
+
+.alerta-tarjeta__cuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 380px) 1px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+// El filete divisorio del mockup.
+.alerta-tarjeta__cuerpo::before {
+  content: '';
+  grid-column: 2;
+  grid-row: 1;
+  align-self: stretch;
+  background: var(--gm-plomo-100, #e6e6e6);
+}
+
+// El filete es un `::before`, o sea el primer ítem de la rejilla: con `grid-column: 2` el listado caía a otra fila.
+.alerta-form  { grid-column: 1; grid-row: 1; }
+.alerta-lista { grid-column: 3; grid-row: 1; }
+
+@media (max-width: 900px) {
+  .alerta-tarjeta__cuerpo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .alerta-tarjeta__cuerpo::before { display: none; }
+
+  // Sin resetear esto, `grid-column: 3` crearía dos columnas implícitas vacías a la derecha.
+  .alerta-form,
+  .alerta-lista { grid-column: 1; grid-row: auto; }
+
+  .alerta-lista { order: -1; }
+}
+
+// formulario
+
+.alerta-form__titulo {
+  margin: 0 0 18px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  color: var(--gm-dorado-500, #f9b410);
+}
+
+.alerta-tipos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--gm-plomo-100, #e6e6e6);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.alerta-tipo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 10px;
+  border: 0;
+  background: #fff;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+
+  & + & { border-left: 1px solid var(--gm-plomo-100, #e6e6e6); }
+}
+
+.alerta-tipo__nombre {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+.alerta-tipo__valor {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+// El rótulo de siempre baja a pie de pastilla; arriba manda lo que el cliente va a hacer.
+.alerta-tipo__pie {
+  font-size: 10.5px;
+  line-height: 1.25;
+  color: var(--gm-plomo-300, #a3a3a3);
+}
+
+.alerta-form__distancia,
+.alerta-form__alerta {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.alerta-form__distancia { color: var(--gm-plomo-400, #7b7979); }
+
+.alerta-form__alerta {
+  padding: 9px 12px;
+  border-left: 3px solid var(--gm-dorado-500, #f9b410);
+  border-radius: 0 8px 8px 0;
+  background: var(--gm-crema, #f5f5f5);
+  color: var(--gm-color-texto-principal, #1f1f1f);
+}
+
+// El seleccionado se marca por contraste de texto, sin relleno de color, como el mockup.
+.alerta-tipo--activo {
+  .alerta-tipo__nombre,
+  .alerta-tipo__valor { color: #000; }
+}
+
+.alerta-precio {
+  display: grid;
+  grid-template-columns: 56px 1fr 56px;
+  align-items: stretch;
+  margin-top: 16px;
+  border: 1px solid var(--gm-plomo-100, #e6e6e6);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.alerta-precio__paso {
+  border: 0;
+  background: #fff;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--gm-plomo-400, #7b7979);
+  cursor: pointer;
+
+  &:hover { background: var(--gm-crema, #f5f5f5); }
+}
+
+.alerta-precio__centro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 10px 4px;
+  border-left: 1px solid var(--gm-plomo-100, #e6e6e6);
+  border-right: 1px solid var(--gm-plomo-100, #e6e6e6);
+}
+
+.alerta-precio__input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  text-align: center;
+  font-size: 19px;
+  font-weight: 700;
+  color: #000;
+
+  // Sin las flechas del navegador: ya hay dos botones de paso a los lados.
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  -moz-appearance: textfield;
+}
+
+.alerta-precio__etiqueta {
+  font-size: 11px;
+  color: var(--gm-plomo-300, #a3a3a3);
+}
+
+.alerta-form__ayuda {
+  margin: 10px 2px 0;
+  font-size: 12.5px;
+  color: var(--gm-plomo-400, #7b7979);
+}
+
+.alerta-vigencia {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.alerta-vigencia__rotulo { font-size: 12.5px; font-weight: 700; }
+
+.alerta-vigencia__opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+// Pastillas y no un desplegable: son cinco opciones y se eligen de un vistazo.
+.alerta-vigencia__opcion {
+  padding: 6px 12px;
+  border: 1px solid var(--gm-plomo-100, #e6e6e6);
+  border-radius: 999px;
+  background: #fff;
+  font: inherit;
+  font-size: 12px;
+  color: var(--gm-plomo-400, #7b7979);
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+
+  &:hover { background: var(--gm-crema, #f5f5f5); }
+}
+
+.alerta-vigencia__opcion--activa {
+  border-color: var(--gm-dorado-500, #f9b410);
+  background: var(--gm-dorado-050, #fff6e0);
+  color: #000;
+  font-weight: 700;
+}
+
+.alerta-vigencia__pie {
+  font-size: 11.5px;
+  color: var(--gm-plomo-300, #a3a3a3);
+}
+
+.alerta-fila__vigencia {
+  font-size: 11px;
+  color: var(--gm-plomo-300, #a3a3a3);
+}
+
+.alerta-comentario {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--gm-plomo-100, #e6e6e6);
+  border-radius: 12px;
+  font: inherit;
+  font-size: 13px;
+  resize: vertical;
+
+  &:focus { outline: none; border-color: var(--gm-dorado-500, #f9b410); }
+}
+
+.alerta-form__acciones {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+// Color directo y no `color="primary"`: esta versión de Material ya no lee los tokens --mdc-*-button-*.
+.alerta-boton.mat-mdc-unelevated-button {
+  min-width: 200px;
+  border-radius: 999px;
+  background: var(--gm-verde-500, #87ba30);
+  color: #fff;
+  font-weight: 700;
+}
+
+// listado
+
+.alerta-lista__barra {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.alerta-lista__buscador {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.alerta-lista__buscar {
+  flex: 1 1 220px;
+  max-width: 340px;
+}
+
+.alerta-filas {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.alerta-fila {
+  display: grid;
+  // casilla · qué · precio · acciones · tendencia
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--gm-plomo-050, #f0f0f0);
+}
+
+// Una alerta disparada sigue en la lista pero apagada: hay que distinguir las que siguen vigilando.
+.alerta-fila--disparada { opacity: .55; }
+
+.alerta-fila__que { display: flex; flex-direction: column; gap: 2px; }
+
+.alerta-fila__tipo { font-size: 14px; font-weight: 800; color: #000; }
+
+.alerta-fila__nota {
+  font-size: 12.5px;
+  color: var(--gm-plomo-400, #7b7979);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alerta-fila__precio { display: flex; flex-direction: column; gap: 2px; }
+
+.alerta-fila__etiqueta { font-size: 11px; font-weight: 800; letter-spacing: .02em; }
+.alerta-fila__valor { font-size: 15px; font-weight: 700; }
+
+.alerta-fila__precio--compra { .alerta-fila__etiqueta, .alerta-fila__valor { color: var(--gm-verde-600, #4f9a1f); } }
+.alerta-fila__precio--venta  { .alerta-fila__etiqueta, .alerta-fila__valor { color: var(--gm-rojo-500, #d33a2c); } }
+
+.alerta-fila__acciones {
+  display: flex;
+  align-items: center;
+
+  i-tabler {
+    color: #000;
+  }
+}
+
+// SVG propio (ver el HTML): el color lo trae el dibujo, aqui solo se le da tamano.
+.alerta-fila__tendencia {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+}
+
+.alerta-fila__estado {
+  grid-column: 2 / -1;
+  font-size: 11.5px;
+  color: var(--gm-plomo-300, #a3a3a3);
+}
+
+.alerta-lista__pie {
+  display: flex;
+  justify-content: center;
+  margin-top: 22px;
+}
+
+// En móvil las cinco columnas no caben y el precio se montaba sobre el texto: cada alerta es una tarjeta, como el resto de tablas.
+@media (max-width: 767px) {
+  .alerta-filas {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .alerta-fila {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'casilla que      tendencia'
+      'casilla precio   tendencia'
+      'casilla acciones tendencia'
+      'estado  estado   estado';
+    row-gap: 8px;
+    align-items: start;
+    padding: 14px 16px;
+    border: 1px solid var(--gm-plomo-100, #e6e6e6);
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgb(0 0 0 / 6%);
+  }
+
+  .alerta-fila > mat-checkbox { grid-area: casilla; }
+  .alerta-fila__que           { grid-area: que; }
+  .alerta-fila__acciones      { grid-area: acciones; }
+  .alerta-fila__estado        { grid-area: estado; }
+  .alerta-fila__tendencia     { grid-area: tendencia; align-self: center; }
+
+  .alerta-fila__precio {
+    grid-area: precio;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  // Hacia abajo hay espacio de sobra: el comentario completo, sin recortar.
+  .alerta-fila__nota {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+.alerta-vacio {
+  margin: 18px 0;
+  font-size: 13px;
+  color: var(--gm-plomo-400, #7b7979);
+}

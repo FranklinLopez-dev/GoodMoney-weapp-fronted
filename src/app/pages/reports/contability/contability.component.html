@@ -1,0 +1,172 @@
+<mat-card class="cardWithShadow">
+    <mat-card-content>
+        <div class="d-flex align-items-center">
+            <mat-card-title class="m-b-0">
+                REPORTE DE CONTABILIDAD
+            </mat-card-title>
+
+            <div class="m-l-auto">
+                <button mat-flat-button color="primary" (click)="descargarExcel()">
+                    Exportar
+                </button>
+            </div>
+        </div>
+
+        <!-- TEMPORAL: el endpoint aun no existe en el backend. Quitar cuando el modulo quede operativo. -->
+        @if (!store.items()) {
+        <div class="m-t-16 p-16 rounded b-1 d-flex align-items-center gap-8">
+            <i-tabler name="tool" class="icon-20"></i-tabler>
+            <span>
+                <strong>Módulo en preparación.</strong>
+                Este reporte aún no está disponible; el servicio respondió con error.
+            </span>
+        </div>
+        }
+
+        <form [formGroup]="form" class="w-100 m-t-16">
+            <div class="row g-3">
+                <app-month-picker class="col-sm-6 col-md-4" [control]="month" label="Mes" errorMessage="Mes inválido">
+                </app-month-picker>
+
+                <div class="col-sm-6 col-md-4">
+                    <button mat-raised-button color="primary" (click)="applyFilter()">
+                        Buscar
+                    </button>
+                </div>
+                <div class="col-md-4 p-8 m-l-auto">
+                    <img src="./assets/images/sunat.png" class="m-l-auto" width="200px" alt="Sunat">
+                </div>
+            </div>
+
+        </form>
+
+        <div class="table-responsive m-t-16">
+            @if (store.loading()) {
+            <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
+                <mat-spinner diameter="50"></mat-spinner>
+            </div>
+            } @else {
+            @if (items.length) {
+            <table class="min-w-full table-auto border text-sm">
+                <thead>
+                    <tr class="bg-blue-700 text-white">
+                        <th class="border p-2" rowspan="2">FILA / COLUMNA</th>
+                        <th class="border p-2" rowspan="2">PERIODO aaaamm</th>
+                        <th class="border p-2" rowspan="2">NÚMERO REGISTRO CONTABLE</th>
+                        <th class="border p-2" rowspan="2">N° LINEA DEL REGISTRO</th>
+                        <th class="border p-2" colspan="6">INFORMACIÓN RESPECTO AL COMPROBANTE DE PAGO UTILIZADO</th>
+                        <th class="border p-2" colspan="3">INFORMACIÓN DEL CLIENTE</th>
+                        <th class="border p-2" rowspan="2">VALOR FACTURADO PARA LA EXPORTACIÓN</th>
+                        <th class="border p-2" rowspan="2">BASE IMPONIBLE DE LA OPERACIÓN GRAVADA </th>
+                        <th class="border p-2" rowspan="2">DESCUENTO - BASE IMPONIBLE DE LA OPERACIÓN GRAVADA </th>
+                        <th class="border p-2" rowspan="2">IGV Y/O IPM</th>
+                        <th class="border p-2" rowspan="2">DESCUENTO - IGV Y/O IPM</th>
+                        <th class="border p-2" colspan="2">IMPORTE TOTAL DE LA OPERACIÓN EXONERADA O INAFECTA</th>
+                        <th class="border p-2" rowspan="2">ISC</th>
+                        <th class="border p-2" colspan="2">OPERACIÓN GRAVADA CON EL IVAP</th>
+                        <th class="border p-2" rowspan="2">ICBPER</th>
+                        <th class="border p-2" rowspan="2">OTROS TRIBUTOS Y CARGOS QUE NO FORMAN PARTE DE LA BASE
+                            IMPONIBLE</th>
+                        <th class="border p-2" rowspan="2">IMPORTE TOTAL DEL COMPROBANTE DE PAGO</th>
+                        <th class="border p-2" rowspan="2">CÓDIGO DE MONEA (TAB.4)</th>
+                        <th class="border p-2" rowspan="2">TIPO DE CAMBIO</th>
+                        <th class="border p-2" colspan="4">REFERENCIA DEL COMPROBANTE DE PAGO O DOCUMENTO ORIGINAL QUE
+                            SE MODIFICA</th>
+                        <th class="border p-2" rowspan="2">Identificación del Contrato o del proyecto (NO lleven
+                            contabilidad independiente)</th>
+                        <th class="border p-2" rowspan="2">Error tipo 1: inconsistencia en el tipo de cambio</th>
+                        <th class="border p-2" rowspan="2">Indicador de Comprobantes de pago cancelados con medios de
+                            pago</th>
+                        <th class="border p-2" rowspan="2">ESTADO</th>
+                        <th class="border p-2" colspan="4">DATOS DE LA OPERACIÓN COMPRA Y VENTA</th>
+                        <th class="border p-2" rowspan="2">UTILIDAD</th>
+                    </tr>
+                    <tr class="bg-blue-700 text-white">
+                        <th class="border p-2">FECHA DE EMISION</th>
+                        <th class="border p-2">FECHA DE VENCIMIENTO</th>
+                        <th class="border p-2">TIPO (TAB.10)</th>
+                        <th class="border p-2">SERIE</th>
+                        <th class="border p-2">NUMERO</th>
+                        <th class="border p-2">NUMERO FINAL (BOLETAS)</th>
+                        <th class="border p-2">TIPO IDENTID (TAB.2)</th>
+                        <th class="border p-2">NÚMERO</th>
+                        <th class="border p-2">DENOMINACIÓN O RAZÓN SOCIAL</th>
+                        <th class="border p-2">EXONERADA</th>
+                        <th class="border p-2">INAFECTA</th>
+                        <th class="border p-2">BASE IMPONIBLE</th>
+                        <th class="border p-2">IVAP</th>
+                        <th class="border p-2">FECHA</th>
+                        <th class="border p-2">TIPO (TAB.10)</th>
+                        <th class="border p-2">SERIE</th>
+                        <th class="border p-2">NUMERO</th>
+                        <th class="border p-2">OPERACIÓN</th>
+                        <th class="border p-2">MONTO</th>
+                        <th class="border p-2">MONEDA</th>
+                        <th class="border p-2">TC</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for (e of pagedData; track $index; let i = $index) {
+                    <tr [ngClass]="{ 'bg-red-200': e?.estado?.includes('ANULADO') }" class="border-t">
+                        <td class="p-2 text-center">{{ currentPage * pageSize + i + 1 }}</td>
+                        <td class="p-2">{{ e.periodo }}</td>
+                        <td class="p-2">{{ e.linea }}</td>
+                        <td class="p-2">{{ e.registroCon }}</td>
+                        <td class="p-2">{{ e.emision }}</td>
+                        <td class="p-2">{{ e.vencimiento }}</td>
+                        <td class="p-2">{{ e.tipo }}</td>
+                        <td class="p-2">{{ e.serie }}</td>
+                        <td class="p-2">{{ e.correlativo }}</td>
+                        <td class="p-2">{{ e.numFinal }}</td>
+                        <td class="p-2">{{ e.tipoDocuClie }}</td>
+                        <td class="p-2">{{ e.numberDocument }}</td>
+                        <td class="p-2">{{ e.names }}</td>
+                        <td class="p-2">{{ e.exportacion }}</td>
+                        <td class="p-2">{{ e.baseImponible }}</td>
+                        <td class="p-2">{{ e.descuento }}</td>
+                        <td class="p-2">{{ e.igv }}</td>
+                        <td class="p-2">{{ e.descIGV }}</td>
+                        <td class="p-2">{{ e.exonerada }}</td>
+                        <td class="p-2">{{ e.inafecta }}</td>
+                        <td class="p-2">{{ e.isc }}</td>
+                        <td class="p-2">{{ e.bi }}</td>
+                        <td class="p-2">{{ e.ivap }}</td>
+                        <td class="p-2">{{ e.isbper }}</td>
+                        <td class="p-2">{{ e.oc }}</td>
+                        <td class="p-2">{{ e.total }}</td>
+                        <td class="p-2">{{ e.moneda }}</td>
+                        <td class="p-2">{{ e.tc }}</td>
+                        <td class="p-2">{{ e.fechaRefe }}</td>
+                        <td class="p-2">{{ e.tipoRefe }}</td>
+                        <td class="p-2">{{ e.serieRefe }}</td>
+                        <td class="p-2">{{ e.numeRefe }}</td>
+                        <td class="p-2">{{ e.idenNull }}</td>
+                        <td class="p-2">{{ e.error }}</td>
+                        <td class="p-2">{{ e.indicador }}</td>
+                        <td class="p-2">{{ e.estado }}</td>
+                        <td class="p-2">{{ e.operationType }}</td>
+                        <td class="p-2">{{ e.cantidad }}</td>
+                        <td class="p-2">{{ e.monedaOperacion }}</td>
+                        <td class="p-2">{{ e.tcOperacion }}</td>
+                        <td class="p-2">{{ e.utilidad }}</td>
+                    </tr>
+                    }
+                </tbody>
+
+            </table>
+            } @else {
+            <div class="text-center text-muted m-t-20">
+                No hay registros de operaciones
+            </div>
+            }
+            }
+        </div>
+
+        @if (items.length) {
+        <mat-paginator [length]="items.length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions"
+            showFirstLastButtons (page)="onPageChange($event)">
+        </mat-paginator>
+        }
+    </mat-card-content>
+</mat-card>

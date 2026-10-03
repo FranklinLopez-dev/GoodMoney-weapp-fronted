@@ -1,0 +1,202 @@
+@use "../variables" as *;
+
+html .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 9;
+  height: $header-height;
+  background-color: var(--mat-sys-background);
+
+  i-tabler {
+    stroke-width: 1.5px;
+  }
+}
+
+.topbar-dd {
+  min-width: 360px !important;
+}
+
+// Barra superior: botones circulares, en amarillo de marca con su desplegable abierto y contador solo si hay algo.
+
+.topbar-saludo {
+  margin-left: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gm-color-texto-principal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// En angosto el nombre completo no cabe y el ellipsis dejaba "¡Bienvenido …".
+.topbar-saludo__corto {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .topbar-saludo {
+    font-size: 15px;
+  }
+
+  .topbar-saludo__completo {
+    display: none;
+  }
+
+  .topbar-saludo__corto {
+    display: inline;
+  }
+}
+
+html .topbar .mat-mdc-icon-button.topbar-accion {
+  position: relative;
+  /* Sin aro (frame "Frame 343"): el filete encajonaba los iconos 3D y se veían pequeños aunque el botón fuese grande. */
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  margin-left: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--gm-color-texto-principal);
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+  // Sin fondo ni con el desplegable abierto: ya sin aro, el disco amarillo parecía un globo enorme detrás del icono.
+  &:hover {
+    background: rgb(0 0 0 / 4%);
+  }
+
+  /* Marcado mientras se navega dentro de su sección (chats/notificaciones), como en Figma. */
+  &.topbar-accion--activa,
+  &.topbar-accion--activa:hover {
+    background: var(--gm-color-marca-primario);
+    border-radius: var(--gm-radius-xl);
+  }
+}
+
+.topbar-foto {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Icono 3D del diseño dentro del botón circular. */
+.topbar-icono {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+/* El globo va sobre la muesca que dejó el globo pintado del PNG al recortarlo; sin avisos no se pinta nada. */
+.topbar-globo {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+}
+
+.topbar-globo {
+  padding: 0 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  /* Rojo, como el globo del PNG original: es el color que la marca reserva a lo que reclama atención. */
+  background: var(--gm-color-text-error);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+// Contador del panel de notificaciones: "0 nuevos" en el amarillo de marca, como el mockup.
+.topbar-dd__nuevos {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--gm-color-marca-primario);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.topbar-dd__ver-todo.mat-mdc-unelevated-button {
+  --mdc-filled-button-container-color: var(--gm-color-marca-acento);
+  --mdc-filled-button-label-text-color: #fff;
+  background: var(--gm-color-marca-acento);
+  color: #fff;
+  font-weight: 700;
+}
+
+.profile-img {
+  margin-top: -5px;
+  margin-left: -5px;
+}
+
+.apps-dd {
+  min-width: 830px !important;
+  overflow: unset !important;
+
+  .mat-mdc-menu-content {
+    padding: 0;
+    overflow: hidden;
+    border-radius: var(--mat-sys-corner-small);
+  }
+}
+
+.text-hover-primary:hover {
+  .hover-text {
+    color: $primary;
+  }
+}
+
+.object-cover {
+  object-fit: cover;
+}
+
+.dark-theme {
+  .topbar {
+    .mat-mdc-icon-button {
+      color: $dark-text-secondary !important;
+    }
+
+    .mdc-button {
+      --mdc-text-button-label-text-color: $dark-text-secondary !important;
+    }
+  }
+}
+
+.mega-dd-bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 100%;
+  max-width: 100%;
+}
+
+.notification {
+  height: 16px;
+  width: 16px;
+  border-radius: 100%;
+  line-height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: 2px;
+  top: 1px;
+}
+
+.inbox-badge {
+  position: absolute !important;
+  top: 0;
+  right: 0;
+}

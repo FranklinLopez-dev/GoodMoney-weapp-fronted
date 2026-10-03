@@ -1,0 +1,40 @@
+// Poppins se pide desde src/index.html: en esta parcial acababa en styles.css y se descubria tarde.
+
+$font-family: "Poppins", sans-serif;
+
+
+$sidenav-desktop: 260px !default;
+$sidenav-mini: 80px !default;
+$header-height: 70px !default;
+
+$borderColor: var(--mat-sys-outline-variant);
+$borderformColor: var(--mat-sys-outline-variant);
+
+$primary: var(--mat-sys-primary);
+$secondary: var(--mat-sys-secondary);
+$accent: var(--mat-sys-secondary);
+$error: var(--mat-sys-error);
+$warning: #ffae1f;
+$success: #87ba30; // verde de marca (--gm-verde-500)
+$white: #ffffff;
+
+$light: var(--mat-sys-surface-bright);
+$light-primary: var(--mat-sys-primary-fixed-dim);
+$light-secondary: var(--mat-sys-secondary-fixed-dim);
+$light-accent: var(--mat-sys-secondary-fixed-dim);
+$light-error: var(--mat-sys-error-fixed-dim);
+$light-warning: #ffae1f26;
+$light-success: #87ba3026;
+
+$boxedWidth: 1200px;
+$border-radius: 24px;
+
+$card-spacer: 24px;
+
+$text-color: var(--mat-sys-on-background);
+
+$dark-text-secondary: rgba(255, 255, 255, 0.67);
+$dark-body-bg: #141a21;
+$auth-side-bg: #111c2d;
+
+$layout-bg: #f8fafd;

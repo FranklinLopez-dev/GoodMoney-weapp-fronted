@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8" />
+  <base href="/" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Good Money | Casa de cambio online en Perú | Mejor tipo de cambio</title>
+
+  <meta name="description"
+    content="Good Money es una casa de cambio online en Perú. Cambia soles y dólares al mejor tipo de cambio, de forma rápida, segura y 100% online." />
+
+  <meta name="keywords"
+    content="casa de cambio online, tipo de cambio Perú, cambiar dólares, cambiar soles, cambio de dólares online, Good Money, goodmoney" />
+
+  <meta name="author" content="Good Money" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://goodmoney.pe/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Good Money | Casa de cambio online en Perú" />
+  <meta property="og:description"
+    content="Cambia soles y dólares al mejor tipo de cambio en Perú con Good Money. Plataforma segura, rápida y confiable." />
+  <meta property="og:image" content="https://goodmoney.pe/assets/img/goodmoney.jpg" />
+  <meta property="og:url" content="https://goodmoney.pe/" />
+  <meta property="og:site_name" content="Good Money" />
+  <meta property="og:locale" content="es_PE" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Good Money | Cambia soles y dólares online" />
+  <meta name="twitter:description"
+    content="Casa de cambio online en Perú. Obtén el mejor tipo de cambio y opera de forma segura con Good Money." />
+  <meta name="twitter:image" content="https://goodmoney.pe/assets/img/goodmoney.jpg" />
+
+<link rel="icon" type="image/png" href="/assets/images/logos/icono.png" />
+  <link rel="preload" as="image" href="/assets/images/backgrounds/mapa-mundo.webp" type="image/webp" />
+
+  <!-- Los .woff2 de Google se piden con CORS: sin `crossorigin` el preconnect no sirve de nada. -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+  <!-- El resolver de la ruta raiz llama al API nada mas montar Angular. -->
+  <link rel="preconnect" href="https://goodmoney.pseperu.pro" crossorigin />
+
+  <!-- Iconify pide los iconos a su API en tiempo de ejecucion: adelantar el handshake ahorra un viaje. -->
+  <link rel="preconnect" href="https://code.iconify.design" />
+  <link rel="dns-prefetch" href="https://api.iconify.design" />
+
+  <!-- Poppins en el HTML y no en un `@import` de Sass: ahi no se descubre hasta tener la hoja entera. -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons&amp;display=block" rel="stylesheet" />
+
+  <!-- `defer`: sincrono bloqueaba el render (33 KB) y aun asi corre antes de que arranque Angular. -->
+  <script defer src="https://code.iconify.design/2/2.0.3/iconify.min.js"></script>
+  <link rel="preconnect" href="https://www.googletagmanager.com" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-X4PS81386T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    // page_location sin query ni fragment: los enlaces de reset/confirmacion llevan el token ahi
+    // y no debe salir hacia Analytics.
+    gtag('config', 'G-X4PS81386T', { page_location: location.origin + location.pathname });
+  </script>
+</head>
+
+<body class="mat-typography">
+  <app-root></app-root>
+</body>
+
+</html>

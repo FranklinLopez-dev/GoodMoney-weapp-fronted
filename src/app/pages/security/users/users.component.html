@@ -1,0 +1,232 @@
+<mat-card>
+    <mat-card-content>
+
+        <!-- Una sola fila compacta: buscador y filtros seguidos. En tablet quedan 2x2 y en móvil apilados. -->
+        <div class="row">
+            <div class="col-md-6" [class.col-lg-6]="mode !== 'clients'" [class.col-lg-4]="mode === 'clients'">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Buscar por nombre, correo o DNI</mat-label>
+                    <input matInput [formControl]="searchControl" (keydown.enter)="cargarData()" />
+                    <mat-icon matPrefix>search</mat-icon>
+                </mat-form-field>
+            </div>
+
+            @if (mode === 'clients') {
+            <div class="col-lg-3 col-md-6">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Correo validado</mat-label>
+                    <mat-select [formControl]="filtroCorreo" placeholder="Selecciona el estado">
+                        <mat-option value="">Todos</mat-option>
+                        <mat-option value="1">Activo</mat-option>
+                        <mat-option value="0">Inactivo</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Cuenta</mat-label>
+                    <mat-select [formControl]="filtroCuenta" placeholder="Selecciona el estado">
+                        <mat-option value="">Todas</mat-option>
+                        <mat-option value="0">Activa</mat-option>
+                        <mat-option value="1">Bloqueada</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="col-lg-3 col-md-6 gm-acciones">
+                <app-botones-exportar [deshabilitado]="!length()" (excel)="exportarExcel()" (pdf)="exportarPdf()" />
+            </div>
+            }
+        </div>
+
+        <div class="table-responsive m-t-20 tabla-tarjetas tabla-usuarios">
+            @if(loading()) {
+            <div class="d-flex justify-content-center align-items-center" style="min-height: 320px">
+                <mat-spinner diameter="50"></mat-spinner>
+            </div>
+            } @else {
+            @if(store.items()?.length) {
+            <table mat-table [dataSource]="dataSource" class="w-100">
+
+                <ng-container matColumnDef="num">
+                    <th mat-header-cell *matHeaderCellDef>#</th>
+                    <td mat-cell *matCellDef="let i = index">
+                        {{ (i + pageIndex() * pageSize()) + 1 }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="names">
+                    <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                    <td mat-cell *matCellDef="let element" class="no-wrap-element">
+                        @if(element.isBlackListed)
+                        {
+                        <span class="bg-black f-s-12 f-w-500 p-x-10 p-y-4 rounded-pill text-white">
+                            LISTA NEGRA
+                        </span>
+                        } <div class="d-flex align-items-center gap-16">
+                            @if(mode === 'clients') {
+                            <img [fallbackImg]="element.profile?.documentType?.isNatural ? 'person':'company'"
+                                class="rounded-circle" [src]="element.profile?.profilePhoto | archivoPrivado | async" width="45"
+                                height="45" />
+                            } @else {
+                            <img fallbackImg="default" class="rounded-circle" [src]="element.photo | archivoPrivado | async"
+                                width="45" height="45" />
+                            }
+                            <!-- Los nombres llegan como se escribieron (todo mayúsculas, todo minúsculas...). -->
+                            <div>{{ element.names | titlecase }}</div>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="document">
+                    <th mat-header-cell *matHeaderCellDef> Documento </th>
+                    <td mat-cell *matCellDef="let element" data-label="Documento"> {{element.profile?.documentType?.name}}:
+                        {{element.profile?.documentNumber}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="email">
+                    <th mat-header-cell *matHeaderCellDef>Correo</th>
+                    <td mat-cell *matCellDef="let element" data-label="Correo">
+                        {{element.email}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="telf">
+                    <th mat-header-cell *matHeaderCellDef> Teléfono </th>
+                    <td mat-cell *matCellDef="let element" data-label="Teléfono"> {{element.profile?.cellPhone != 'null' ?
+                        element.profile?.cellPhone: ''}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="roles">
+                    <th mat-header-cell *matHeaderCellDef>Roles</th>
+                    <td mat-cell *matCellDef="let element" data-label="Roles">
+                        <div class="d-flex gap-8 flex-wrap">
+                            <!-- Chips y no nombres separados por barras: con tres roles la celda se leía como una sola frase. -->
+                            @for (role of element.roles; track role.id) {
+                            <span class="gm-chip">{{ role.name }}</span>
+                            }
+                        </div>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="enabledEmail">
+                    <th mat-header-cell *matHeaderCellDef class="no-wrap">Correo validado</th>
+                    <td mat-cell *matCellDef="let element" data-label="Correo validado">
+                        @if(canEnabled()) {
+                        <mat-slide-toggle class="m-t-8" [checked]="element.emailConfirmed"
+                            [disabled]="loadingToggle.has(element.id)" color="primary"
+                            (change)="enabledEmail($event, element)">
+                            <span class="f-s-14" [ngClass]="{
+                            'text-success': element.emailConfirmed,
+                            'text-error': !element.emailConfirmed
+                            }">
+                                {{ element.emailConfirmed ? 'Activo' : 'Inactivo' }}
+                            </span>
+                        </mat-slide-toggle>
+                        } @else {
+                        @if(element.emailConfirmed) {
+                        <span class="p-x-8 p-y-4 f-w-500 rounded-pill f-s-14 text-success">
+                            Activo
+                        </span>
+                        } @else {
+                        <span class="p-x-8 p-y-4 f-w-500 rounded-pill f-s-14 text-error">
+                            Inactivo
+                        </span>
+                        }
+                        }
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="lockoutEnabled">
+                    <th mat-header-cell *matHeaderCellDef>Bloquear cuenta</th>
+                    <td mat-cell *matCellDef="let element" data-label="Cuenta">
+                        @if(canEnabled()) {
+                        <mat-slide-toggle class="m-t-8" [checked]="element.lockoutEnabled"
+                            [disabled]="loadingToggle.has(element.id) || element.isBlackListed" color="primary"
+                            (change)="lockoutEnabled($event, element)">
+                            <span class="f-s-14" [ngClass]="{
+                            'text-success': !element.lockoutEnabled,
+                            'text-error': element.lockoutEnabled
+                            }">
+                                {{ element.lockoutEnabled ? 'Bloqueado' : 'Activo' }}
+                            </span>
+                        </mat-slide-toggle>
+                        } @else {
+                        @if(element.lockoutEnabled) {
+                        <span class="p-x-8 p-y-4 f-w-500 rounded-pill f-s-14 text-error">
+                            Bloqueado
+                        </span>
+                        } @else {
+                        <span class="p-x-8 p-y-4 f-w-500 rounded-pill f-s-14 text-success">
+                            Activo
+                        </span>
+                        }
+                        }
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="action" [stickyEnd]="true">
+                    <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">
+                        Acciones
+                    </th>
+                    <td mat-cell *matCellDef="let element" class="action-link">
+                        @if(!element.emailConfirmed && !element.isBlackListed) {
+                        <a class="m-r-10 cursor-pointer"
+                            [class.opacity-50]="loadingToggle.has(element.id + '-resend')"
+                            [class.pointer-events-none]="loadingToggle.has(element.id + '-resend')"
+                            title="Reenviar validación"
+                            (click)="resendConfirmation(element)">
+                            <i-tabler name="send" class="icon-18"></i-tabler>
+                        </a>
+                        }
+                        @if(mode === 'profiles') {
+                        <button mat-mini-fab (click)="selectedUser(element)" class="m-r-10 bg-secondary text-white">
+                            <i-tabler name="hand-finger" class="icon-20"></i-tabler>
+                        </button>
+                        } @else {
+                        @if(mode === 'clients') {
+                        <a class="m-r-10 cursor-pointer" title="Detalle" (click)="openDialog(element)">
+                            <i-tabler name="eye" class="icon-18"></i-tabler>
+                        </a>
+                        } @else {
+                        @if(canRoles()) {
+                        <a class="m-r-10 cursor-pointer" title="Roles" (click)="openRolesModal(element)">
+                            <i-tabler name="shield-cog" class="icon-18"></i-tabler>
+                        </a>
+                        }
+                        @if(canProfiles()) {
+                        <a [routerLink]="['/security/users', element.id]" class="m-r-10 cursor-pointer" title="Perfiles"
+                            [matBadge]="element.profilesByValidate"
+                            [matBadgeHidden]="element.profilesByValidate <= 0"><i-tabler name="user-search"
+                                class="icon-18"></i-tabler>
+                        </a>
+                        }
+                        @if(!element.isBlackListed) {
+                        <a class="m-r-10 cursor-pointer" title="Cambiar correo" (click)="changeEmail(element)">
+                            <i-tabler name="mail" class="icon-18"></i-tabler>
+                        </a>
+                        }
+                        }
+                        }
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row (dblclick)="selectedUser(row)" *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+            } @else {
+            <div class="no-records" style="min-height: 400px">
+                <p>No hay registros de usuarios</p>
+            </div>
+            }
+            }
+
+        </div>
+
+        @if(store.items()?.length) {
+        <mat-paginator [length]="length()" [pageSize]="pageSize()" [pageSizeOptions]="pageSizeOptions"
+            [pageIndex]="pageIndex()" (page)="onPageChange($event)" showFirstLastButtons>
+        </mat-paginator>
+        }
+
+    </mat-card-content>
+</mat-card>

@@ -1,0 +1,17 @@
+.mlt-tabla > .cmp-fila { grid-template-columns: 2fr 110px 140px 1.5fr 90px; }
+.mlt-ops .cmp-fila { grid-template-columns: 110px 1.8fr 120px 1.4fr; }
+
+.mlt-detalle {
+  padding: 14px 16px 18px;
+  border-top: 1px solid var(--gm-gris-300);
+  background: var(--gm-color-fondo-crema);
+}
+
+.mlt-ops { margin-bottom: 14px; background: #fff; }
+.mlt-motivo { flex: 1 1 280px; }
+
+@media (max-width: 767px) {
+  .mlt-tabla > .cmp-fila--cabecera, .mlt-ops .cmp-fila--cabecera { display: none; }
+  .mlt-tabla > .cmp-fila, .mlt-ops .cmp-fila { grid-template-columns: 1fr; gap: 4px; }
+  .mlt-tabla .cmp-numero, .mlt-ops .cmp-numero { text-align: left; }
+}

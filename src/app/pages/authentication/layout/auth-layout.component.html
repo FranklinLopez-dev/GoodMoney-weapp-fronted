@@ -1,0 +1,45 @@
+<div class="auth-layout">
+
+  <!-- El diseño no lleva barra superior: el logo vive dentro del contenido de cada pantalla (ver login). -->
+  <main class="auth-main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="auth-footer">
+    <div class="auth-footer__grid">
+
+      <div class="auth-footer__legal">
+        <p class="auth-footer__secure">
+          Esta es una página segura de Good Money. Si tienes dudas sobre la
+          autenticidad de la web, comunícate con nosotros al (+51) 920 001 085
+          o a través de nuestros medios digitales.
+        </p>
+
+        <p class="auth-footer__company">
+          Good Money S.A.C – RUC 20611733276 - Casa de cambio online<br />
+          AV. ROOSEVELT NRO. 6021 DPTO. 314 URB. LA AURORA LIMA - MIRAFLORES<br />
+          © {{year}} – Todos los derechos reservados
+        </p>
+      </div>
+
+      <div class="auth-footer__social">
+        <a [href]="webSite" target="_blank" rel="noopener noreferrer" aria-label="Ir a Good Money" class="auth-social">
+          <i-tabler name="world"></i-tabler>
+        </a>
+        <a href="javascript:void(0)" aria-label="Facebook" class="auth-social">
+          <i-tabler name="brand-facebook"></i-tabler>
+        </a>
+        <a href="javascript:void(0)" aria-label="Instagram" class="auth-social">
+          <i-tabler name="brand-instagram"></i-tabler>
+        </a>
+        <a href="javascript:void(0)" aria-label="LinkedIn" class="auth-social">
+          <i-tabler name="brand-linkedin"></i-tabler>
+        </a>
+        <a href="javascript:void(0)" aria-label="TikTok" class="auth-social">
+          <i-tabler name="brand-tiktok"></i-tabler>
+        </a>
+      </div>
+
+    </div>
+  </footer>
+</div>

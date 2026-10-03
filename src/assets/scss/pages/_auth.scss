@@ -1,0 +1,701 @@
+@use "../variables" as *;
+
+// Pantallas de autenticacion, medidas con las herramientas de img/ y llevadas al frame real de 1512 px.
+
+$auth-form-col: 498px;
+$auth-aside-col: 346px;
+$auth-gap: 180px;
+$auth-control-height: 50px;
+
+.auth-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--gm-blanco-500);
+}
+
+.auth-main {
+  flex: 1;
+  background: var(--gm-blanco-500);
+  padding: var(--gm-space-16) var(--gm-space-6);
+}
+
+// Rejilla de las pantallas
+
+.auth-screen {
+  max-width: $auth-form-col + $auth-aside-col + $auth-gap;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, $auth-form-col) minmax(0, $auth-aside-col);
+  gap: $auth-gap;
+  align-items: start;
+}
+
+// Variante de una sola columna centrada (recuperar contraseña, verificar correo, confirmar cuenta).
+.auth-screen--single {
+  max-width: $auth-form-col;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.auth-brand {
+  height: 56px;
+  width: auto;
+  margin-bottom: var(--gm-space-8);
+}
+
+.auth-brand--center {
+  display: block;
+  margin-inline: auto;
+}
+
+// Eleccion de tipo de cuenta: condiciona los cuatro pasos, asi que cada opcion dice que documento pide.
+
+.perfil-opciones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gm-space-4);
+  margin: var(--gm-space-6) 0;
+}
+
+.perfil-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gm-space-2);
+  padding: var(--gm-space-6);
+  text-align: left;
+  cursor: pointer;
+  background: var(--gm-blanco-500);
+  border: 1px solid var(--gm-gris-500);
+  border-radius: var(--gm-radius-2xl);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--gm-color-marca-acento);
+    box-shadow: var(--gm-shadow-md);
+    transform: translateY(-2px);
+    outline: none;
+  }
+
+  &:focus-visible {
+    border-color: var(--gm-color-marca-primario);
+  }
+}
+
+.perfil-card__icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: var(--gm-space-2);
+  border-radius: var(--gm-radius-xl);
+  background: var(--gm-amarillo-200);
+  color: var(--gm-color-texto-principal);
+
+  i-tabler {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+.perfil-card__titulo {
+  font-size: var(--gm-font-size-body);
+  font-weight: 600;
+  color: var(--gm-color-texto-principal);
+}
+
+.perfil-card__texto {
+  font-size: var(--gm-font-size-sm);
+  font-weight: var(--gm-font-weight-body);
+  color: var(--gm-plomo-400);
+  line-height: 1.5;
+}
+
+.perfil-card__meta {
+  margin-top: var(--gm-space-1);
+  font-size: var(--gm-font-size-xs);
+  font-weight: var(--gm-font-weight-xs);
+  color: var(--gm-plomo-400);
+}
+
+@media (max-width: 600px) {
+  .perfil-opciones {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.auth-title {
+  font-size: var(--gm-font-size-h3);
+  font-weight: var(--gm-font-weight-h3);
+  color: var(--gm-color-texto-principal);
+  margin: 0 0 var(--gm-space-2);
+}
+
+.auth-subtitle {
+  font-size: var(--gm-font-size-body);
+  font-weight: var(--gm-font-weight-body);
+  color: var(--gm-plomo-400);
+  margin: 0 0 var(--gm-space-8);
+}
+
+// Variante en gris oscuro: en el frame 561 la instrucción de recuperar clave pesa más que un subtítulo normal.
+.auth-subtitle--oscuro {
+  color: var(--gm-plomo-700);
+}
+
+// Icono decorativo dentro del campo (frames 559/561): apenas insinuado y pequeño, no compite con el texto.
+.auth-campo-icono {
+  color: var(--gm-plomo-200);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+// Etiqueta encima del campo, como los formularios del frame 559.
+.auth-campo-etiqueta {
+  display: block;
+  margin-bottom: var(--gm-space-2);
+  font-size: var(--gm-font-size-sm);
+  color: var(--gm-color-texto-principal);
+}
+
+// El registro centra su cabecera; el login la alinea a la izquierda.
+.auth-screen__main--centered {
+  text-align: center;
+
+  .auth-title,
+  .auth-subtitle {
+    text-align: center;
+  }
+}
+
+.auth-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--gm-space-4);
+  margin: var(--gm-space-2) 0 var(--gm-space-6);
+
+  a {
+    font-size: var(--gm-font-size-sm);
+    font-weight: var(--gm-font-weight-sm);
+    color: var(--gm-plomo-700);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// El boton no ocupa el ancho del formulario: va centrado y con su ancho propio.
+.auth-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--gm-space-4);
+  margin-top: var(--gm-space-6);
+}
+
+// Chip de paso: "Paso 1 de 4 - Datos de Acceso", borde amarillo, fondo blanco y radio 12.
+
+.auth-step-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: var(--gm-space-2) var(--gm-space-6);
+  margin-bottom: var(--gm-space-8);
+  border: 1px solid var(--gm-color-marca-primario);
+  border-radius: var(--gm-radius-xl);
+  background: var(--gm-blanco-500);
+  color: var(--gm-color-texto-principal);
+  font-size: var(--gm-font-size-sm);
+  font-weight: var(--gm-font-weight-sm);
+  text-align: center;
+}
+
+// En el aside el chip ocupa el ancho de la columna, como el frame 425.
+.auth-step-chip--aside {
+  display: flex;
+  width: 100%;
+  margin-bottom: var(--gm-space-4);
+}
+
+// Botón opcional del aside guía (frame 494), alineado con la burbuja.
+.auth-aside__cta {
+  margin-top: var(--gm-space-4);
+  margin-left: calc(36px + var(--gm-space-2));
+}
+
+// El monito con su burbuja explica el paso actual.
+.auth-aside__guia {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gm-space-2);
+}
+
+.auth-aside__monito {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.auth-aside__burbuja {
+  margin: 0;
+  padding: var(--gm-space-3) var(--gm-space-4);
+  border-radius: var(--gm-radius-xl);
+  background: var(--gm-gris-100);
+  color: var(--gm-color-texto-principal);
+  font-size: var(--gm-font-size-sm);
+  line-height: 1.45;
+}
+
+// Cabecera que separa los bloques de una etapa. Sustituye a las burbujas de chat, que no estan en el diseño.
+
+.auth-etapa {
+  text-align: left;
+}
+
+.auth-section {
+  margin: var(--gm-space-6) 0 var(--gm-space-4);
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.auth-section__title {
+  font-size: var(--gm-font-size-body);
+  font-weight: 600;
+  color: var(--gm-color-texto-principal);
+  margin: 0 0 var(--gm-space-1);
+}
+
+.auth-section__hint {
+  font-size: var(--gm-font-size-sm);
+  font-weight: var(--gm-font-weight-body);
+  color: var(--gm-plomo-400);
+  line-height: 1.5;
+  margin: 0;
+}
+
+// Tipo de cuenta elegido: sin esto no habia forma de saber que perfil se eligio ni de cambiarlo sin recargar.
+.auth-perfil {
+  margin: 0 0 var(--gm-space-3);
+  font-size: var(--gm-font-size-sm);
+  color: var(--gm-plomo-400);
+
+  .su-link {
+    margin-left: var(--gm-space-2);
+  }
+}
+
+// Verificacion del correo (paso 1)
+
+.auth-codigo__envio {
+  display: flex;
+  justify-content: flex-start;
+  margin: 0 0 var(--gm-space-6);
+}
+
+.auth-verificado {
+  display: flex;
+  align-items: center;
+  gap: var(--gm-space-2);
+  margin: 0 0 var(--gm-space-6);
+  font-size: var(--gm-font-size-sm);
+  font-weight: 600;
+  color: var(--gm-color-text-success);
+
+  i-tabler {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.auth-verificado__icono {
+  color: var(--gm-color-text-success);
+}
+
+// Cuenta creada: la unica tarjeta con borde de todo el flujo, porque cierra el registro.
+
+.cuenta-creada {
+  border: 1px solid var(--gm-gris-500);
+  border-radius: var(--gm-radius-2xl);
+  padding: var(--gm-space-12) var(--gm-space-8);
+  text-align: center;
+}
+
+.cuenta-creada__badge {
+  width: 72px;
+  height: auto;
+  margin-bottom: var(--gm-space-4);
+}
+
+.cuenta-creada__titulo {
+  font-size: var(--gm-font-size-h3);
+  font-weight: var(--gm-font-weight-h2);
+  color: var(--gm-color-texto-principal);
+  margin: 0 0 var(--gm-space-3);
+}
+
+.cuenta-creada__texto {
+  font-size: var(--gm-font-size-sm);
+  // En el frame 435 estos textos van en negro y con algo de peso; en fina el negro se percibe gris.
+  color: var(--gm-color-texto-principal);
+  font-weight: 500;
+  line-height: 1.6;
+  margin: 0 0 var(--gm-space-2);
+}
+
+// Paso de confirmacion del registro
+
+.resumen {
+  border: 1px solid var(--gm-gris-500);
+  border-radius: var(--gm-radius-2xl);
+  overflow: hidden;
+  margin-bottom: var(--gm-space-4);
+  text-align: left;
+}
+
+.resumen__fila {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gm-space-4);
+  padding: var(--gm-space-3) var(--gm-space-4);
+  font-size: var(--gm-font-size-sm);
+  border-bottom: 1px solid var(--gm-gris-300);
+
+  &:last-child { border-bottom: 0; }
+}
+
+.resumen__etiqueta { color: var(--gm-plomo-400); }
+
+.resumen__valor {
+  color: var(--gm-color-texto-principal);
+  font-weight: 600;
+  text-align: right;
+  word-break: break-word;
+}
+
+.aviso-cuentas {
+  display: flex;
+  gap: var(--gm-space-3);
+  align-items: flex-start;
+  padding: var(--gm-space-4);
+  border-radius: var(--gm-radius-xl);
+  background: var(--gm-amarillo-100);
+  font-size: var(--gm-font-size-sm);
+  line-height: 1.55;
+  color: var(--gm-plomo-700);
+  text-align: left;
+
+  strong { display: block; color: var(--gm-color-texto-principal); }
+
+  i-tabler { width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px; }
+}
+
+// Columna derecha
+
+// En el mockup las dos columnas empiezan en linea: el titulo de la derecha arranca a la altura del logo.
+.auth-aside {
+  padding-top: 0;
+}
+
+// Baja la guía a la altura de "Crear una cuenta"; va después de la base para ganarle a su padding 0.
+.auth-aside--pasos {
+  padding-top: calc(56px + var(--gm-space-8));
+}
+
+.auth-aside__title {
+  font-size: var(--gm-font-size-h3);
+  font-weight: var(--gm-font-weight-h2);
+  color: var(--gm-color-texto-principal);
+  margin: 0 0 var(--gm-space-3);
+  line-height: 1.35;
+}
+
+.auth-aside__text {
+  font-size: var(--gm-font-size-sm);
+  font-weight: var(--gm-font-weight-body);
+  color: var(--gm-plomo-400);
+  margin: 0 0 var(--gm-space-6);
+  line-height: 1.5;
+}
+
+.auth-aside__art {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  margin-top: var(--gm-space-8);
+}
+
+// El verde es `acento` en la biblioteca y `primary` en Material; se fija aqui para no depender de cual gane.
+
+.gm-btn.mat-mdc-button-base {
+  height: $auth-control-height;
+  padding: 0 var(--gm-space-8);
+  border-radius: var(--gm-radius-xl);
+  font-size: var(--gm-font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.gm-btn--accent.mat-mdc-button-base {
+  background: var(--gm-color-marca-acento);
+  color: var(--gm-color-texto-contraste);
+
+  &:hover:not(:disabled) {
+    filter: brightness(0.95);
+  }
+
+  &:disabled {
+    background: var(--gm-color-estado-deshabilitado);
+    color: var(--gm-color-texto-contraste);
+  }
+}
+
+// Solo dentro de auth: el resto del backoffice sigue con el radio de la plantilla hasta que se rediseñe.
+
+.auth-layout {
+  .mat-mdc-form-field {
+    width: 100%;
+    --mat-form-field-container-height: #{$auth-control-height};
+    --mat-form-field-container-vertical-padding: 12px;
+    --mdc-outlined-text-field-container-shape: var(--gm-radius-xl);
+    --mdc-outlined-text-field-outline-color: #e3e3e3;
+    --mdc-outlined-text-field-hover-outline-color: var(--gm-plomo-400);
+    --mdc-outlined-text-field-focus-outline-color: var(--gm-color-marca-acento);
+    --mdc-outlined-text-field-focus-label-text-color: var(--gm-color-marca-acento);
+  }
+
+  .mat-mdc-form-field-icon-prefix > .mat-icon {
+    color: var(--gm-color-texto-principal);
+  }
+
+  .mdc-notched-outline__notch {
+    max-width: calc(100% - 28px);
+  }
+
+  .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {
+    top: calc(var(--mat-form-field-container-height) / 2);
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+
+  .mat-mdc-form-field .mdc-floating-label--float-above {
+    background: var(--gm-blanco-500);
+    padding: 0 4px;
+    width: max-content;
+    max-width: none;
+  }
+}
+
+// Footer
+
+.auth-footer {
+  background: var(--gm-color-marca-primario);
+  color: var(--gm-color-texto-principal);
+  padding: var(--gm-space-8) var(--gm-space-12);
+  font-size: var(--gm-font-size-xs);
+}
+
+.auth-footer__grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--gm-space-6);
+}
+
+.auth-footer__legal {
+  max-width: 820px;
+}
+
+.auth-footer__secure {
+  margin: 0 0 var(--gm-space-3);
+  line-height: 1.6;
+}
+
+.auth-footer__company {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.auth-footer__social {
+  display: flex;
+  gap: var(--gm-space-3);
+  align-items: center;
+}
+
+.auth-social {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gm-color-texto-principal);
+  color: var(--gm-color-texto-contraste);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+
+  i-tabler {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    opacity: 0.85;
+    transform: translateY(-2px);
+  }
+}
+
+// Responsive
+
+@media (max-width: 1024px) {
+  .auth-screen {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--gm-space-12);
+    max-width: $auth-form-col;
+  }
+
+  .auth-aside {
+    padding-top: 0;
+    border-top: 1px solid var(--gm-gris-300);
+    padding-top: var(--gm-space-8);
+  }
+
+  .auth-aside__art {
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .auth-main {
+    padding: var(--gm-space-8) var(--gm-space-4);
+  }
+
+  .auth-footer {
+    padding: var(--gm-space-8) var(--gm-space-4);
+  }
+
+  .auth-footer__grid {
+    flex-direction: column;
+  }
+
+  .auth-options {
+    flex-wrap: wrap;
+  }
+}
+
+// Piezas heredadas que siguen en uso en otras pantallas de auth.
+
+.su-title {
+  font-size: var(--gm-font-size-h3);
+  font-weight: var(--gm-font-weight-h3);
+  margin: 0 0 var(--gm-space-2);
+  color: var(--gm-color-texto-principal);
+  text-align: center;
+}
+
+.su-subtitle {
+  font-size: var(--gm-font-size-body);
+  margin: 0 0 var(--gm-space-6);
+  color: var(--gm-plomo-400);
+  text-align: center;
+}
+
+.su-login {
+  font-size: var(--gm-font-size-sm);
+  color: var(--gm-plomo-700);
+  text-align: center;
+  margin: 0;
+
+  a {
+    color: var(--gm-color-marca-acento);
+    font-weight: 700;
+    text-decoration: none;
+    margin-left: 4px;
+  }
+}
+
+// Seleccion de perfil (persona natural / empresa) al entrar al registro.
+.su-profile {
+  display: grid;
+  gap: var(--gm-space-4);
+  margin: var(--gm-space-3) 0 var(--gm-space-6);
+}
+
+.su-link {
+  color: var(--gm-color-marca-acento);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.forget-password {
+  max-width: $auth-form-col;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.option-image {
+  width: 24px;
+  height: 16px;
+  object-fit: cover;
+}
+
+.border-dropzone {
+  border: 2px dashed var(--gm-gris-500);
+  border-radius: var(--gm-radius-xl);
+  transition: border-color 0.3s;
+  padding: 4px;
+  height: 250px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: var(--gm-color-fondo-crema);
+}
+
+.border-dropzone:hover {
+  border-color: var(--gm-color-marca-acento);
+  cursor: pointer;
+  background-color: var(--gm-verde-100);
+}
+
+.preview {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  overflow: hidden;
+  width: 100%;
+}
+
+.preview img {
+  border-radius: var(--gm-radius-xl);
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.document-upload {
+  .rounded-right {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+  }
+
+  .rounded-none {
+    border-radius: 0px;
+  }
+}

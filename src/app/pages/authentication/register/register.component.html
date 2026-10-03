@@ -1,0 +1,149 @@
+@if (isLoading()) {
+<app-loading-splash title="Creando tu cuenta" subtitle="Estamos preparando tu perfil de Good Money" [showTips]="true" />
+} @else {
+
+<div class="auth-screen">
+
+  <div class="auth-screen__main auth-screen__main--centered">
+
+    <img class="auth-brand auth-brand--center" src="assets/images/logos/logo-good-money.webp" width="600" height="238" alt="Good Money" />
+
+    <h1 class="auth-title">Crear una cuenta</h1>
+
+    @if (status() === 'profile') {
+
+    <p class="auth-subtitle">¿A nombre de quién va la cuenta?</p>
+
+    <!-- Tarjetas y no botones: la decision condiciona todo el registro, asi que cada opcion dice para quien es. -->
+    <div class="perfil-opciones">
+
+      <button type="button" class="perfil-card" (click)="selectNatural()">
+        <span class="perfil-card__icono">
+          <i-tabler name="user"></i-tabler>
+        </span>
+        <span class="perfil-card__titulo">Persona Natural</span>
+        <span class="perfil-card__texto">
+          Cambias a título personal, con tu DNI o carné de extranjería.
+        </span>
+        <span class="perfil-card__meta">DNI · 3 pasos · unos 5 minutos</span>
+      </button>
+
+      <button type="button" class="perfil-card" (click)="selectJuridico()">
+        <span class="perfil-card__icono">
+          <i-tabler name="building"></i-tabler>
+        </span>
+        <span class="perfil-card__titulo">Empresa</span>
+        <span class="perfil-card__texto">
+          Cambias a nombre de tu empresa, con RUC y representante legal.
+        </span>
+        <span class="perfil-card__meta">RUC · 3 pasos · unos 10 minutos</span>
+      </button>
+
+    </div>
+
+    <p class="su-login">
+      ¿Ya tienes una cuenta?
+      <a [routerLink]="['/authentication/login']">Inicia sesión</a>
+    </p>
+    }
+
+    @if (status() !== 'profile') {
+
+    <p class="auth-perfil">
+      {{ status() === 'natural' ? 'Persona Natural' : 'Empresa' }}
+      <a class="su-link" (click)="volverAlPerfil()">Cambiar</a>
+    </p>
+
+    <div class="auth-etapa">
+
+      @if (status() === 'natural') {
+      <form [formGroup]="naturalForm" (ngSubmit)="submitNatural()">
+
+        <!-- El orden del paso 2 sigue el frame 563: documento, ocupación, dirección, fotos y PEP. -->
+        @if (muestra('step1')) { <register-step-email-verification [group]="grupo('step1')" /> }
+        @if (muestra('step2')) { <register-step-password [group]="grupo('step2')" /> }
+        @if (muestra('step8')) { <register-step-phone [group]="grupo('step8')" /> }
+        @if (muestra('step3')) { <register-natural-step3-document [group]="grupo('step3')" /> }
+        @if (muestra('step6')) { <register-step-position [group]="grupo('step6')" /> }
+        @if (muestra('step5')) { <register-step-address [group]="grupo('step5')" /> }
+        @if (muestra('step4')) { <register-natural-step4-files [group]="grupo('step4')" /> }
+        @if (muestra('step7')) { <register-step-pep [group]="grupo('step7')" /> }
+        @if (muestra('step9')) { <register-step-confirmacion [group]="grupo('step9')" /> }
+
+        <div class="auth-actions">
+          <button type="button" mat-stroked-button class="gm-btn" (click)="goPrev()">
+            {{ etapaIndex() === 0 ? 'Cambiar tipo de cuenta' : 'Atrás' }}
+          </button>
+
+          @if (esUltimaEtapa()) {
+          <button type="submit" mat-flat-button class="gm-btn gm-btn--accent" [disabled]="naturalForm.invalid">
+            Crear cuenta
+          </button>
+          } @else {
+          <button type="button" mat-flat-button class="gm-btn gm-btn--accent" (click)="goNext()">
+            Continuar
+          </button>
+          }
+        </div>
+
+      </form>
+      }
+
+      @if (status() === 'juridico') {
+      <form [formGroup]="juridicoForm" (ngSubmit)="submitJuridico()">
+
+        @if (muestra('step1')) { <register-juridico-step1-ruc [group]="grupo('step1')" /> }
+        @if (muestra('step2')) {
+        <register-step-email-verification
+          [group]="grupo('step2')"
+          hint="Puede ser un correo corporativo o personal, pero asegúrate de tener acceso: será tu usuario de ingreso y nuestro punto de contacto. Te enviaremos un código de 6 dígitos." />
+        }
+        @if (muestra('step3')) { <register-step-password [group]="grupo('step3')" /> }
+        @if (muestra('step4')) { <register-step-address [group]="grupo('step4')" /> }
+        @if (muestra('step5')) { <register-juridico-step5-activity [group]="grupo('step5')" /> }
+        @if (muestra('step6')) { <register-juridico-step6-representative [group]="grupo('step6')" /> }
+        @if (muestra('step7')) { <register-juridico-step7-ejecutante [group]="grupo('step7')" /> }
+        @if (muestra('step8')) { <register-juridico-step8-files [group]="grupo('step8')" /> }
+        @if (muestra('step9')) { <register-juridico-step9-address [group]="grupo('step9')" /> }
+        @if (muestra('step10')) { <register-step-position [group]="grupo('step10')" /> }
+        @if (muestra('step11')) { <register-step-pep [group]="grupo('step11')" /> }
+        @if (muestra('step12')) { <register-step-phone [group]="grupo('step12')" /> }
+        @if (muestra('step13')) { <register-step-confirmacion [group]="grupo('step13')" /> }
+
+        <div class="auth-actions">
+          <button type="button" mat-stroked-button class="gm-btn" (click)="goPrev()">
+            {{ etapaIndex() === 0 ? 'Cambiar tipo de cuenta' : 'Atrás' }}
+          </button>
+
+          @if (esUltimaEtapa()) {
+          <button type="submit" mat-flat-button class="gm-btn gm-btn--accent" [disabled]="juridicoForm.invalid">
+            Crear cuenta
+          </button>
+          } @else {
+          <button type="button" mat-flat-button class="gm-btn gm-btn--accent" (click)="goNext()">
+            Continuar
+          </button>
+          }
+        </div>
+
+      </form>
+      }
+
+    </div>
+    }
+
+  </div>
+
+  @if (status() === 'profile') {
+  <app-auth-aside
+    title="¿Ya tienes una cuenta en Good Money?"
+    text="Ingresa con tu cuenta y continúa operando de forma segura"
+    cta="Iniciar sesión"
+    link="/authentication/login" />
+  } @else {
+  <!-- Dentro de los pasos, el aside guía el registro (frame 425). -->
+  <app-auth-guia-aside [chip]="pasoChip()" [hint]="asideHint()" />
+  }
+
+</div>
+}

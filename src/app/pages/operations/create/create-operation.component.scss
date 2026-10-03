@@ -1,0 +1,407 @@
+/* Franja de pasos: amarillo de marca a todo el ancho, la "Tab" de la biblioteca de Figma. */
+/* Los márgenes negativos anulan el padding del pageWrapper (24px 15px) para correr de borde a borde. */
+.pasos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 64px;
+  margin: -24px -15px 28px;
+  padding: 14px 24px;
+  background: var(--gm-color-marca-primario);
+}
+
+.pasos__paso {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gm-color-texto-principal);
+}
+
+/* El icono recortado del mockup ya trae el amarillo de la banda de fondo. */
+.pasos__icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    height: 24px;
+    width: auto;
+  }
+}
+
+/* El paso en curso: negrita y filete debajo, como en el diseño. */
+.pasos__paso--activo {
+  font-weight: 700;
+  border-bottom-color: var(--gm-color-texto-contraste);
+}
+
+/* Los ya pasados se apagan un poco: siguen legibles pero no compiten. */
+.pasos__paso--hecho {
+  opacity: 0.75;
+}
+
+@media (max-width: 767px) {
+  .pasos {
+    gap: 8px 20px;
+    padding: 12px 14px;
+  }
+
+  .pasos__texto {
+    font-size: 13px;
+  }
+}
+
+/* Columna del flujo: una sola centrada, como los frames 473/455/459/460. */
+/* El `margin-top: auto` reparte el hueco con el del banner; los 28px de abajo espejan los que `.pasos` deja arriba. */
+.flujo {
+  width: 100%;
+  max-width: 860px;
+  margin: auto auto 28px;
+  display: grid;
+  /* `minmax(0, 1fr)` y no el `auto` implicito: un item no baja del ancho de su contenido y en movil se salia. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+}
+
+.flujo__tarjeta {
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  border-radius: var(--gm-radius-3xl);
+}
+
+/* La tarjeta apenas sobrepasa a su contenido (520px de .create-step): a 720px quedaban ~100px muertos por lado. */
+.flujo__tarjeta--adjunta {
+  max-width: 584px;
+}
+
+/* "Cotiza" va sobre la tarjeta plomo del frame 473 (#7B7B7B): el terciario de marca aclarado, no un color nuevo. */
+.flujo__tarjeta--oscura {
+  background: #7b7979;
+  color: var(--gm-color-texto-contraste);
+}
+
+/* Frame 556: informativas a la izquierda (apiladas, mismo ancho) y la calculadora a la derecha, algo más ancha. */
+.flujo--cotiza {
+  max-width: 1040px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  align-items: start;
+
+  .flujo__tarjeta {
+    order: 2;
+    max-width: none;
+  }
+
+  .flujo-info {
+    order: 1;
+  }
+}
+
+.flujo-info {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+/* Sin sitio para dos columnas: vuelve la columna única con la calculadora primero y las informativas lado a lado. */
+@media (max-width: 991px) {
+  .flujo--cotiza {
+    max-width: 860px;
+    grid-template-columns: minmax(0, 1fr);
+
+    .flujo__tarjeta {
+      order: 1;
+      max-width: 720px;
+    }
+
+    .flujo-info {
+      order: 2;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .flujo--cotiza .flujo-info {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.bancos-titulo {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.bancos-grupos {
+  display: grid;
+  /* Mismo motivo que `.flujo`: con el `1fr` pelado las columnas no bajaban del ancho de "Interbancarias 24 hrs". */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+/* Por debajo de 360 px las dos columnas de bancos ya no caben lado a lado. */
+@media (max-width: 359px) {
+  .bancos-grupos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bancos-nota {
+    margin-left: 0;
+    text-align: center;
+  }
+}
+
+.bancos-grupo {
+  text-align: center;
+}
+
+.bancos-grupo__nombre {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Iconos 3D del mockup en lugar de los chips de texto "15 min" / "24 hrs". */
+.bancos-chip {
+  height: 32px;
+  width: auto;
+  vertical-align: middle;
+}
+
+/* La celda "Otros" del mockup: cuadradito amarillo con el banco genérico. */
+.bancos-otros {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  background: var(--gm-color-marca-primario);
+
+  img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+  }
+
+  small {
+    font-size: 8px;
+    font-weight: 700;
+    color: var(--gm-color-texto-contraste);
+    line-height: 1;
+  }
+}
+
+/* Arranca donde empieza el grupo de interbancarias (segunda columna del grid), como en el mockup. */
+.bancos-nota {
+  margin: 12px 0 0 calc(50% + 7px);
+  font-size: 12px;
+  text-align: left;
+  color: var(--gm-color-texto-principal);
+}
+
+/* `.banner-promo` vive en styles.scss: también lo usa la vista de Beneficios (frame 453). */
+
+.bank-logos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+}
+
+.bank-logo {
+  width: 40px;
+  height: 40px;
+  padding: 7px;
+  border-radius: 12px;
+  object-fit: contain;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+}
+
+
+.exchange-card {
+  border-radius: 18px;
+}
+
+/* Título a la izquierda y fecha a la derecha, en una sola fila (frame 473). */
+.exchange-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-bottom: 8px;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .exchange-date {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    opacity: 0.75;
+
+    mat-icon {
+      font-size: 16px;
+      height: 16px;
+      width: 16px;
+    }
+  }
+}
+
+.exchange-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.exchange-head {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.6;
+
+  .col {
+    text-align: right;   
+  }
+}
+
+.label {
+  display: flex;
+  align-items: center;
+
+  /* Los atributos width/height reservan el hueco, pero `height` entraria como alto fijo y deformaria los logos. */
+  img {
+    height: auto;
+  }
+}
+
+.value {
+  font-size: 16px;
+  font-weight: 700;
+  text-align: right; 
+}
+
+.exchange-row.highlight {
+  background: var(--gm-color-fondo-crema);
+  border-radius: 12px;
+  padding: 12px 8px;
+}
+
+
+.success-card {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 28px;
+  border-radius: 18px;
+  text-align: center;
+}
+
+.success-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+
+  img {
+    width: 84px;
+    height: auto;
+  }
+}
+
+.success-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.success-subtitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gm-color-texto-principal);
+  margin-bottom: 20px;
+
+  /* El correo va en el dorado de marca, como en la lámina. */
+  span {
+    color: var(--gm-color-marca-primario);
+  }
+}
+
+.success-summary {
+  border: 1px solid var(--gm-gris-500);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: left;
+  margin-bottom: 24px;
+
+  .col {
+    display: flex;
+    justify-content: space-between;
+
+    span {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gm-color-texto-principal);
+    }
+
+    strong {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    &.status strong {
+      color: var(--gm-color-marca-acento);
+    }
+  }
+}
+
+/* Píldoras compactas y centradas del mockup; "Nueva cotización" en gris apagado. */
+.success-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  button,
+  a {
+    min-width: 150px;
+    height: 40px;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+}
+
+.btn-nueva {
+  --mat-button-filled-container-color: var(--gm-gris-500);
+  --mat-button-filled-label-text-color: #fff;
+  --mdc-filled-button-container-color: var(--gm-gris-500);
+  --mdc-filled-button-label-text-color: #fff;
+  background-color: var(--gm-gris-500);
+  color: #fff;
+}
+
+@media (max-width: 480px) {
+  .success-card {
+    padding: 20px;
+  }
+
+  .success-actions {
+    flex-direction: column;
+  }
+}

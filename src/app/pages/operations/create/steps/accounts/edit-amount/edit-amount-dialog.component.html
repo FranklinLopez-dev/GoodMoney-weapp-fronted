@@ -1,0 +1,53 @@
+<h2 mat-dialog-title>
+  {{ data.banco }} - {{ data.accountNumber }}
+</h2>
+
+<div mat-dialog-content>
+
+  <p class="hint">
+    Ingresa el monto que deseas recibir en esta cuenta
+  </p>
+
+  <form  [formGroup]="form" >
+    <mat-form-field appearance="outline" class="w-100">
+    <mat-label>Monto</mat-label>
+
+    <input matInput appAmountInput
+           formControlName="amount"
+           [step]="0.01" />
+
+    <span class="m-l-16 m-r-4" matPrefix>
+      {{ data.currency === 'USD' ? '$' : 'S/' }}&nbsp;
+    </span>
+
+    <mat-hint align="end">
+      Máximo:
+      {{ data.currency === 'USD' ? '$' : 'S/' }}
+      {{ data.maxAmount | number:'1.2-2' }}
+    </mat-hint>
+
+    @if(form.get('amount')?.hasError('required')) {
+      <mat-error> El monto es obligatorio </mat-error>
+    }
+
+     @if(form.get('amount')?.hasError('max')) {
+      <mat-error> El monto no puede ser mayor al total </mat-error>
+    }
+
+     @if(form.get('amount')?.hasError('min')) {
+      <mat-error> El monto debe ser mayor a cero </mat-error>
+    }
+
+  </mat-form-field>
+  </form>
+
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancelar</button>
+  <button mat-flat-button color="primary"
+          [disabled]="form.invalid"
+          (click)="save()">
+    Guardar
+  </button>
+</div>

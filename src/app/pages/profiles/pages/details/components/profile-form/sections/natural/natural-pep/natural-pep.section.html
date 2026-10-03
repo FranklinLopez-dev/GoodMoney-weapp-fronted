@@ -1,0 +1,235 @@
+<mat-card-subtitle class="f-s-14">
+    Para cumplir con las normativas de la Superintendencia de Banca, Seguros y AFP (SBS), y en el marco de
+    nuestras políticas de prevención de lavado de activos y financiamiento del terrorismo, es obligatorio que
+    todos los usuarios completen información adicional según el tipo de perfil registrado
+</mat-card-subtitle>
+<form [formGroup]="form" class="row m-t-24">
+    <div class="col-md-12 col-lg-6">
+        @if (position) {
+        <app-select-search-async class="w-100" label="Ocupación y/o profesión" [items]="filteredPositions" valueKey="id"
+            labelKey="description" [control]="position" (search)="loadPositions($event)">
+        </app-select-search-async>
+        }
+        @if (origenFondos) {
+        <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Origen de los fondos</mat-label>
+
+            <mat-select formControlName="origenFondos" placeholder="Selecciona el origen">
+                @for (o of origenFondosList; track o.id) {
+                <mat-option [value]="o.id">
+                    {{ o.name }}
+                </mat-option>
+                }
+            </mat-select>
+
+            @if (control['origenFondos']?.touched && control['origenFondos']?.invalid) {
+            <mat-hint class="su-error">
+                Origen de los fondos es obligatorio
+            </mat-hint>
+            }
+        </mat-form-field>
+        }
+
+    </div>
+    <div class="col-md-12 col-lg-6">
+        <mat-form-field class="w-100" appearance="outline" color="primary">
+            <mat-label>Estado civil</mat-label>
+            <mat-select formControlName="statusCivil" placeholder="Selecciona el estado civil">
+                <mat-option [value]="'001: SOLTERO'"> SOLTERO/A </mat-option>
+                <mat-option [value]="'002: CASADO'"> CASADO/A </mat-option>
+                <mat-option [value]="'003: VIUDO'"> VIUDO/A </mat-option>
+                <mat-option [value]="'004: DIVORCIADO'"> DIVORCIADO/A </mat-option>
+                <mat-option [value]="'005: CONVIVIENTE'"> CONVIVIENTE</mat-option>
+            </mat-select>
+            @if (control['statusCivil']?.touched && control['statusCivil']?.invalid) {
+            <mat-hint class="su-error">
+                Estado civil es obligatorio
+            </mat-hint>
+            }
+        </mat-form-field>
+    </div>
+    <div class="col-12 d-flex align-items-center m-t-24 m-b-24">
+        <button mat-mini-fab class="bg-light-primary shadow-none rounded icon-48">
+            <i-tabler name="users-group" class="icon-20 d-flex text-primary"></i-tabler>
+        </button>
+        <div class="m-l-16 w-100">
+            <h5 class="f-s-16 f-w-600 m-0 m-b-4">Indicar si es o ha sido PEP</h5>
+            <div class="d-flex align-items-center justify-content-center w-100">
+                <span class="pep-texto">
+                    ¿Ha cumplido, en los últimos 2 años: i) funciones públicas en un organismo público o ii)
+                    funciones prominentes en una organización internacional?</span>
+                <mat-slide-toggle formControlName="isPep" class="m-l-auto"></mat-slide-toggle>
+            </div>
+        </div>
+    </div>
+    @if(control['isPep'].value) {
+    <div class="col-md-6">
+        <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Institución</mat-label>
+            <input maxlength="300" matInput formControlName="institution">
+            @if(control['institution'].touched && control['institution'].invalid) {
+            <mat-hint class="su-error">
+                @if(control['institution'].errors &&
+                control['institution'].errors['required']) {
+                Institución es obligatorio
+                }
+            </mat-hint>
+            }
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-6">
+        <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Cargo</mat-label>
+            <input maxlength="300" matInput formControlName="cargo">
+            @if(control['cargo'].touched && control['cargo'].invalid) {
+            <mat-hint class="su-error">
+                @if(control['cargo'].errors &&
+                control['cargo'].errors['required']) {
+                Cargo es obligatorio
+                }
+            </mat-hint>
+            }
+        </mat-form-field>
+    </div>
+
+    <div class="col-md-12">
+        <span class="pep-texto">
+            Indicar los nombres y apellidos de sus:
+            (1) Parientes hasta el 2do grado de consanguinidad <span class="f-s-12">(Padre, Madre, hijo/as,
+                Abuelo/as, nieto/as,
+                hermano/as)</span> y 2do de afinidad <span class="f-s-12">(suegro/a, yerno, nuera, cuñado/as,
+                abuelo/as del cónyuge,
+                nieto/as del cónyuge)</span>; y (2) cónyuge o conviviente
+        </span>
+    </div>
+    <div class="col-md-12 table-responsive">
+        <table class="w-100 pep-tabla" formArrayName="parientesPep">
+            <thead>
+                <tr>
+                    <th class="p-8 pep-tabla__numero">#</th>
+                    <th class="p-8 pep-tabla__texto">Nombres y Apellidos</th>
+                    <th class="p-8 pep-tabla__texto">Parentesco</th>
+                    <th class="p-8 text-center"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (fg of parientesPep.controls; track fg; let i = $index) {
+                <tr [formGroupName]="i">
+                    <td class="p-8 pep-tabla__numero">{{ i + 1 }}</td>
+                    <td class="p-8 pep-tabla__texto">
+                        <mat-form-field appearance="outline" class="w-100 hide-hint">
+                            <input matInput formControlName="names" placeholder="Nombres completos" />
+                        </mat-form-field>
+                    </td>
+                    <td class="p-8 pep-tabla__texto">
+                        <mat-form-field appearance="outline" class="w-100 hide-hint">
+                            <mat-select formControlName="relationship" placeholder="Parentesco">
+                                <mat-option value="1">PADRE</mat-option>
+                                <mat-option value="2">MADRE</mat-option>
+                                <mat-option value="3">HIJO/A</mat-option>
+                                <mat-option value="4">ABUELO/A</mat-option>
+                                <mat-option value="5">NIETO/A</mat-option>
+                                <mat-option value="6">HERMANO/A</mat-option>
+                                <mat-option value="7">CÓNYUGE / CONVIVIENTE</mat-option>
+                                <mat-option value="8">SUEGRO/A</mat-option>
+                                <mat-option value="9">YERNO</mat-option>
+                                <mat-option value="10">CUÑADO/A</mat-option>
+                                <mat-option value="11">ABUELO/A DE CÓNYUGE</mat-option>
+                                <mat-option value="12">NIETO/A DE CÓNYUGE</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </td>
+                    <td class="p-8 text-center">
+                        <button mat-icon-button color="primary" type="button" (click)="addPep()"
+                            [disabled]="!canAdd(parientesPep)">
+                            <i-tabler name="circle-plus"></i-tabler>
+                        </button>
+
+                        @if (parientesPep.length > 1) {
+                        <button mat-icon-button type="button" (click)="removePep(i)">
+                            <i-tabler name="trash"></i-tabler>
+                        </button>
+                        }
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+    <div class="col-12 d-flex align-items-center m-t-24 m-b-24">
+        <button mat-mini-fab class="bg-light-primary shadow-none rounded icon-48">
+            <i-tabler name="users-group" class="icon-20 d-flex text-primary"></i-tabler>
+        </button>
+        <div class="m-l-16 w-100">
+            <h5 class="f-s-16 f-w-600 m-0 m-b-4">Indicar si es pariente PEP</h5>
+            <div class="d-flex align-items-center justify-content-center w-100">
+                <span class="pep-texto">
+                    hasta el 2do. grado de consanguinidad <span class="f-s-12">(Padre, Madre, hijo/as,
+                        Abuelo/as, nieto/as,
+                        hermano/as)</span>; 2do.de afinidad <span class="f-s-12">(suegro/a, yerno, nuera,
+                        cuñado/as, abuelo/as
+                        del cónyuge, nieto/as del cónyuge)</span>; y cónyuge o conviviente
+                </span>
+                <mat-slide-toggle formControlName="isFamiliarPep" class="m-l-auto"></mat-slide-toggle>
+            </div>
+        </div>
+    </div>
+    @if(control['isFamiliarPep'].value) {
+    <div class="col-md-12 table-responsive">
+        <table class="w-100 pep-tabla" formArrayName="parientesFamiliarPep">
+            <thead>
+                <tr>
+                    <th class="p-8 pep-tabla__numero">#</th>
+                    <th class="p-8 pep-tabla__texto">Nombres y Apellidos</th>
+                    <th class="p-8 pep-tabla__texto">Parentesco</th>
+                    <th class="p-8 text-center"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (fg of parientesFamiliarPep.controls; track fg; let i = $index) {
+                <tr [formGroupName]="i">
+                    <td class="p-8 pep-tabla__numero">{{ i + 1 }}</td>
+                    <td class="p-8 pep-tabla__texto">
+                        <mat-form-field appearance="outline" class="w-100 hide-hint">
+                            <input matInput formControlName="names" placeholder="Nombres completos" />
+                        </mat-form-field>
+                    </td>
+                    <td class="p-8 pep-tabla__texto">
+                        <mat-form-field appearance="outline" class="w-100 hide-hint">
+                            <mat-select formControlName="relationship" placeholder="Parentesco">
+                                <mat-option value="1">PADRE</mat-option>
+                                <mat-option value="2">MADRE</mat-option>
+                                <mat-option value="3">HIJO/A</mat-option>
+                                <mat-option value="4">ABUELO/A</mat-option>
+                                <mat-option value="5">NIETO/A</mat-option>
+                                <mat-option value="6">HERMANO/A</mat-option>
+                                <mat-option value="7">CÓNYUGE / CONVIVIENTE</mat-option>
+                                <mat-option value="8">SUEGRO/A</mat-option>
+                                <mat-option value="9">YERNO</mat-option>
+                                <mat-option value="10">CUÑADO/A</mat-option>
+                                <mat-option value="11">ABUELO/A DE CÓNYUGE</mat-option>
+                                <mat-option value="12">NIETO/A DE CÓNYUGE</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </td>
+                    <td class="p-8 text-center">
+                        <button mat-icon-button color="primary" type="button" (click)="addFamiliar()"
+                            [disabled]="!canAdd(parientesFamiliarPep)">
+                            <i-tabler name="circle-plus"></i-tabler>
+                        </button>
+
+                        @if (parientesFamiliarPep.length > 1) {
+                        <button mat-icon-button type="button" (click)="removeFamiliar(i)">
+                            <i-tabler name="trash"></i-tabler>
+                        </button>
+                        }
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+</form>

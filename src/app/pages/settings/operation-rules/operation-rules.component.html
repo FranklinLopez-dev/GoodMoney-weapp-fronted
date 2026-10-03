@@ -1,0 +1,144 @@
+@if (cargando()) {
+<mat-card>
+  <mat-card-content>
+    <p class="reglas-cargando">Cargando…</p>
+  </mat-card-content>
+</mat-card>
+} @else {
+
+<form [formGroup]="form">
+
+  <mat-card class="m-b-16">
+    <mat-card-content>
+
+      <h2 class="reglas-titulo">Reglas de la operación</h2>
+      <p class="reglas-bajada">Con qué condiciones se cotiza y se registra una operación.</p>
+
+      <div class="reglas-rejilla">
+
+        <div class="reglas-campo">
+          <mat-form-field appearance="outline">
+            <mat-label>Vigencia del tipo de cambio (minutos)</mat-label>
+            <input matInput type="number" min="1" max="60" formControlName="quoteMinutes" />
+          </mat-form-field>
+          <p class="reglas-campo__ayuda">
+            Dentro de este tiempo se respeta el tipo de cambio que vio el cliente, aunque cambie.
+          </p>
+        </div>
+
+        <div class="reglas-campo">
+          <mat-form-field appearance="outline">
+            <mat-label>Tiempo para transferir (minutos)</mat-label>
+            <input matInput type="number" min="1" formControlName="operationTime" />
+          </mat-form-field>
+          <p class="reglas-campo__ayuda">
+            Lo que tiene el cliente para transferir y adjuntar el voucher.
+          </p>
+        </div>
+
+        <div class="reglas-campo">
+          <mat-form-field appearance="outline">
+            <mat-label>Monto mínimo</mat-label>
+            <input matInput type="number" min="0" formControlName="minAmount" />
+          </mat-form-field>
+          <p class="reglas-campo__ayuda">Por operación.</p>
+        </div>
+
+        <div class="reglas-campo">
+          <mat-form-field appearance="outline">
+            <mat-label>Monto máximo</mat-label>
+            <input matInput type="number" min="0" formControlName="maxAmount" />
+          </mat-form-field>
+          <p class="reglas-campo__ayuda">Por operación.</p>
+        </div>
+
+        <div class="reglas-campo">
+          <mat-form-field appearance="outline">
+            <mat-label>Límite de cambio mensual</mat-label>
+            <input matInput type="number" min="0" formControlName="monthlyChange" />
+          </mat-form-field>
+          <p class="reglas-campo__ayuda">
+            Control de cumplimiento (fraccionamiento). 0 = sin límite.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="reglas-interruptores">
+
+        <div class="reglas-interruptor">
+          <mat-slide-toggle formControlName="isOneAccount">
+            Permitir recibir en varias cuentas
+          </mat-slide-toggle>
+          <p class="reglas-interruptor__ayuda">
+            El cliente puede repartir lo que recibe entre varias de sus cuentas.
+          </p>
+        </div>
+
+        <div class="reglas-interruptor">
+          <mat-slide-toggle formControlName="isDuplicated">
+            Permitir operaciones duplicadas
+          </mat-slide-toggle>
+          <p class="reglas-interruptor__ayuda">
+            Deja registrar dos operaciones idénticas seguidas. Desactivado evita el doble envío por
+            error.
+          </p>
+        </div>
+
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-content>
+
+      <h2 class="reglas-titulo">Disponibilidad del servicio</h2>
+      <p class="reglas-bajada">
+        Cuándo se puede operar. El horario y los feriados se administran en sus propias pantallas.
+      </p>
+
+      <div class="reglas-interruptores">
+
+        <div class="reglas-interruptor">
+          <mat-slide-toggle formControlName="allowOperationsOutsideHours">
+            Permitir operaciones fuera del horario
+          </mat-slide-toggle>
+          <p class="reglas-interruptor__ayuda">
+            Activado, el cliente puede registrar con la oficina cerrada y se le avisa antes de
+            continuar. Desactivado, no se le deja hasta que se vuelva a abrir. Los feriados cuentan
+            como cerrado.
+          </p>
+        </div>
+
+        <div class="reglas-interruptor">
+          <mat-slide-toggle formControlName="isMaintenance">
+            Modo mantenimiento
+          </mat-slide-toggle>
+          <p class="reglas-interruptor__ayuda">
+            Para cortes planificados o caídas del banco.
+          </p>
+        </div>
+
+        <div class="reglas-interruptor">
+          <mat-slide-toggle formControlName="isClosed">
+            Cerrado temporalmente
+          </mat-slide-toggle>
+          <p class="reglas-interruptor__ayuda">
+            Suspende la atención sin tocar el horario.
+          </p>
+        </div>
+
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+
+  <div class="reglas-acciones">
+    <button mat-flat-button color="primary" type="button" [disabled]="guardando()" (click)="guardar()">
+      {{ guardando() ? 'Guardando…' : 'Guardar cambios' }}
+    </button>
+  </div>
+
+</form>
+}

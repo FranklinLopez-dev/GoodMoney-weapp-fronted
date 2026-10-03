@@ -1,0 +1,4 @@
+# Todo cambio requiere aprobacion del owner del repositorio.
+# Junto con la regla de rama, deja main reservada para despliegues
+# y para cambios aprobados por Zhaul.
+* @Zhaul

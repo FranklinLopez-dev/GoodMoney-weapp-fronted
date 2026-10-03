@@ -1,0 +1,14 @@
+<mat-card>
+  <mat-card-content>
+
+    <nav class="cmp-nav">
+      @for (p of pestanas; track p.ruta) {
+      <a class="cmp-nav__enlace" [routerLink]="p.ruta"
+         routerLinkActive="cmp-nav__enlace--activo">{{ p.rotulo }}</a>
+      }
+    </nav>
+
+    <router-outlet></router-outlet>
+
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,534 @@
+<mat-card>
+  <mat-card-content>
+    <mat-tab-group [selectedIndex]="pestana()" (selectedIndexChange)="alCambiarPestana($event)">
+
+      <!-- LISTADO -->
+      <mat-tab label="Personas">
+        <div class="per-panel">
+
+          @if (!persona() && !cargandoFicha()) {
+          <p class="per-bajada">
+            Quién es cada cliente. Una persona es <strong>una sola aunque aparezca en
+            varias cuentas</strong>: en los datos de campo hay 70 documentos repartidos
+            en dos o tres cuentas distintas, y el Registro de Operaciones se agrega por
+            persona, no por cuenta.
+          </p>
+
+          <div class="per-filtros">
+            <mat-form-field appearance="outline" class="per-filtros__buscar">
+              <mat-label>Documento, nombre o razón social</mat-label>
+              <input matInput [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)"
+                     (keyup.enter)="cargar()" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Tipo</mat-label>
+              <mat-select [ngModel]="tipo()" (ngModelChange)="tipo.set($event); cargar()" placeholder="Selecciona el tipo">
+                <mat-option value="">Todas</mat-option>
+                <mat-option value="N">Natural</mat-option>
+                <mat-option value="J">Jurídica</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-checkbox [ngModel]="soloListaNegra()"
+                          (ngModelChange)="soloListaNegra.set($event); cargar()">
+              Solo lista negra
+            </mat-checkbox>
+
+            <button mat-flat-button color="primary" type="button" (click)="cargar()">Buscar</button>
+            <button mat-button type="button" (click)="limpiar()">Limpiar</button>
+          </div>
+
+          @if (cargando()) {
+          <p class="per-nota">Cargando…</p>
+          } @else if (!personas().length) {
+          <p class="per-nota">No hay personas que cumplan el filtro.</p>
+          } @else {
+
+          <div class="per-tabla per-tabla--personas">
+            <div class="per-fila per-fila--cabecera">
+              <span>Documento</span><span>Nombre</span><span>Tipo</span>
+              <span>Cuentas</span><span>Operaciones</span><span>Estado</span><span></span>
+            </div>
+            @for (p of personas(); track p.id) {
+            <div class="per-fila" [class.per-fila--aviso]="p.pendingIdentification || p.isBlackListed">
+              <span data-label="Documento">
+                {{ p.documentNumber }}
+                <small class="per-sub">{{ p.documentType }}</small>
+              </span>
+              <span class="pf-cabecera"><strong>{{ p.fullName || '—' }}</strong></span>
+              <span data-label="Tipo">{{ tipoPersona(p.personType) }}</span>
+              <span data-label="Cuentas">{{ p.accounts }}</span>
+              <span data-label="Operaciones">{{ p.operations }}</span>
+              <span class="per-marcas" data-label="Estado">
+                @if (p.isBlackListed) { <span class="per-chip per-chip--alta">Lista negra</span> }
+                @if (p.pendingIdentification) { <span class="per-chip per-chip--media">Sin documento</span> }
+                @if (p.isValidated) { <span class="per-chip per-chip--ok">Validada</span> }
+              </span>
+              <span class="pf-acciones"><button mat-button type="button" (click)="abrir(p.id)">Ver</button></span>
+            </div>
+            }
+          </div>
+
+          <div class="per-paginador">
+            <button mat-button type="button" [disabled]="pagina() <= 0"
+                    (click)="cargar(pagina() - 1)">Anterior</button>
+            <span>Página {{ pagina() + 1 }} de {{ paginas() }} — {{ total() }} personas</span>
+            <button mat-button type="button" [disabled]="pagina() + 1 >= paginas()"
+                    (click)="cargar(pagina() + 1)">Siguiente</button>
+          </div>
+          }
+
+          } @else if (cargandoFicha()) {
+          <p class="per-nota">Cargando…</p>
+          } @else if (persona(); as p) {
+
+          <!-- ficha -->
+          <div class="per-cabecera">
+            <button mat-button type="button" (click)="cerrar()">← Volver</button>
+            <h3>{{ p.fullName || 'Sin nombre' }}</h3>
+            <span class="per-chip per-chip--neutro">{{ p.documentType }} {{ p.documentNumber }}</span>
+            <span class="per-chip per-chip--neutro">{{ tipoPersona(p.personType) }}</span>
+            @if (p.isBlackListed) { <span class="per-chip per-chip--alta">Lista negra</span> }
+            @if (p.pendingIdentification) { <span class="per-chip per-chip--media">Sin documento real</span> }
+            @if (riesgo(); as r) {
+            <span class="per-chip" [ngClass]="claseNivel(r.level)">Riesgo {{ r.level }} · {{ r.score }}/100</span>
+            }
+          </div>
+
+          @if (p.pendingIdentification) {
+          <p class="per-aviso per-aviso--fuerte">
+            Esta persona se migró con el DNI de relleno <strong>00000000</strong> y sigue
+            operando. Cuando soporte consiga su documento real, se corrige en su perfil y
+            la persona conserva su identificador y sus operaciones: no nace otra al lado.
+          </p>
+          }
+
+          <div class="per-ficha">
+
+            <section class="per-bloque">
+              <h4>Identidad</h4>
+              <dl class="per-datos">
+                <dt>Documento</dt><dd>{{ p.documentType }} {{ p.documentNumber }}</dd>
+                @if (p.personType === 'J') {
+                <dt>Razón social</dt><dd>{{ p.businessName || '—' }}</dd>
+                } @else {
+                <dt>Nombres</dt><dd>{{ p.names || '—' }}</dd>
+                <dt>Apellidos</dt><dd>{{ (p.lastNamePaterno || '') + ' ' + (p.lastNameMaterno || '') }}</dd>
+                <dt>Nacimiento</dt><dd>{{ p.birthDate ? (p.birthDate | date:'dd/MM/yyyy') : '—' }}</dd>
+                }
+                <dt>Domicilio</dt>
+                <dd>
+                  {{ p.address || '—' }}
+                  @if (p.district || p.province || p.departament) {
+                  <small class="per-sub">
+                    Ubigeo {{ p.departament }} / {{ p.province }} / {{ p.district }} · {{ p.country || '—' }}
+                  </small>
+                  }
+                </dd>
+                <dt>Verificada</dt><dd>{{ p.isValidated ? 'Sí' : 'No' }}</dd>
+                <dt>Dada de alta</dt><dd>{{ p.createdAt | date:'dd/MM/yyyy HH:mm' }}</dd>
+              </dl>
+            </section>
+
+            <section class="per-bloque">
+              <h4>Lo que ha movido</h4>
+              <p class="per-cifras">
+                <strong>{{ p.operations }}</strong> operaciones ·
+                <strong>S/ {{ p.operationsTotal | number:'1.2-2' }}</strong>
+                @if (p.lastOperation) { · última el {{ p.lastOperation | date:'dd/MM/yyyy' }} }
+              </p>
+              <p class="per-aviso">
+                Agregado <strong>por persona</strong>. El modelo viejo sumaba por perfil, así
+                que la misma persona en tres cuentas contaba como tres clientes distintos y
+                ningún umbral de fraccionamiento se cruzaba nunca.
+              </p>
+            </section>
+
+            <section class="per-bloque">
+              <h4>Con qué derecho opera en cada cuenta</h4>
+              @if (!p.accounts.length) {
+              <p class="per-nota">
+                Sin relación con ninguna cuenta. Es una ficha creada desde el backoffice que
+                todavía no tiene cuenta propia: darle relación la convertiría en tercero
+                autorizado de quien la creó.
+              </p>
+              } @else {
+              <div class="per-tabla per-tabla--cuentas">
+                <div class="per-fila per-fila--cabecera">
+                  <span>Cuenta</span><span>Naturaleza</span><span>Desde</span>
+                  <span>Autorizada por</span><span>Respaldo</span><span>Operaciones</span>
+                </div>
+                @for (c of p.accounts; track c.id) {
+                <div class="per-fila" [class.per-fila--aviso]="c.pendingSupport">
+                  <span class="pf-cabecera">
+                    {{ c.email }}
+                    @if (c.isDefault) { <small class="per-sub">perfil activo</small> }
+                  </span>
+                  <span data-label="Naturaleza">{{ naturaleza(c.nature) }}</span>
+                  <span data-label="Desde">
+                    @if (desde(c.from); as d) {
+                    {{ d | date:'dd/MM/yyyy' }}
+                    } @else {
+                    <small class="per-sub">no consta</small>
+                    }
+                    @if (c.until) { <small class="per-sub">hasta {{ c.until | date:'dd/MM/yyyy' }}</small> }
+                  </span>
+                  <span data-label="Autorizada por">{{ c.authorizedByPerson || '—' }}</span>
+                  <span data-label="Respaldo">
+                    @if (c.pendingSupport) {
+                    <span class="per-chip per-chip--media">Sin carta poder</span>
+                    } @else {
+                    {{ c.supportType || '—' }}
+                    }
+                  </span>
+                  <span data-label="Operaciones">{{ c.operations }}</span>
+                </div>
+                }
+              </div>
+              }
+            </section>
+
+            @if (p.representatives.length) {
+            <section class="per-bloque">
+              <h4>Quién firma por ella</h4>
+              <div class="per-tabla per-tabla--reps">
+                <div class="per-fila per-fila--cabecera">
+                  <span>Documento</span><span>Nombre</span><span>Cargo</span><span>Vigencia</span>
+                </div>
+                @for (r of p.representatives; track r.personId) {
+                <div class="per-fila">
+                  <span data-label="Documento">{{ r.documentNumber }}</span>
+                  <span class="pf-cabecera">{{ r.fullName }}</span>
+                  <span data-label="Cargo">{{ r.position || '—' }}</span>
+                  <span data-label="Vigencia">
+                    {{ r.from | date:'dd/MM/yyyy' }}
+                    @if (r.until) { — {{ r.until | date:'dd/MM/yyyy' }} } @else { — vigente }
+                  </span>
+                </div>
+                }
+              </div>
+            </section>
+            }
+
+            <section class="per-bloque">
+              <h4>Expediente de cumplimiento</h4>
+              @if (!p.compliance) {
+              <p class="per-nota">Sin expediente vigente: no hay nada que declarar.</p>
+              } @else {
+              <dl class="per-datos">
+                <dt>Desde</dt><dd>{{ p.compliance.from | date:'dd/MM/yyyy' }}</dd>
+                <dt>PEP</dt>
+                <dd>
+                  {{ p.compliance.isPep ? 'Sí' : 'No' }}
+                  @if (p.compliance.isPep && p.compliance.pepPosition) {
+                  <small class="per-sub">{{ p.compliance.pepPosition }} — {{ p.compliance.pepInstitution }}</small>
+                  }
+                </dd>
+                <dt>Familiar de PEP</dt><dd>{{ p.compliance.isRelativePep ? 'Sí' : 'No' }}</dd>
+                <dt>Ocupación</dt><dd>{{ p.compliance.position || '—' }}</dd>
+                <dt>Actividad</dt><dd>{{ p.compliance.activity || '—' }}</dd>
+                <dt>Estado civil</dt><dd>{{ p.compliance.maritalStatus || '—' }}</dd>
+                <dt>Origen de fondos</dt><dd>{{ p.compliance.sourceOfFunds || '—' }}</dd>
+                <dt>Nivel de riesgo</dt><dd>{{ p.compliance.riskLevel || '—' }}</dd>
+              </dl>
+              }
+
+              @if (p.complianceHistory.length) {
+              <h5 class="per-subtitulo">Versiones anteriores</h5>
+              <p class="per-aviso">
+                El expediente va versionado porque ser PEP y la ocupación <strong>cambian</strong>,
+                y el Registro de Operaciones tiene que decir qué era verdad el día de la
+                operación, no hoy.
+              </p>
+              <ul class="per-historia">
+                @for (h of p.complianceHistory; track h.from) {
+                <li>
+                  {{ h.from | date:'dd/MM/yyyy' }} – {{ h.until | date:'dd/MM/yyyy' }}
+                  · PEP: {{ h.isPep ? 'sí' : 'no' }}
+                  @if (h.position) { · {{ h.position }} }
+                </li>
+                }
+              </ul>
+              }
+            </section>
+
+            @if (riesgo(); as r) {
+            <section class="per-bloque">
+              <h4>Riesgo de cumplimiento</h4>
+              <span class="per-chip" [ngClass]="claseNivel(r.level)">{{ r.level }} · {{ r.score }}/100</span>
+              @if (r.regimen) {
+              <span class="per-chip" [ngClass]="claseNivel(r.riesgoLaft === 'Alto' ? 'Rojo' : r.riesgoLaft === 'Medio' ? 'Ambar' : 'Verde')">
+                Debida diligencia {{ r.regimen }} · riesgo LAFT {{ r.riesgoLaft }}
+              </span>
+              @if (r.motivosRegimen?.length) {
+              <p class="per-nota">Reforzado por:
+                @for (m of r.motivosRegimen; track m.etiqueta; let ultimo = $last) {
+                <strong>{{ m.etiqueta }}</strong>@if (m.detalle) { ({{ m.detalle }}) }@if (!ultimo) { · }
+                }
+              </p>
+              }
+              }
+              <ul class="per-factores">
+                @for (f of r.factors; track f.etiqueta) {
+                @if (f.aplica) {
+                <li><strong>+{{ f.puntos }}</strong> {{ f.etiqueta }}
+                  @if (f.detalle) { <small>— {{ f.detalle }}</small> }
+                </li>
+                }
+                }
+              </ul>
+              @if (r.score === 0) { <p class="per-nota">Sin factores de riesgo.</p> }
+            </section>
+            }
+
+            @if (p.documents.length) {
+            <section class="per-bloque">
+              <h4>Sus papeles</h4>
+              <ul class="per-historia">
+                @for (d of p.documents; track d.id) {
+                <li>{{ d.type }} — {{ d.originalName || 'sin nombre' }}
+                  <small>({{ d.uploadedAt | date:'dd/MM/yyyy' }})</small>
+                  <button mat-button type="button" (click)="verDocumento(p.id, d.id, d.type)">Ver</button></li>
+                }
+              </ul>
+              <p class="per-aviso">
+                Los documentos de identidad son datos personales: se abren con la sesión, no por una URL pública.
+              </p>
+            </section>
+            }
+          </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- SIN DOCUMENTO REAL -->
+      <mat-tab label="Sin documento">
+        <div class="per-panel">
+          <p class="per-bajada">
+            Clientes <strong>dados por validados sin documento de identidad real</strong>: se
+            migraron con el DNI de relleno <code>00000000</code>. No es un problema de
+            duplicados, es un agujero de identificación — en los datos de campo son 411, y
+            410 de ellos marcados como validados. <strong>Los que ya operaron salen
+            primero</strong>: son los que más urge regularizar.
+          </p>
+
+          @if (cargandoSinDocumento()) {
+          <p class="per-nota">Cargando…</p>
+          } @else if (!sinDocumento().length) {
+          <p class="per-nota">Ninguno: todos los clientes tienen documento real.</p>
+          } @else {
+
+          <div class="per-tabla per-tabla--pendientes">
+            <div class="per-fila per-fila--cabecera">
+              <span>Nombre</span><span>Cuentas</span><span>Operaciones</span>
+              <span>Validada</span><span>Desde</span><span></span>
+            </div>
+            @for (p of sinDocumento(); track p.id) {
+            <div class="per-fila" [class.per-fila--aviso]="p.operations > 0">
+              <span class="pf-cabecera"><strong>{{ p.fullName || '—' }}</strong></span>
+              <span data-label="Cuentas">{{ p.accounts }}</span>
+              <span data-label="Operaciones">
+                {{ p.operations }}
+                @if (p.operations > 0) { <small class="per-sub">ya operó</small> }
+              </span>
+              <span data-label="Validada">{{ p.isValidated ? 'Sí' : 'No' }}</span>
+              <span data-label="Desde">{{ p.createdAt | date:'dd/MM/yyyy' }}</span>
+              <span class="pf-acciones"><button mat-button type="button" (click)="abrir(p.id)">Ver</button></span>
+            </div>
+            }
+          </div>
+
+          <div class="per-paginador">
+            <button mat-button type="button" [disabled]="paginaSinDocumento() <= 0"
+                    (click)="cargarSinDocumento(paginaSinDocumento() - 1)">Anterior</button>
+            <span>Página {{ paginaSinDocumento() + 1 }} de {{ paginasSinDocumento() }}
+              — {{ totalSinDocumento() }} clientes</span>
+            <button mat-button type="button" [disabled]="paginaSinDocumento() + 1 >= paginasSinDocumento()"
+                    (click)="cargarSinDocumento(paginaSinDocumento() + 1)">Siguiente</button>
+          </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- SIN CARTA PODER -->
+      <mat-tab label="Sin carta poder">
+        <div class="per-panel">
+          <p class="per-bajada">
+            Autorizaciones para operar <strong>por cuenta de un tercero que no tienen papel
+            que las respalde</strong>. Nacieron válidas a propósito —hacerlas nacer vencidas
+            habría cortado la operativa a 181 personas que cambian dólares con normalidad—
+            con el titular de la cuenta como autorizante, que es estructuralmente cierto. Lo
+            que no se fabricó es la carta poder. <strong>Las que ya se usaron para operar
+            salen primero.</strong>
+          </p>
+
+          @if (cargandoSinRespaldo()) {
+          <p class="per-nota">Cargando…</p>
+          } @else if (!sinRespaldo().length) {
+          <p class="per-nota">Ninguna: todas las autorizaciones vigentes tienen respaldo.</p>
+          } @else {
+
+          <div class="per-tabla per-tabla--respaldos">
+            <div class="per-fila per-fila--cabecera">
+              <span>Persona autorizada</span><span>Cuenta</span><span>Autorizada por</span>
+              <span>Motivo</span><span>Desde</span><span>Operaciones</span><span></span>
+            </div>
+            @for (c of sinRespaldo(); track c.id) {
+            <div class="per-fila" [class.per-fila--aviso]="c.operations > 0">
+              <span class="pf-cabecera">
+                <strong>{{ c.personFullName || '—' }}</strong>
+                <small class="per-sub">{{ c.personDocumentNumber }}</small>
+              </span>
+              <span data-label="Cuenta">{{ c.email }}</span>
+              <span data-label="Autorizada por">{{ c.authorizedByPerson || '—' }}</span>
+              <span data-label="Motivo"><small>{{ c.thirdPartyReason || 'sin motivo declarado' }}</small></span>
+              <span data-label="Desde">
+                @if (desde(c.from); as d) { {{ d | date:'dd/MM/yyyy' }} }
+                @else { <small class="per-sub">no consta</small> }
+              </span>
+              <span data-label="Operaciones">
+                {{ c.operations }}
+                @if (c.operations > 0) { <small class="per-sub">ya operó</small> }
+              </span>
+              <span class="pf-acciones">
+                @if (c.personId) {
+                <button mat-button type="button" (click)="abrir(c.personId!)">Ver</button>
+                }
+              </span>
+            </div>
+            }
+          </div>
+
+          <div class="per-paginador">
+            <button mat-button type="button" [disabled]="paginaSinRespaldo() <= 0"
+                    (click)="cargarSinRespaldo(paginaSinRespaldo() - 1)">Anterior</button>
+            <span>Página {{ paginaSinRespaldo() + 1 }} de {{ paginasSinRespaldo() }}
+              — {{ totalSinRespaldo() }} autorizaciones</span>
+            <button mat-button type="button" [disabled]="paginaSinRespaldo() + 1 >= paginasSinRespaldo()"
+                    (click)="cargarSinRespaldo(paginaSinRespaldo() + 1)">Siguiente</button>
+          </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- CONCILIACIÓN -->
+      <mat-tab label="Conciliación">
+        <div class="per-panel">
+          <p class="per-bajada">
+            Si el modelo viejo —<code>Profiles</code>— y el nuevo siguen diciendo lo mismo.
+            <strong>Es lo que hay que mirar cada día de la ventana de convivencia</strong>:
+            mientras cuadre, volver atrás es desplegar la versión anterior.
+          </p>
+
+          @if (cargandoConciliacion()) {
+          <p class="per-nota">Comprobando…</p>
+          } @else if (conciliacion(); as c) {
+
+          <div class="per-veredicto" [class.per-veredicto--mal]="!c.cuadra">
+            @if (c.cuadra) {
+            <strong>Cuadra.</strong> Los dos modelos hablan de la misma gente.
+            } @else {
+            <strong>No cuadra.</strong> Hay que mirarlo antes de seguir: mientras esto esté
+            en rojo, el Registro de Operaciones puede estar reportando a quien no fue.
+            }
+          </div>
+
+          <h4 class="per-subtitulo">Lo que tiene que estar en cero</h4>
+          <div class="per-tabla per-tabla--conciliacion">
+            <div class="per-fila per-fila--cabecera"><span>Comprobación</span><span>Valor</span></div>
+            <div class="per-fila" [class.per-fila--mal]="c.operacionesSinPersona > 0">
+              <span>Operaciones sin persona</span><span>{{ c.operacionesSinPersona }}</span>
+            </div>
+            <div class="per-fila" [class.per-fila--mal]="c.operacionesSinRelacion > 0">
+              <span>Operaciones sin relación</span><span>{{ c.operacionesSinRelacion }}</span>
+            </div>
+            <div class="per-fila" [class.per-fila--mal]="c.operacionesConDocumentoDistinto > 0">
+              <span>Operaciones apuntando a una persona con otro documento</span>
+              <span>{{ c.operacionesConDocumentoDistinto }}</span>
+            </div>
+            <div class="per-fila" [class.per-fila--mal]="c.malPredeterminada > 0">
+              <span>Cuentas sin exactamente una persona predeterminada</span><span>{{ c.malPredeterminada }}</span>
+            </div>
+            <div class="per-fila" [class.per-fila--mal]="c.malTitular > 0">
+              <span>Cuentas sin exactamente un titular vigente</span><span>{{ c.malTitular }}</span>
+            </div>
+            <div class="per-fila" [class.per-fila--mal]="c.autorizadaSinQuien > 0">
+              <span>Autorizadas sin decir quién autorizó</span><span>{{ c.autorizadaSinQuien }}</span>
+            </div>
+            <div class="per-fila" [class.per-fila--mal]="c.cuentasConPerfil !== c.cuentasConRelacion">
+              <span>Cuentas con perfil frente a cuentas con relación</span>
+              <span>{{ c.cuentasConPerfil }} / {{ c.cuentasConRelacion }}</span>
+            </div>
+          </div>
+
+          <h4 class="per-subtitulo">Qué hay en cada modelo</h4>
+          <div class="per-tabla per-tabla--conciliacion">
+            <div class="per-fila per-fila--cabecera"><span>Cifra</span><span>Valor</span></div>
+            <div class="per-fila"><span>Personas</span><span>{{ c.personas }}</span></div>
+            <div class="per-fila"><span>… con documento real</span><span>{{ c.personasConDocumento }}</span></div>
+            <div class="per-fila"><span>… sin documento (huecos)</span><span>{{ c.personasSinDocumento }}</span></div>
+            <div class="per-fila"><span>… jurídicas</span><span>{{ c.juridicas }}</span></div>
+            <div class="per-fila"><span>Perfiles (modelo viejo)</span><span>{{ c.perfiles }}</span></div>
+            <div class="per-fila"><span>… fichas sueltas, sin cuenta</span><span>{{ c.fichasSueltas }}</span></div>
+            <div class="per-fila"><span>Relaciones cuenta-persona</span><span>{{ c.relaciones }}</span></div>
+            <div class="per-fila"><span>… titulares</span><span>{{ c.titulares }}</span></div>
+            <div class="per-fila"><span>… autorizadas por un tercero</span><span>{{ c.autorizadas }}</span></div>
+            <div class="per-fila"><span>… sin carta poder</span><span>{{ c.respaldosPendientes }}</span></div>
+            <div class="per-fila"><span>Operaciones</span><span>{{ c.operaciones }}</span></div>
+            <div class="per-fila"><span>… por cuenta de terceros</span><span>{{ c.operacionesDeTerceros }}</span></div>
+            <div class="per-fila"><span>Representantes legales</span><span>{{ c.representantes }}</span></div>
+            <div class="per-fila"><span>Expedientes PLAFT (vigentes)</span>
+              <span>{{ c.expedientes }} ({{ c.expedientesVigentes }})</span></div>
+          </div>
+
+          @if (puedeConciliar) {
+          <div class="per-acciones">
+            <button mat-flat-button color="primary" type="button"
+                    [disabled]="conciliando()" (click)="conciliar()">
+              {{ conciliando() ? 'Conciliando…' : 'Conciliar ahora' }}
+            </button>
+          </div>
+          <p class="per-aviso">
+            Recorre todas las cuentas y sella las operaciones que quedaran sin persona. Es
+            idempotente, así que se puede lanzar las veces que haga falta. También corre
+            solo cada madrugada a las 03:25.
+          </p>
+          }
+
+          @if (informe(); as i) {
+          <h4 class="per-subtitulo">Última conciliación</h4>
+          <div class="per-tabla per-tabla--conciliacion">
+            <div class="per-fila"><span>Cuentas recorridas</span><span>{{ i.cuentasRecorridas }}</span></div>
+            <div class="per-fila"><span>… con cambios</span><span>{{ i.cuentasConCambios }}</span></div>
+            <div class="per-fila"><span>Personas creadas / actualizadas</span>
+              <span>{{ i.personasCreadas }} / {{ i.personasActualizadas }}</span></div>
+            <div class="per-fila"><span>Relaciones creadas / actualizadas</span>
+              <span>{{ i.relacionesCreadas }} / {{ i.relacionesActualizadas }}</span></div>
+            <div class="per-fila"><span>Cuentas bancarias enlazadas</span>
+              <span>{{ i.cuentasBancariasEnlazadas }}</span></div>
+            <div class="per-fila"><span>Operaciones selladas</span><span>{{ i.operacionesSelladas }}</span></div>
+            <div class="per-fila" [class.per-fila--mal]="i.operacionesSinPersona > 0">
+              <span>Operaciones que siguen sin persona</span><span>{{ i.operacionesSinPersona }}</span></div>
+          </div>
+
+          @if (i.avisos.length) {
+          <ul class="per-historia">
+            @for (a of i.avisos; track a) { <li>{{ a }}</li> }
+          </ul>
+          }
+          }
+          }
+        </div>
+      </mat-tab>
+
+      <!-- KYC -->
+      <mat-tab label="KYC">
+        <ng-template matTabContent>
+          <app-kyc-cola></app-kyc-cola>
+        </ng-template>
+      </mat-tab>
+
+    </mat-tab-group>
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,188 @@
+<div class="cmp-panel">
+
+  @if (!abierto()) {
+  <p class="cmp-bajada">
+    Expedientes de operación sospechosa. <strong>Son confidenciales por deber de
+    reserva</strong>: no se le comunican al cliente ni a nadie fuera de aquí. Desde
+    que se califica una operación como sospechosa hay 24 horas para remitir el ROS
+    por el portal PLAFT.
+  </p>
+
+  <div class="cmp-filtros">
+    <mat-form-field appearance="outline">
+      <mat-label>Estado</mat-label>
+      <mat-select [ngModel]="filtroEstado()"
+                  (ngModelChange)="filtroEstado.set($event); cargar()" placeholder="Selecciona el estado">
+        <mat-option value="">Todos</mat-option>
+        <mat-option value="Abierto">Abierto</mat-option>
+        <mat-option value="Calificado">Calificado</mat-option>
+        <mat-option value="Remitido">Remitido</mat-option>
+        <mat-option value="Desestimado">Desestimado</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="cmp-filtros__buscar">
+      <mat-label>Documento, nombre o código UIF</mat-label>
+      <input matInput [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)"
+             (keyup.enter)="cargar()" />
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" type="button" (click)="cargar()">Buscar</button>
+  </div>
+
+  @if (cargando()) {
+  <p class="cmp-nota">Cargando…</p>
+  } @else if (!expedientes().length) {
+  <p class="cmp-nota">No hay expedientes que cumplan el filtro.</p>
+  } @else {
+  <div class="cmp-tabla cmp-tabla--ros">
+    <div class="cmp-fila cmp-fila--cabecera">
+      <span>Persona</span><span>Estado</span><span>Detectado</span>
+      <span>Plazo</span><span>Código UIF</span><span></span>
+    </div>
+    @for (e of expedientes(); track e.id) {
+    <div class="cmp-fila" [class.cmp-fila--vencida]="(e.horasParaRemitir ?? 1) < 0">
+      <span>
+        <strong>{{ e.fullName || '—' }}</strong>
+        <small class="cmp-doc">{{ e.documentNumber }}</small>
+      </span>
+      <span><span class="cmp-chip" [ngClass]="claseEstado(e.status)">{{ e.status }}</span></span>
+      <span>{{ e.detectedAt | date:'dd/MM/yyyy' }}</span>
+      <span>
+        @if (e.horasParaRemitir !== null) {
+          @if (e.horasParaRemitir < 0) {
+          <strong class="cmp-vencido">vencido hace {{ -e.horasParaRemitir | number:'1.0-1' }} h</strong>
+          } @else {
+          <span class="cmp-plazo">quedan {{ e.horasParaRemitir | number:'1.0-1' }} h</span>
+          }
+        } @else { — }
+      </span>
+      <span>{{ e.uifCode || '—' }}</span>
+      <span><button mat-button type="button" (click)="abrir(e)">Ver</button></span>
+    </div>
+    }
+  </div>
+  }
+
+  } @else if (abierto(); as e) {
+
+  <div class="cmp-detalle-cabecera">
+    <button mat-button type="button" (click)="cerrar()">← Volver</button>
+    <h3>{{ e.fullName || 'Sin nombre' }} <small>{{ e.documentNumber }}</small></h3>
+    <span class="cmp-chip" [ngClass]="claseEstado(e.status)">{{ e.status }}</span>
+    <button mat-stroked-button type="button" class="ros-pdf" [disabled]="descargandoPdf()" (click)="descargarPdf(e)"
+            matTooltip="Expediente completo: plazos, persona, riesgo, listas, análisis, bitácora y operaciones">
+      {{ descargandoPdf() ? 'Generando…' : 'Descargar PDF' }}
+    </button>
+  </div>
+
+  <div class="cmp-detalle">
+    <section class="cmp-bloque">
+      <h4>Análisis</h4>
+
+      @if (estaCerrado(e)) {
+      <p class="cmp-aviso cmp-aviso--fuerte">
+        El expediente está {{ e.status | lowercase }} y ya no se modifica. Si hay
+        hechos nuevos, se abre otro: lo que se remitió a la UIF tiene que seguir
+        diciendo lo que se remitió, y lo desestimado, por qué se desestimó.
+      </p>
+      }
+
+      <div class="cmp-formulario">
+        <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+          <mat-label>Señales de alerta identificadas</mat-label>
+          <textarea matInput rows="2" [ngModel]="senales()" (ngModelChange)="senales.set($event)"
+                    [disabled]="estaCerrado(e)"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+          <mat-label>Análisis del oficial</mat-label>
+          <textarea matInput rows="5" [ngModel]="analisis()" (ngModelChange)="analisis.set($event)"
+                    [disabled]="estaCerrado(e)"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Código UIF del ROS remitido</mat-label>
+          <input matInput [ngModel]="codigoUif()" (ngModelChange)="codigoUif.set($event)"
+                 [disabled]="estaCerrado(e)" />
+        </mat-form-field>
+      </div>
+
+      @if (!estaCerrado(e)) {
+      <div class="cmp-acciones">
+        @if (e.status === 'Abierto') {
+        <button mat-flat-button color="primary" type="button"
+                [disabled]="guardando()" (click)="guardar('Calificado')">
+          Calificar como sospechosa
+        </button>
+        }
+        @if (e.status === 'Calificado') {
+        <button mat-flat-button color="primary" type="button"
+                [disabled]="guardando()" (click)="guardar('Remitido')">
+          Marcar como remitido a la UIF
+        </button>
+        }
+        <button mat-stroked-button type="button"
+                [disabled]="guardando()" (click)="guardar(e.status)">
+          Guardar sin cambiar de estado
+        </button>
+        <button mat-stroked-button type="button"
+                [disabled]="guardando()" (click)="guardar('Desestimado')">
+          Desestimar
+        </button>
+      </div>
+      <p class="cmp-aviso">
+        Desestimar también se justifica: el análisis se conserva y es lo que se
+        enseña si preguntan por qué no se reportó.
+      </p>
+      }
+    </section>
+
+    <section class="cmp-bloque">
+      <h4>Bitácora</h4>
+
+      @if (puedeRevisar) {
+      <div class="cmp-formulario">
+        <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+          <mat-label>Comentario</mat-label>
+          <textarea matInput rows="2" [ngModel]="comentario()"
+                    (ngModelChange)="comentario.set($event)"></textarea>
+        </mat-form-field>
+      </div>
+      <div class="cmp-acciones">
+        <input type="file" id="cmp-archivo" class="cmp-archivo"
+               accept=".pdf,.png,.jpg,.jpeg,.webp" (change)="alElegirArchivo($event)" />
+        <label for="cmp-archivo" class="cmp-archivo__rotulo">
+          {{ adjunto()?.nombre || 'Adjuntar documento (PDF o imagen, máx. 10 MB)' }}
+        </label>
+        <button mat-flat-button color="primary" type="button"
+                [disabled]="guardandoComentario()" (click)="agregarComentario()">
+          {{ guardandoComentario() ? 'Guardando…' : 'Añadir' }}
+        </button>
+      </div>
+      }
+
+      @if (!bitacora().length) {
+      <p class="cmp-nota">Sin movimientos todavía.</p>
+      } @else {
+      <ul class="cmp-bitacora">
+        @for (b of bitacora(); track b.id) {
+        <li>
+          <span class="cmp-chip cmp-chip--baja">{{ b.type }}</span>
+          <span class="cmp-bitacora__texto">{{ b.text || '—' }}</span>
+          @if (b.hasFile) {
+          <button mat-button type="button" (click)="descargarEvidencia(b)">
+            {{ b.originalName }} ({{ b.bytes / 1024 | number:'1.0-0' }} kB)
+          </button>
+          }
+          <small class="cmp-bitacora__firma">
+            {{ b.createdByName || '—' }} · {{ b.createdAt | date:'dd/MM/yy HH:mm' }}
+          </small>
+        </li>
+        }
+      </ul>
+      }
+    </section>
+  </div>
+  }
+</div>

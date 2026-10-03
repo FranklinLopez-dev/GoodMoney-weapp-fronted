@@ -1,0 +1,134 @@
+<div class="create-step">
+
+    <!-- Cabecera del mockup (frame 484): título centrado y temporizador en chip. -->
+    <div class="paso-cabecera">
+        <h2 class="paso-titulo">Transfiere a Good Money</h2>
+        <span class="paso-timer" title="Tiempo para realizar la transferencia">
+            <i-tabler name="clock"></i-tabler> {{ refreshTime() }}
+        </span>
+    </div>
+
+    <!-- La píldora oscura con la operación y el tipo de cambio, como el frame. -->
+    <span class="resume-tc">
+        {{ quote()?.operationType === 'BUY' ? 'COMPRA' : 'VENTA' }} - TC
+        {{ (quote()?.operationType === 'BUY'
+        ? quote()?.effectiveRate?.priceCompra
+        : quote()?.effectiveRate?.priceVenta) | number:'1.4-4' }}
+    </span>
+
+    <!-- Resumen USD/PEN del mockup, igual que en Registra. -->
+    <div class="resume-amounts">
+        <div class="resume-side">
+            <span class="resume-moneda">
+                <img src="./assets/images/flag/eeuu.jpg" alt="USD">
+                <span class="resume-moneda__datos">
+                    <strong>USD</strong>
+                    <small>{{ quote()?.operationType === 'BUY' ? 'Tu envías' : 'Tu recibes' }}</small>
+                </span>
+            </span>
+            <strong class="resume-monto">$ {{ quote()?.amountUsd | number:'1.2-2' }}</strong>
+        </div>
+
+        <span class="resume-swap">
+            <i-tabler name="arrow-right"></i-tabler>
+        </span>
+
+        <div class="resume-side">
+            <span class="resume-moneda">
+                <img src="./assets/images/flag/peru.png" alt="PEN">
+                <span class="resume-moneda__datos">
+                    <strong>PEN</strong>
+                    <small>{{ quote()?.operationType === 'BUY' ? 'Tu recibes' : 'Tu envías' }}</small>
+                </span>
+            </span>
+            <strong class="resume-monto">S/ {{ quote()?.amountPen | number:'1.2-2' }}</strong>
+        </div>
+    </div>
+
+    <div class="section">
+            <div class="bank-card">
+                <div class="bank-header">
+                    <img fallbackImg="default" class="bank-icon"
+                        [src]="'data:image/png;base64,' + transfer()?.companyBank?.bankIcon" alt="Banco" />
+                    <div>
+                        <strong>
+                            {{ transfer()?.companyBank?.bankName }}
+                            {{ transfer()?.companyBank?.coinCode === 'USD' ? 'Dólares' : 'Soles' }}
+                        </strong>
+                        <div class="bank-sub">
+                            Cuenta {{ transfer()?.companyBank?.typeAccount === '1' ? 'Ahorros' : 'Corriente' }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bank-data">
+
+                    @if(accounts()?.originAccount?.bankId === transfer()?.companyBank?.bankId) {
+                    <div class="data-row">
+                        <span>N° de cuenta</span>
+                        <strong>{{ transfer()?.companyBank?.accountNumber }}</strong>
+                        <button mat-icon-button [class.copied]="copiedKey === 'account'"
+                            (click)="copy(transfer()?.companyBank?.accountNumber, 'account')">
+                            <mat-icon>content_copy</mat-icon>
+                        </button>
+                    </div>
+                    }
+
+                    @if(accounts()?.originAccount?.bankId !== transfer()?.companyBank?.bankId) {
+                    <div class="data-row">
+                        <span>CCI</span>
+                        <strong>{{ transfer()?.companyBank?.accountNumberCci }}</strong>
+                        <button mat-icon-button [class.copied]="copiedKey === 'cci'" (click)="copy(transfer()?.companyBank?.accountNumberCci, 'cci')">
+                            <mat-icon>content_copy</mat-icon>
+                        </button>
+                    </div>
+                    }
+
+                    <div class="data-row highlight">
+                        <span>Monto a transferir</span>
+                        <strong>
+                            {{ quote()?.operationType === 'BUY' ? '$' : 'S/'}}
+                            {{ (quote()?.operationType === 'BUY' ? quote()?.amountUsd : quote()?.amountPen) | number:'1.2-2' }}
+                        </strong>
+                        <button mat-icon-button [class.copied]="copiedKey === 'amount'" (click)="copy(quote()?.amountPen, 'amount')">
+                            <mat-icon>content_copy</mat-icon>
+                        </button>
+                    </div>
+
+                    <div class="data-row">
+                        <span>Titular</span>
+                        <strong>{{ transfer()?.companyBank?.titular }}</strong>
+                    </div>
+
+                    <div class="data-row">
+                        <span>Razón social</span>
+                        <strong>{{ table()?.company?.name }}</strong>
+                    </div>
+
+                    <div class="data-row">
+                        <span>RUC</span>
+                        <strong>{{ table()?.company?.ruc }}</strong>
+                    </div>
+
+                </div>
+            </div>
+    </div>
+
+    <!-- Como en el mockup: dos píldoras verdes centradas bajo la tarjeta. -->
+    <div class="paso-acciones">
+        <button mat-stroked-button class="btn-back" type="button" (click)="cancel()">
+            Cancelar
+        </button>
+
+        <button mat-flat-button color="primary" class="btn-next" type="button" (click)="continue()">
+            Continuar
+        </button>
+    </div>
+
+</div>
+
+@if (isLoading()) {
+<div class="loading-overlay">
+  <mat-spinner diameter="60"></mat-spinner>
+</div>
+}

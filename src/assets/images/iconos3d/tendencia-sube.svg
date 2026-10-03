@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" role="img" aria-label="El tipo de cambio sube">
+  <!--
+    Sustituto del 3D del mockup: gráfico verde subiendo (alerta de COMPRA).
+    Las dos ilustraciones 3D del diseño NO están en el archivo de Figma
+    (Kw8CfU2kOL0toYMznIt37W, comprobado con asiento Full). Esto las reemplaza
+    con los tokens de la marca hasta que existan. El volumen se finge con un
+    degradado y una sombra, no con un ráster: así escala y pesa 2 kB.
+  -->
+  <defs>
+    <linearGradient id="ts-barra" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#6FA523"/>
+      <stop offset="1" stop-color="#A6E04B"/>
+    </linearGradient>
+    <linearGradient id="ts-flecha" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#4F9A1F"/>
+      <stop offset="1" stop-color="#87BA30"/>
+    </linearGradient>
+    <radialGradient id="ts-fondo" cx="0.5" cy="0.42" r="0.62">
+      <stop offset="0" stop-color="#EEF7E3"/>
+      <stop offset="1" stop-color="#DCEFC4"/>
+    </radialGradient>
+  </defs>
+
+  <circle cx="48" cy="48" r="44" fill="url(#ts-fondo)"/>
+
+  <!-- Sombra bajo las barras, para que no floten -->
+  <ellipse cx="48" cy="73" rx="27" ry="4.5" fill="#4F9A1F" opacity="0.16"/>
+
+  <!-- Tres barras crecientes -->
+  <rect x="25" y="55" width="12" height="16" rx="3" fill="url(#ts-barra)"/>
+  <rect x="42" y="46" width="12" height="25" rx="3" fill="url(#ts-barra)"/>
+  <rect x="59" y="34" width="12" height="37" rx="3" fill="url(#ts-barra)"/>
+
+  <!-- Brillo lateral: el "3D" barato pero honesto -->
+  <rect x="25" y="55" width="4" height="16" rx="2" fill="#FFFFFF" opacity="0.28"/>
+  <rect x="42" y="46" width="4" height="25" rx="2" fill="#FFFFFF" opacity="0.28"/>
+  <rect x="59" y="34" width="4" height="37" rx="2" fill="#FFFFFF" opacity="0.28"/>
+
+  <!-- Flecha subiendo -->
+  <path d="M27 44 L44 31 L56 39 L71 21" fill="none" stroke="url(#ts-flecha)"
+        stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M60 19 L73 19 L73 32" fill="none" stroke="url(#ts-flecha)"
+        stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

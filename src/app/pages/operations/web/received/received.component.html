@@ -1,0 +1,338 @@
+<h2 mat-dialog-title>Enviar Transferencia</h2>
+<mat-dialog-content>
+    <form [formGroup]="operationForm">
+        <div class="p-16 rounded bg-light-primary -t-16">
+            <div class="f-s-14">
+                <span class="f-w-600">{{ operation.typeOperation == "1" ? "COMPRA" : "VENTA" }}:
+                    SC-{{operation.id.toString().padStart(8,
+                    "0")}}</span> Una vez verificada la constancia de transferencia,
+                realiza el abono correspondiente a la siguiente cuenta del cliente:
+            </div>
+        </div>
+
+        <div class="row m-t-16">
+            <div class="col-md-6 col-lg-4 m-t-8">
+                <span class="f-s-12">Cantidad a Transferir</span>
+                <h5 class="f-w-600 lh-sm f-s-14">
+                    {{operation.typeOperation == '1' ? (operation.total | number :
+                    '.2-2':'en'):(operation.monto | number :
+                    '.2-2':'en')}} {{operation.typeOperation == '2' ? 'USD':'PEN'}}
+                </h5>
+            </div>
+
+            <div class="col-md-6 col-lg-4 m-t-8">
+                <span class="f-s-12">Tipo de Cambio</span>
+                <h5 class="f-w-600 lh-sm f-s-14">
+                    {{operation.tipoCambio}}
+                </h5>
+            </div>
+
+            @if(operation.operationBanks.length === 1) {
+            <div class="col-md-6 col-lg-4 m-t-8">
+                <span class="f-s-12">Banco de Destino</span>
+                <div class="f-w-600 lh-sm f-s-14 d-flex align-items-center">
+                    <img [src]="'data:image/jpeg;base64,' + operation.operationBanks[0].profileBankClient2.bankIcon"
+                        class="m-r-8 icon-30 rounded-circle" alt="Banco" />
+                    {{operation.operationBanks[0].profileBankClient2.bankName}}
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 m-t-8">
+                <span class="f-s-12">Tipo de Cuenta</span>
+                <h5 class="f-w-600 lh-sm f-s-14">
+                    {{operation.operationBanks[0].profileBankClient2.typeAccount == '1' ?
+                    'Ahorros':'Corriente'}}
+                    {{operation.operationBanks[0].profileBankClient2.coinId == 'PEN' ?
+                    'soles':'dólares'}}
+                </h5>
+            </div>
+
+            <div class="col-lg-8 m-t-8">
+                <span class="f-s-12">Titular</span>
+                <h5 class="f-w-600 lh-sm f-s-14">
+                    {{operation.operationBanks[0].profileBankClient2.name}}
+                    {{operation.operationBanks[0].profileBankClient2.lastName}}
+                </h5>
+            </div>
+
+            @if(booleanNumber(operation.operationBanks[0].profileBankClient2.accountNumber)) {
+            <div class="col-lg-6 m-t-8">
+                <span class="f-s-12">Número de Cuenta</span>
+                <div class="d-flex align-items-center">
+                    <h5 class="f-w-600 lh-sm f-s-14">
+                        {{operation.operationBanks[0].profileBankClient2.accountNumber}}
+                    </h5>
+                    <button type="button" class="d-flex align-items-center justify-content-center" mat-icon-button
+                        [cdkCopyToClipboard]="operation.operationBanks[0].profileBankClient2.accountNumber"
+                        [matTooltip]="operation.operationBanks[0].isCopiar ? 
+                                    'Copiado':'Copiar cuenta'" (click)="copiar(operation.operationBanks[0])">
+                        <i-tabler [name]="operation.operationBanks[0].isCopiar ?  'copy-check':'copy'"
+                            class="icon-18 d-flex align-items-center text-primary"></i-tabler>
+                    </button>
+                </div>
+            </div>
+            }
+
+            @if(booleanNumber(operation.operationBanks[0].profileBankClient2.accountNumberCci)) {
+            <div class="col-lg-6 m-t-8">
+                <span class="f-s-12">Número de Cuenta Interbancaria</span>
+                <div class="d-flex align-items-center">
+                    <h5 class="f-w-600 lh-sm f-s-14">
+                        {{operation.operationBanks[0].profileBankClient2.accountNumberCci}}
+                    </h5>
+                    <button type="button" class="d-flex align-items-center justify-content-center" mat-icon-button
+                        [cdkCopyToClipboard]="operation.operationBanks[0].profileBankClient2.accountNumberCci"
+                        [matTooltip]="operation.operationBanks[0].isCopiar ? 
+                                    'Copiado':'Copiar cuenta'" (click)="copiar(operation.operationBanks[0])">
+                        <i-tabler [name]="operation.operationBanks[0].isCopiar ?  'copy-check':'copy'"
+                            class="icon-18 d-flex align-items-center text-primary"></i-tabler>
+                    </button>
+                </div>
+            </div>
+            }
+            }
+
+            @if(operationBanks.length > 1) {
+            <div class="table-responsive w-100" formArrayName="operationBanks">
+                <table mat-table [dataSource]="operationBanks.controls" class="m-t-0 v-middle w-100">
+
+                    <ng-container matColumnDef="id">
+                        <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">#</th>
+                        <td mat-cell *matCellDef="let row; let i = index" class="f-w-500 no-wrap">
+                            {{ i + 1 }}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="banco">
+                        <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">Banco</th>
+                        <td mat-cell *matCellDef="let group; let i = index" [formGroupName]="i">
+                            {{ group.value.profileBankClient2?.bankName }}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="tipo">
+                        <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">Tipo</th>
+                        <td mat-cell *matCellDef="let group; let i = index" [formGroupName]="i">
+                            {{ group.value.profileBankClient2?.typeAccount == '1' ? 'Ahorros':'Corriente' }}
+                            {{ group.value.profileBankClient2?.coinId == 'PEN' ? 'soles':'dólares' }}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="titular">
+                        <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">Titular</th>
+                        <td mat-cell *matCellDef="let group; let i = index" [formGroupName]="i">
+                            {{ group.value.profileBankClient2?.name }} {{ group.value.profileBankClient2?.lastName }}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="number">
+                        <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">Número</th>
+                        <td mat-cell *matCellDef="let group; let i = index" [formGroupName]="i">
+                            @if(booleanNumber(group.value.profileBankClient2?.accountNumber)) {
+                            <div class="d-flex align-items-center">
+                                <h5 class="f-w-600 lh-sm f-s-14">{{ group.value.profileBankClient2?.accountNumber }}
+                                </h5>
+                                <button mat-icon-button type="button"
+                                    [cdkCopyToClipboard]="group.value.profileBankClient2?.accountNumber"
+                                    matTooltip="Copiar cuenta">
+                                    <i-tabler name="copy" class="icon-18 text-primary"></i-tabler>
+                                </button>
+                            </div>
+                            }
+
+                            @if(booleanNumber(group.value.profileBankClient2?.accountNumberCci)) {
+                            <div class="d-flex align-items-center">
+                                <h5 class="f-w-600 lh-sm f-s-14">CCI: {{
+                                    group.value.profileBankClient2?.accountNumberCci }}</h5>
+                                <button mat-icon-button type="button"
+                                    [cdkCopyToClipboard]="group.value.profileBankClient2?.accountNumberCci"
+                                    matTooltip="Copiar CCI">
+                                    <i-tabler name="copy" class="icon-18 text-primary"></i-tabler>
+                                </button>
+                            </div>
+                            }
+
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="amount">
+                        <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">Monto</th>
+                        <td mat-cell *matCellDef="let group; let i = index" [formGroupName]="i">
+                            {{ group.value.amount | number:'.2-2':'en' }} {{ operation.typeOperation == '2' ?
+                            'USD':'PEN' }}
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="code">
+                        <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">Cod. Operación</th>
+                        <td mat-cell *matCellDef="let group; let i = index" [formGroupName]="i">
+                            <mat-form-field appearance="outline" class="w-100">
+                                <input matInput formControlName="codeOperation" type="text" maxlength="20"
+                                    oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength)">
+                                @if (group.get('codeOperation')?.touched && group.get('codeOperation')?.invalid) {
+                                <mat-hint class="su-error">Obligatorio</mat-hint>
+                                }
+                            </mat-form-field>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="companyId">
+                        <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">Cuenta</th>
+                        <td mat-cell *matCellDef="let group; let i = index" [formGroupName]="i">
+                            <mat-form-field appearance="outline" class="w-100">
+                                <mat-select formControlName="companyBankId" placeholder="Selecciona la cuenta">
+                                    @for (accountBank of companyBanks; track $index) {
+                                    <mat-option [value]="accountBank.id">
+                                        <span class="d-flex align-items-center">
+                                            <img class="icon-20"
+                                                [src]="'data:image/jpeg;base64,' + accountBank.bankIcon"
+                                                appImageNoPhoto />
+                                            <span class="m-l-16">
+                                                {{ accountBank.bankName }} |
+                                                {{ accountBank.coinCode }} |
+                                                {{ "N°: " + accountBank.accountNumber }} |
+                                                {{ accountBank.titular }}
+                                            </span>
+                                        </span>
+                                    </mat-option>
+                                    }
+
+                                </mat-select>
+                                @if (group.get('companyBankId')?.touched && group.get('companyBankId')?.invalid) {
+                                <mat-hint class="su-error">Obligatorio</mat-hint>
+                                }
+                            </mat-form-field>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="image">
+                        <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">
+                            Voucher
+                        </th>
+
+                        <td mat-cell *matCellDef="let group; let i = index" [formGroupName]="i">
+
+                            <mat-form-field appearance="outline" class="w-100">
+                                <input matInput formControlName="operationImageName" readonly />
+
+                                @if (!group.value.operationImage) {
+                                <button mat-icon-button matSuffix type="button" aria-label="Subir archivo"
+                                    (click)="fileInputs.click()">
+                                    <i-tabler name="upload" class="icon-30 text-primary"></i-tabler>
+                                </button>
+                                } @else {
+                                <button mat-icon-button matSuffix type="button" aria-label="Eliminar archivo"
+                                    (click)="onRemoveImage(i)">
+                                    <i-tabler name="trash" class="icon-30 text-danger"></i-tabler>
+                                </button>
+                                }
+                            </mat-form-field>
+                            <input #fileInputs type="file" accept="image/png,image/jpeg,image/webp" hidden
+                                (change)="onSelectImage($event, i)" />
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row
+                        *matHeaderRowDef="['id','banco','tipo','titular','number','amount','code','companyId','image']; sticky: true">
+                    </tr>
+                    <tr mat-row
+                        *matRowDef="let row; columns: ['id','banco','tipo','titular','number','amount','code','companyId','image']">
+                    </tr>
+                </table>
+            </div>
+            }
+
+        </div>
+
+        @if(operation.operationBanks.length === 1) {
+        <div class="m-t-8" formArrayName="operationBanks">
+            <div class="row m-t-8" [formGroupName]="0">
+                <div class="col-12">
+                    <mat-label class="f-s-14 f-w-600 d-block m-b-4">¿Desde dónde envías el dinero?*</mat-label>
+                    <mat-form-field appearance="outline" class="w-100">
+                        <mat-select formControlName="companyBankId" placeholder="Selecciona el banco">
+                            @for (accountBank of companyBanks; track $index) {
+                            <mat-option [value]="accountBank.id">
+                                <span class="d-flex align-items-center">
+                                    <img class="icon-20" [src]="'data:image/jpeg;base64,' + accountBank.bankIcon"
+                                        appImageNoPhoto />
+                                    <span class="m-l-16">
+                                        {{ accountBank.bankName }} |
+                                        {{ accountBank.coinCode }} |
+                                        {{ "N°: " + accountBank.accountNumber }} |
+                                        {{ accountBank.titular }}
+                                    </span>
+                                </span>
+                            </mat-option>
+                            }
+
+                        </mat-select>
+                        @if (operationBanks.at(0).get('companyBankId')?.touched &&
+                        operationBanks.at(0).get('companyBankId')?.invalid) {
+                        <mat-hint class="su-error">Selecciona la cuenta desde donde envías el dinero.</mat-hint>
+                        }
+                    </mat-form-field>
+                </div>
+                <div class="col-12">
+                    <mat-label class="f-s-14 f-w-600 d-block m-b-4">Número de Operación Bancaria*</mat-label>
+                    <mat-form-field appearance="outline" class="w-100">
+                        <input matInput formControlName="codeOperation" type="text" maxlength="20"
+                            oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength)">
+                        @if (operationBanks.at(0).get('codeOperation')?.touched &&
+                        operationBanks.at(0).get('codeOperation')?.invalid) {
+                        <mat-hint class="su-error">El número de operación bancaria es obligatorio.</mat-hint>
+                        }
+                    </mat-form-field>
+                </div>
+                <div class="col-12 m-t-4">
+
+                    <input #fileImage type="file" [multiple]="false" hidden accept="image/png,image/jpeg,image/webp"
+                        (change)="onSelectImage($event, 0)" />
+
+                    @if (!operationBanks.at(0).get('operationImage')?.value) {
+                    <div class="border-dropzone" (click)="fileImage.click()">
+                        <div class="dropzone-content preview flex-col">
+                            <img src="./assets/images/voucher.png" alt="Imagen" class="upload-icon m-b-4"
+                                style="max-height: 200px !important;" />
+                            <span class="f-s-14 text-center">
+                                Seleccione Voucher de la Transferencia
+                            </span>
+                        </div>
+                    </div>
+                    } @else {
+                    <div class="border-dropzone" (click)="onRemoveImage(0)">
+                        <div class="dropzone-content preview">
+                            <img [src]="operationBanks.at(0).get('operationImage')?.value" alt="Imagen"
+                                class="upload-icon m-b-4" />
+                        </div>
+                    </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+        }
+
+
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button (click)="verPerfil()" class="b-1">
+        Ver perfil
+    </button>
+    <button mat-button mat-dialog-close class="b-1">
+        Cerrar
+    </button>
+    <button [disabled]="operation.loadingConfirmar" (click)="confirmar()" mat-flat-button
+        cdkFocusInitial>
+        @if (operation.loadingConfirmar) {
+        <div class="d-flex align-items-center gap-8">
+            <mat-progress-spinner diameter="18" mode="indeterminate" strokeWidth="3">
+            </mat-progress-spinner>
+            <span>Confirmando...</span>
+        </div>
+        } @else {
+        <span>Confirmar</span>
+        }
+    </button>
+</mat-dialog-actions>

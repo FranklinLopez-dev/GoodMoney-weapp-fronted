@@ -1,0 +1,159 @@
+<form [formGroup]="form" class="create-step">
+
+  <!-- Cabecera del mockup: pregunta a la izquierda, temporizador como chip. -->
+  <div class="cotiza-cabecera">
+    <h2 class="cotiza-titulo">¿Qué operación deseas realizar?</h2>
+    <span class="cotiza-timer" title="El tipo de cambio se actualiza en este tiempo">
+      <i-tabler name="clock"></i-tabler> {{ refreshTime() }}
+    </span>
+  </div>
+
+  <div class="rate-cards">
+    <div class="rate-card" [class.active]="form.value.operationType === 'BUY'" (click)="swapAmounts()">
+
+      <span class="rate-label">Compra</span>
+
+      @if (form.value.coupon?.isCompra) {
+      <div class="rate-values">
+        <span class="rate-old">
+          {{ form.value.baseRate.priceCompra | number:'1.4-4' }}
+        </span>
+        <span class="rate-new">
+          {{ form.value.effectiveRate.priceCompra | number:'1.4-4' }}
+        </span>
+      </div>
+      } @else {
+      <span class="rate-value">
+        S/ {{ form.value.effectiveRate.priceCompra | number:'1.4-4' }}
+      </span>
+      }
+    </div>
+
+    <div class="rate-card" [class.active]="form.value.operationType === 'SELL'" (click)="swapAmounts()">
+
+      <span class="rate-label">Venta</span>
+      @if (form.value.coupon?.isVenta) {
+      <div class="rate-values">
+        <span class="rate-old">
+          {{ form.value.baseRate.priceVenta | number:'1.4-4' }}
+        </span>
+        <span class="rate-new">
+          {{ form.value.effectiveRate.priceVenta | number:'1.4-4' }}
+        </span>
+      </div>
+      } @else {
+      <span class="rate-value">
+        S/ {{ form.value.effectiveRate.priceVenta | number:'1.4-4' }}
+      </span>
+      }
+    </div>
+  </div>
+
+  <div class="amount-box">
+
+    <!-- Fila del mockup: bandera y moneda a la izquierda, monto a la derecha. -->
+    <div class="amount-field">
+      <div class="amount-input">
+        <span class="currency">
+          <img src="./assets/images/flag/eeuu.jpg" alt="USD">
+          <span class="currency__datos">
+            <strong>USD</strong>
+            <small>{{form.value.operationType === 'BUY' ? 'Tu envías':'Tu recibes'}}</small>
+          </span>
+        </span>
+        <input matInput appAmountInput formControlName="amountUsd" currency="USD" />
+      </div>
+    </div>
+
+    <button type="button" class="swap-btn" (click)="swapAmounts()" aria-label="Intercambiar monedas">
+      <i-tabler name="arrows-down-up"></i-tabler>
+    </button>
+
+    <div class="amount-field">
+      <div class="amount-input">
+        <span class="currency">
+          <img src="./assets/images/flag/peru.png" alt="PEN">
+          <span class="currency__datos">
+            <strong>PEN</strong>
+            <small>{{form.value.operationType === 'BUY' ? 'Tu recibes':'Tu envías'}}</small>
+          </span>
+        </span>
+        <input matInput appAmountInput formControlName="amountPen" currency="PEN" />
+      </div>
+    </div>
+
+  </div>
+
+  @if (!form.value.coupon) {
+  <div class="coupon-box">
+    <label>¿Tienes Cupones?</label>
+    <div class="coupon-input">
+      <input matInput formControlName="couponCode" placeholder="Ingresa tu cupón" />
+
+      <button mat-button class="apply-btn" type="button" (click)="applyCoupon()" [disabled]="form.value.coupon">
+        Aplicar
+      </button>
+    </div>
+  </div>
+  } @else {
+  <div class="coupon-applied-box">
+
+    <div class="coupon-applied-info">
+      <i-tabler class="icon-success" [name]="'circle-check'"></i-tabler>
+
+      <div class="coupon-text">
+        <strong>¡Cupón aplicado!</strong>
+        <span>{{ form.value.coupon?.code }}</span>
+      </div>
+    </div>
+
+    <button mat-button class="remove-btn" type="button" [disabled]="!form.value.coupon" (click)="removeCoupon()">
+      Eliminar
+    </button>
+
+  </div>
+  }
+
+  @if (ahorroEstimado() > 0) {
+  <p class="cotiza-ahorro">
+    Ahorra hasta <strong>S/ {{ ahorroEstimado() | number:'1.2-2' }}</strong> respecto al banco
+  </p>
+  }
+
+  @if(control['amountUsd'].touched && control['amountUsd'].invalid) {
+  <mat-hint class="su-error m-t-16">
+    @if(control['amountUsd'].errors && control['amountUsd'].errors['min']) {
+    El monto mínimo para cambiar es de {{table()?.company?.minAmount}} USD
+    }
+    @if(control['amountUsd'].errors && control['amountUsd'].errors['max']) {
+    El monto máximo para cambiar es de {{table()?.company?.maxAmount}} USD
+    }
+  </mat-hint>
+  }
+
+  @if (hasBlock) {
+  <div class="block-messages">
+
+    @for (reason of blockedReasons; track reason) {
+    <div class="block-item">
+      <i-tabler class="block-icon" [name]="'alert-circle'"></i-tabler>
+      <span>{{ reason }}</span>
+    </div>
+    }
+
+  </div>
+  }
+  <button mat-flat-button color="primary" class="continue-btn" [disabled]="form.invalid || hasBlock || isLoading()"
+    (click)="continue()">
+    @if (isLoading()) {
+    <div class="d-flex justify-content-center align-items-center">
+      <mat-progress-spinner diameter="22" mode="indeterminate" class="btn-spinner m-r-4">
+      </mat-progress-spinner>
+      <span>Cargando...</span>
+    </div>
+    } @else {
+    <span>Iniciar operación</span>
+    }
+  </button>
+
+</form>

@@ -1,0 +1,101 @@
+<mat-dialog-content class="mat-typography">
+    <div class="d-flex align-items-center justify-content-between m-b-16">
+        <h4 class="f-s-16 f-w-600">{{ action }} Reclamo</h4>
+        <button mat-icon-button mat-dialog-close class="d-flex justify-content-center">
+            <i-tabler name="x" class="icon-20 d-flex"></i-tabler>
+        </button>
+    </div>
+    <form #bookClaim="ngForm">
+        <div class="row">
+            <div class="col-12">
+                <mat-label class="f-w-600 m-b-8 d-block">Servicio contratado*</mat-label>
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-select required [(ngModel)]="local_data.serviceType" name="serviceType"
+                        placeholder="Selecciona el servicio">
+                        <mat-option value="1">Compra</mat-option>
+                        <mat-option value="2">Venta</mat-option>    
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <div class="col-12">
+                <mat-label class="f-w-600 m-b-8 d-block">Numero operación de Cambio Digital*</mat-label>
+                <mat-form-field appearance="outline" class="w-100">
+                    <input type="number" matInput required id="operationNumber" name="operationNumber"
+                        [(ngModel)]="local_data.operationNumber" placeholder="Numero operación" />
+                </mat-form-field>
+            </div>
+
+            <div class="col-12">
+                <mat-label class="f-w-600 m-b-8 d-block">Monto del producto*</mat-label>
+                <mat-form-field appearance="outline" class="w-100">
+                    <input type="number" matInput required id="productAmount" name="productAmount"
+                        [(ngModel)]="local_data.productAmount" placeholder="Monto del producto" />
+                </mat-form-field>
+            </div>
+
+            <div class="col-12">
+                <mat-label class="f-w-600 m-b-8 d-block">Tipo de Reclamo*</mat-label>
+                <span class="f-s-12">(*) Reclamo: Disconformidad relacionada al producto.</span> <br>
+                <span class="f-s-12">(*) Queja: Disconformidad no relacionada al producto; o malestar o descontento
+                    respecto a la atención al público.</span>
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-select required [(ngModel)]="local_data.claimType" name="claimType"
+                        placeholder="Selecciona el tipo">
+                        <mat-option value="1">Reclamo</mat-option>
+                        <mat-option value="2">Queja</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <div class="col-12">
+                <mat-label class="f-w-600 m-b-8 d-block">Detalle (Explique brevemente qué sucedió)*</mat-label>
+                <mat-form-field appearance="outline" class="w-100">
+                    <textarea matInput required id="claimDetail" name="claimDetail" [(ngModel)]="local_data.claimDetail"
+                        placeholder="Detalle" rows="4" maxlength="5000" cdkTextareaAutosize></textarea>
+                    <mat-hint align="end">{{ local_data.claimDetail?.length || 0 }}/5000</mat-hint>
+                </mat-form-field>
+            </div>
+
+            <div class="col-12">
+                <mat-label class="f-w-600 m-b-8 d-block">Pedido (Explique qué es lo que está solicitando)*</mat-label>
+                <mat-form-field appearance="outline" class="w-100">
+                    <textarea matInput required id="request" name="request" [(ngModel)]="local_data.request"
+                        placeholder="Pedido" rows="4" maxlength="1000" cdkTextareaAutosize></textarea>
+                    <mat-hint align="end">{{ local_data.request?.length || 0 }}/1000</mat-hint>
+                </mat-form-field>
+            </div>
+
+            <div class="col-12">
+                <input #fileImage type="file" [multiple]="false" hidden accept="image/*"
+                    (change)="onselectImage($event)" />
+
+                <div class="border-dropzone img-pc" *ngIf="!photo" (click)="fileImage.click()">
+                    <div class="dropzone-content preview flex-col">
+                        <img src="./assets/images/capture.png" alt="Imagen" class="upload-icon m-b-4"
+                            style="max-height: 200px !important;" fallbackImg="default" />
+                        <span class="f-s-14 text-center">Seleccionar imagen</span>
+                        <span class="f-s-12 text-center text-muted">Máximo 5 MB</span>
+                    </div>
+
+                </div>
+
+                <div class="border-dropzone img-pc" *ngIf="photo" (click)="onRemoveImage()">
+                    <div class="dropzone-content preview">
+                        <img [src]="photo" alt="Imagen" fallbackImg="default" class="upload-icon m-b-4" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</mat-dialog-content>
+
+<div mat-dialog-actions>
+    <button mat-flat-button class="bg-error text-white" (click)="closeDialog()">
+        Cancelar
+    </button>
+    <button mat-flat-button (click)="doAction()" [disabled]="bookClaim.invalid">
+        <span>{{ action === "Edit" ? "Editar" : "Guardar" }}</span>
+    </button>
+</div>

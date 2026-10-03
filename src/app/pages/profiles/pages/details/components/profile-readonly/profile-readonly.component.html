@@ -1,0 +1,172 @@
+<div class="p-24">
+  <div class="d-flex align-items-center gap-16">
+    <img [src]="profile()?.profilePhoto | archivoPrivado | async" class="rounded-circle"
+      [fallbackImg]="profile()?.documentTypeIsNatural ? 'person' : 'company'" alt="userimg" width="72px"
+      height="72px" />
+    <div>
+      <h5 class="f-w-600 f-s-16">
+        {{ fullName }} ({{ profileType }})
+      </h5>
+      <span class="f-w-400 f-s-12">
+        {{ documentLabel }}
+      </span>
+      @if (rucResponse()) {
+      @if (rucResponse()?.data?.estado) {
+      <span
+        [ngClass]="{ 'bg-success': rucResponse()?.data?.estado === 'ACTIVO', 'bg-error': rucResponse()?.data?.estado !== 'ACTIVO' }"
+        class="f-s-12 f-w-500 p-x-10 p-y-4 rounded-pill text-white">
+        {{ rucResponse()?.data?.estado | titlecase }}
+      </span>
+      }
+
+      @if (rucResponse()?.data?.condicion) {
+      <span
+        [ngClass]="{ 'bg-success': rucResponse()?.data?.condicion === 'HABIDO', 'bg-error': rucResponse()?.data?.condicion !== 'HABIDO' }"
+        class="f-s-12 f-w-500 p-x-10 p-y-4 rounded-pill m-l-8 text-white">
+        {{ rucResponse()?.data?.condicion | titlecase }}
+      </span>
+      }
+      }
+      @if(profile()?.isBlackListed && context == 'admin')
+      {
+      <span class="bg-black f-s-12 f-w-500 p-x-10 p-y-4 rounded-pill m-l-8 text-white">
+        LISTA NEGRA
+      </span>
+      }
+    </div>
+  </div>
+  <div class="row">
+
+    <div class="col-md-6 col-lg-4 m-t-8">
+      <span class="f-s-12">Correo electrónico</span>
+      <h5 class="f-w-600 lh-sm f-s-14">
+        {{ profile()?.email }}
+      </h5>
+    </div>
+
+    <div class="col-md-6 col-lg-4 m-t-8">
+      <span class="f-s-12">Celular</span>
+      <h5 class="d-flex f-w-600 lh-sm f-s-14">
+        <span class="m-r-4">
+          <span class="d-flex align-items-center m-r-8">
+            <img class="option-image" fallbackImg="default" [src]="selectedCountry()?.flags?.svg"
+              [alt]="selectedCountry()?.name?.common" class="option-image">
+            <span
+              class="m-l-4 font-medium text-default">{{selectedCountry()?.idd?.root}}{{selectedCountry()?.idd?.suffixes?.[0]}}</span>
+          </span>
+        </span>
+        {{ profile()?.cellPhone }}
+      </h5>
+    </div>
+
+    <div class="col-md-6 col-lg-4 m-t-8">
+      <span class="f-s-12">Teléfono</span>
+      <h5 class="f-w-600 lh-sm f-s-14">
+        {{ profile()?.phone }}
+      </h5>
+    </div>
+
+    <div class="col-md-6 col-lg-4 m-t-8">
+      <span class="f-s-12">Departamento</span>
+      <h5 class="f-w-600 lh-sm f-s-14">
+        {{ selectedDepartament()?.departament }}
+      </h5>
+    </div>
+
+    <div class="col-md-6 col-lg-4 m-t-8">
+      <span class="f-s-12">Provincia</span>
+      <h5 class="f-w-600 lh-sm f-s-14">
+        {{ selectedProvince()?.province }}
+      </h5>
+    </div>
+
+    <div class="col-md-6 col-lg-4 m-t-8">
+      <span class="f-s-12">Distrito</span>
+      <h5 class="f-w-600 lh-sm f-s-14">
+        {{ selectedDistrict()?.district }}
+      </h5>
+    </div>
+
+    <div class="col-lg-6 m-t-8">
+      <span class="f-s-12">Dirección</span>
+      <h5 class="f-w-600 lh-sm f-s-14">
+        {{ profile()?.address }}
+      </h5>
+    </div>
+
+    @if(profile()?.documentTypeIsNatural) {
+    <div class="col-lg-6 m-t-8">
+      <span class="f-s-12">Ocupación y/o profesión</span>
+      <h5 class="f-w-600 lh-sm f-s-14">
+        {{ profile()?.positionDescription }}
+      </h5>
+    </div>
+    }
+
+    @if(!profile()?.documentTypeIsNatural) {
+    <div class="col-lg-6 m-t-8">
+      <span class="f-s-12">Actividad económica</span>
+      <h5 class="f-w-600 lh-sm f-s-14">
+        {{ profile()?.activityDescription }}
+      </h5>
+    </div>
+
+    <div class="col-12">
+      <mat-divider class="m-t-16"></mat-divider>
+      <h4 class="m-t-16">Representante legal</h4>
+
+      <div class="row">
+        <div class="col-md-6 col-lg-4 m-t-8">
+          <span class="f-s-12">Nombres</span>
+          <h5 class="f-w-600 lh-sm f-s-14">
+            {{ fullNameRep }}
+          </h5>
+        </div>
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+          <span class="f-s-12">Documento de Identidad</span>
+          <h5 class="f-w-600 lh-sm f-s-14">
+            {{ documentLabelRep }}
+          </h5>
+        </div>
+
+        <div class="col-md-6 col-lg-4 m-t-8">
+          <span class="f-s-12">Ocupación y/o profesión</span>
+          <h5 class="f-w-600 lh-sm f-s-14">
+            {{ profile()?.positionDescription }}
+          </h5>
+        </div>
+
+      </div>
+
+    </div>
+
+    }
+
+    <div class="col-12">
+      <mat-divider class="m-t-16"></mat-divider>
+      <h4 class="m-t-16">Documentación</h4>
+
+      <div class="row m-t-16">
+        @for (file of documents(); track file.url) {
+        <div class="col-md-4 col-lg-3 m-b-16">
+          <app-file-card [file]="file"></app-file-card>
+        </div>
+        }
+
+        @if (!documents().length) {
+        <span class="text-muted">No hay documentación registrada</span>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>
+
+@if(this.isModal) {
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close class="b-1">
+    Cerrar
+  </button>
+</mat-dialog-actions>
+}

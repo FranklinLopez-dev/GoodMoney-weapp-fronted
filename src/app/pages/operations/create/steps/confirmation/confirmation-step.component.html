@@ -1,0 +1,106 @@
+<div class="create-step">
+
+    <!-- Cabecera del mockup (frame 459): título centrado y temporizador en chip. -->
+    <div class="paso-cabecera">
+        <h2 class="paso-titulo">Adjunta y finaliza la operación</h2>
+        <span class="paso-timer" title="Tiempo para realizar la transferencia">
+            <i-tabler name="clock"></i-tabler> {{ store.refreshTime() }}
+        </span>
+    </div>
+
+    <!-- Resumen USD/PEN del mockup, igual que en Registra y Transfiere. -->
+    <div class="resume-amounts">
+        <div class="resume-side">
+            <span class="resume-moneda">
+                <img src="./assets/images/flag/eeuu.jpg" alt="USD">
+                <span class="resume-moneda__datos">
+                    <strong>USD</strong>
+                    <small>{{ quote()?.operationType === 'BUY' ? 'Tu envías' : 'Tu recibes' }}</small>
+                </span>
+            </span>
+            <strong class="resume-monto">$ {{ quote()?.amountUsd | number:'1.2-2' }}</strong>
+        </div>
+
+        <span class="resume-swap">
+            <i-tabler name="arrow-right"></i-tabler>
+        </span>
+
+        <div class="resume-side">
+            <span class="resume-moneda">
+                <img src="./assets/images/flag/peru.png" alt="PEN">
+                <span class="resume-moneda__datos">
+                    <strong>PEN</strong>
+                    <small>{{ quote()?.operationType === 'BUY' ? 'Tu recibes' : 'Tu envías' }}</small>
+                </span>
+            </span>
+            <strong class="resume-monto">S/ {{ quote()?.amountPen | number:'1.2-2' }}</strong>
+        </div>
+    </div>
+
+    <!-- FORM: como el frame 459, todo centrado en columna. -->
+    <form [formGroup]="form" class="voucher-form">
+
+        <p class="voucher-indicacion">Adjunta el voucher de la transferencia</p>
+
+        <!-- Botón gris de subida con icono de nube, como el mockup. -->
+        <div class="upload-box" [class.invalid]="f['voucherImage'].invalid && f['voucherImage'].touched">
+
+            <input type="file" accept="image/png,image/jpeg,image/webp" hidden #fileInput (change)="onFileSelected($event)" />
+
+            <button type="button" class="upload-btn" (click)="fileInput.click()">
+                <i-tabler name="cloud-upload"></i-tabler>
+                Subir imagen del voucher
+            </button>
+
+            <span class="upload-hint">
+                JPG, PNG o foto clara del comprobante
+            </span>
+
+            @if(this.form.value.preview) {
+            <div class="preview">
+                <img [src]="this.form.value.preview" alt="Voucher" />
+            </div>
+            }
+
+            @if(f['voucherImage'].invalid && f['voucherImage'].touched) {
+            <mat-error>
+                Debes subir la imagen del voucher
+            </mat-error>
+            }
+
+        </div>
+
+        <!-- Campo en píldora con el texto centrado, como el frame. -->
+        <div class="voucher-code">
+            <input type="text" formControlName="voucherCode" placeholder="N.º de operación / voucher"
+                [class.invalid]="f['voucherCode'].invalid && f['voucherCode'].touched" />
+            @if(f['voucherCode'].invalid && f['voucherCode'].touched) {
+            <mat-error>
+                El código del voucher es obligatorio
+            </mat-error>
+            }
+        </div>
+
+    </form>
+
+    <!-- Como en el mockup: dos píldoras verdes centradas bajo la tarjeta. -->
+    <div class="paso-acciones">
+
+        <button mat-flat-button color="primary" (click)="store.setStep(3)">
+            Regresar
+        </button>
+
+        <button mat-flat-button color="primary" [disabled]="form.invalid || loading()" (click)="submit()">
+            <mat-spinner *ngIf="loading()" diameter="20"></mat-spinner>
+            <span *ngIf="!loading()">Finalizar</span>
+        </button>
+
+    </div>
+
+</div>
+
+@if (loading()) {
+<div class="loading-overlay">
+    <mat-spinner diameter="60"></mat-spinner>
+</div>
+}

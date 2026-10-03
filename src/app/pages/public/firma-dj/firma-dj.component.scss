@@ -1,0 +1,44 @@
+.fdj {
+  min-height: 100vh;
+  padding: 32px 16px;
+  background: var(--gm-color-fondo-crema, #f6f4ef);
+  display: flex;
+  justify-content: center;
+}
+
+.fdj__tarjeta {
+  width: 100%;
+  max-width: 720px;
+  padding: 28px 28px 32px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .04);
+
+  h1 { margin: 12px 0 16px; font-size: 22px; font-weight: 800; }
+}
+
+.fdj__logo { height: 44px; }
+.fdj__nota { font-size: 14px; line-height: 1.55; color: #474545; }
+.fdj__ok { font-size: 15px; font-weight: 600; color: var(--gm-verde-600, #4f9a1f); }
+.fdj__error { font-size: 14px; color: var(--gm-color-error, #ca4444); }
+
+.fdj__campos {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 16px;
+
+  mat-checkbox { margin: 4px 0 10px; }
+}
+
+.fdj__fila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+
+  mat-form-field { flex: 1 1 220px; }
+}
+
+.fdj__acepta { margin-top: 12px !important; }
+.fdj__boton { margin-top: 14px; width: 100%; }

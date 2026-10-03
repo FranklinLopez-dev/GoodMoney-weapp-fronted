@@ -1,0 +1,122 @@
+<div class="col w-100">
+    <div class="d-flex justify-content-between align-items-center m-b-16">
+        <h3>{{ data ? 'Editar Cuenta Bancaria' : 'Nueva Cuenta Bancaria' }}</h3>
+        <button mat-icon-button (click)="close.emit()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <form [formGroup]="form">
+
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Tipo de cuenta</mat-label>
+            <mat-select formControlName="type" placeholder="Selecciona el tipo de cuenta">
+                @for(option of typeAccounts; track option.id) {
+                <mat-option [value]="option.id">{{ option.name
+                    }}</mat-option>
+                }
+            </mat-select>
+            @if(control['type'].touched &&
+            control['type'].invalid) {
+            <mat-hint class="su-error">
+                @if( control['type'].errors &&
+                control['type'].errors['required'])
+                {
+                Tipo de cuenta es obligatorio
+                }
+            </mat-hint>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Moneda</mat-label>
+            <mat-select formControlName="coinCode" (selectionChange)="setCoin($event.value)" placeholder="Selecciona la moneda">
+                <mat-select-trigger>
+                    <span class="trigger-content">
+                        <img fallbackImg="default" [src]="coin()?.icon" [alt]="coin()?.name ?? ''" class="option-image">
+                        {{ coin()?.name }}
+                    </span>
+                </mat-select-trigger>
+
+                @for (item of coins; track item.id) {
+                <mat-option [value]="item.id">
+                    <span class="option-content">
+                        <img [src]="item.icon" [alt]="item.name" class="option-image">
+                        {{ item.name }}
+                    </span>
+                </mat-option>
+                }
+            </mat-select>
+            @if(control['coinCode'].touched &&
+            control['coinCode'].invalid) {
+            <mat-hint class="su-error">
+                @if( control['coinCode'].errors &&
+                control['coinCode'].errors['required'])
+                {
+                Tipo de cuenta es obligatorio
+                }
+            </mat-hint>
+            }
+        </mat-form-field>
+
+        <app-select-search-async class="w-100" label="Banco" [items]="filteredBanks" valueKey="id" labelKey="name"
+            imageKey="icon" imageAltKey="name" [control]="bankControl" (search)="loadBanks($event)"
+            (selectionChange)="setBank($event)">
+        </app-select-search-async>
+
+        @if (control['bankId'].valid) {
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Número de cuenta</mat-label>
+            <input matInput formControlName="accountNumber" [maxLengthValue]="bank()?.maxAcount!"
+                [appInputMask]="'numeric'" />
+            @if(control['accountNumber'].touched && control['accountNumber'].invalid) {
+            <mat-hint class="su-error">
+                {{ validators.getErrorMessage(
+                control['accountNumber'],
+                'Número de cuenta') }}
+            </mat-hint>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>CCI</mat-label>
+            <input matInput formControlName="accountNumberCci" [maxLengthValue]="bank()?.maxAcountInter!"
+                [appInputMask]="'numeric'" />
+            @if(control['accountNumberCci'].touched && control['accountNumberCci'].invalid) {
+            <mat-hint class="su-error">
+                {{ validators.getErrorMessage(
+                control['accountNumberCci'],
+                'Número de cci') }}
+            </mat-hint>
+            }
+        </mat-form-field>
+        }
+
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Titular</mat-label>
+            <textarea matInput formControlName="titular" placeholder="Titular" cdkTextareaAutosize></textarea>
+            @if(control['titular'].touched &&
+            control['titular'].invalid) {
+            <mat-hint class="su-error">
+                @if( control['titular'].errors &&
+                control['titular'].errors['required'])
+                {
+                Titular es obligatorio
+                }
+            </mat-hint>
+            }
+        </mat-form-field>
+
+        <div class="row">
+            <div class="col-md-6"><mat-checkbox formControlName="flagInter">Interbancarias</mat-checkbox></div>
+            <div class="col-md-6"><mat-checkbox formControlName="status">Activo</mat-checkbox></div>
+        </div>
+
+        <div class="text-right m-t-16">
+            <button mat-button (click)="close.emit()">Cancelar</button>
+            <button mat-flat-button color="primary" (click)="save()" [disabled]="form.invalid || loading()">
+                {{ loading() ? 'Guardando...' : 'Guardar' }}
+            </button>
+        </div>
+
+    </form>
+</div>

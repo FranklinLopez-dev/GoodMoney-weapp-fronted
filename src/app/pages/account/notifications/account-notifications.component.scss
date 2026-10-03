@@ -1,0 +1,166 @@
+.avisos-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.avisos-cabecera__acciones {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.avisos-titulo {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.avisos-bajada {
+  margin: 0;
+  max-width: 80ch;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--gm-plomo-400);
+}
+
+/* Rejilla y no `mat-table`: el nombre del aviso tiene que ocupar dos líneas sin descuadrar los interruptores. */
+.avisos-tabla {
+  display: grid;
+  border: 1px solid var(--gm-gris-300);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.avisos-fila {
+  display: grid;
+  grid-template-columns: 1fr 120px 120px;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--gm-gris-300);
+}
+
+/* Un bloque donde ningún aviso tiene correo no pinta esa columna. */
+.avisos-tabla--sin-correo .avisos-fila {
+  grid-template-columns: 1fr 120px;
+}
+
+/* Las cuatro combinaciones enteras: la columna de correo y la de WhatsApp aparecen por separado. */
+.avisos-tabla--con-whatsapp .avisos-fila {
+  grid-template-columns: 1fr 120px 120px 120px;
+}
+
+.avisos-tabla--sin-correo.avisos-tabla--con-whatsapp .avisos-fila {
+  grid-template-columns: 1fr 120px 120px;
+}
+
+.avisos-fila:first-child {
+  border-top: 0;
+}
+
+.avisos-fila--cabecera {
+  background: var(--gm-color-fondo-crema);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.avisos-canal {
+  text-align: center;
+}
+
+.avisos-nohay {
+  color: var(--gm-gris-500);
+}
+
+.avisos-aviso {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.avisos-aviso__nombre {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.avisos-aviso__detalle {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--gm-plomo-400);
+}
+
+.avisos-obligatorio {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--gm-color-text-warning);
+}
+
+.avisos-nota {
+  margin: 0;
+  max-width: 80ch;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--gm-plomo-400);
+}
+
+.avisos-acciones {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.avisos-vacio,
+.avisos-cargando {
+  margin: 24px 0;
+  text-align: center;
+  color: var(--gm-plomo-400);
+}
+
+/* En estrecho las columnas de 120px ahogan el texto: el aviso ocupa la fila y los interruptores pasan debajo. */
+@media (max-width: 760px) {
+  .avisos-cabecera__acciones {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .avisos-fila,
+  .avisos-tabla--sin-correo .avisos-fila {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .avisos-fila--cabecera {
+    display: none;
+  }
+
+  .avisos-aviso {
+    grid-column: 1 / -1;
+    margin-bottom: 4px;
+  }
+
+  .avisos-canal {
+    text-align: left;
+  }
+
+  .avisos-canal::before {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: var(--gm-plomo-400);
+  }
+
+  // Clases explícitas: `:nth-of-type` cuenta TODOS los <div> hermanos y la etiqueta caía en otro interruptor.
+  .avisos-canal--panel::before {
+    content: 'En el panel';
+  }
+
+  .avisos-canal--correo::before {
+    content: 'Por correo';
+  }
+}

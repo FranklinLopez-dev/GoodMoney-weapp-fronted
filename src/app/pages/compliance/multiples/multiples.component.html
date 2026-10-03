@@ -1,0 +1,160 @@
+<div class="cmp-panel">
+  <p class="cmp-bajada">
+    Cuando lo que una persona movió en el mes <strong>cruza el umbral acumulado</strong>, todas sus operaciones
+    entran al registro; las que <strong>no llegan solas al umbral individual</strong> son múltiples. Entran al
+    registro pero <strong>no al archivo del portal</strong>, que las rechaza: aquí se documenta cada caso —origen
+    de fondos, sustento y conclusión, o el descarte con su motivo— como expediente de la debida diligencia.
+  </p>
+
+  <div class="cmp-filtros">
+    <mat-form-field appearance="outline">
+      <mat-label>Mes</mat-label>
+      <mat-select [ngModel]="mes()" (ngModelChange)="mes.set($event); cambiarMes()">
+        @for (m of meses; track m.valor) { <mat-option [value]="m.valor">{{ m.nombre }}</mat-option> }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Año</mat-label>
+      <mat-select [ngModel]="anio()" (ngModelChange)="anio.set($event); cambiarMes()">
+        @for (a of anios(); track a) { <mat-option [value]="a">{{ a }}</mat-option> }
+      </mat-select>
+    </mat-form-field>
+    <button mat-stroked-button type="button" [disabled]="exportando() || !datos()?.casos?.length" (click)="exportar()">
+      {{ exportando() ? 'Generando…' : 'Excel del expediente' }}
+    </button>
+  </div>
+
+  @if (cargando() && !datos()) {
+  <p class="cmp-nota">Cargando…</p>
+  } @else if (datos(); as d) {
+  <div class="cmp-estado-mes">
+    <span>{{ d.casos.length }} caso(s) en {{ nombreMes(d.month) }} {{ d.year }}</span>
+    @if (d.pendientes) { <span class="cmp-vencido">{{ d.pendientes }} sin revisar</span> }
+    @else if (d.casos.length) { <span class="cmp-plazo">Todos revisados o descartados</span> }
+    <span>Umbral acumulado USD {{ d.umbralAcumuladoUsd | number:'1.0-0' }} · individual USD {{ d.umbralIndividualUsd | number:'1.0-0' }}</span>
+  </div>
+
+  @if (!d.casos.length) {
+  <p class="cmp-nota">Nadie tuvo operaciones múltiples este mes.</p>
+  } @else {
+  <div class="cmp-tabla mlt-tabla">
+    <div class="cmp-fila cmp-fila--cabecera">
+      <span>Persona</span><span class="cmp-numero">Múltiples</span><span class="cmp-numero">USD (mes)</span><span>Estado</span><span></span>
+    </div>
+    @for (c of d.casos; track c.personId) {
+    <div class="cmp-fila" [class.cmp-fila--incompleta]="!c.descartado && c.estado === 'Pendiente'">
+      <span><strong>{{ c.nombre || '—' }}</strong><small class="cmp-doc">{{ c.documento || 'sin documento' }}</small></span>
+      <span class="cmp-numero">{{ c.operaciones }}@if (c.operacionesMes > c.operaciones) { <small class="cmp-doc">de {{ c.operacionesMes }} en el mes</small> }</span>
+      <span class="cmp-numero">{{ c.totalUsd | number:'1.2-2' }}@if (c.totalUsdMes > c.totalUsd) { <small class="cmp-doc">mes: {{ c.totalUsdMes | number:'1.2-2' }}</small> }</span>
+      <span>
+        <span class="cmp-chip" [ngClass]="claseEstado(c)">{{ nombreEstado(c) }}</span>
+        @if (c.revisadoAt) { <small class="cmp-doc">{{ c.revisadoPor }} · {{ c.revisadoAt | date:'dd/MM/yyyy' }}</small> }
+      </span>
+      <span><button mat-button type="button" (click)="alternar(c)">{{ abierto() === c.personId ? 'Cerrar' : 'Ver' }}</button></span>
+    </div>
+
+    @if (abierto() === c.personId) {
+    <div class="mlt-detalle">
+      <div class="cmp-tabla mlt-ops">
+        <div class="cmp-fila cmp-fila--cabecera">
+          <span>Fecha</span><span>Operación</span><span class="cmp-numero">USD</span><span>Origen de fondos</span>
+        </div>
+        @for (o of c.detalle; track o.operationId) {
+        <div class="cmp-fila" [class.cmp-fila--inactiva]="o.individual">
+          <span>{{ o.fecha | date:'dd/MM/yyyy' }}</span>
+          <span>{{ o.tipo }} · {{ o.comprobante || '—' }}
+            @if (o.individual) { <small class="cmp-doc">individual: va al portal, no es parte del caso</small> }
+            @if (o.ejecutante) { <small class="cmp-doc">por cuenta de otro · ordenó {{ o.ejecutante }}</small> }</span>
+          <span class="cmp-numero">{{ o.montoUsd | number:'1.2-2' }}</span>
+          <span><small>{{ o.origenFondos || '—' }}</small></span>
+        </div>
+        }
+      </div>
+
+      @if (c.yaNoCalifica) {
+      <p class="cmp-aviso">Sus operaciones ya no califican como múltiples (una exclusión, una cancelación o un cambio de
+        umbral). El análisis y la bitácora se conservan.</p>
+      }
+      @if (c.descartado) {
+      <p class="cmp-aviso">Descartado: {{ c.descarteMotivo }}</p>
+      }
+
+      @if (puedeRevisar && !c.yaNoCalifica) {
+      <div class="cmp-formulario">
+        <mat-form-field appearance="outline">
+          <mat-label>Origen de fondos del conjunto</mat-label>
+          <input matInput maxlength="100" [ngModel]="origen()" (ngModelChange)="origen.set($event)" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Estado</mat-label>
+          <mat-select [ngModel]="estado()" (ngModelChange)="estado.set($event)">
+            <mat-option value="Pendiente">Pendiente</mat-option>
+            <mat-option value="Revisado">Revisado</mat-option>
+            @if (veRos) { <mat-option value="ElevadoARos">Elevado a ROS</mat-option> }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+          <mat-label>Sustento (qué se verificó)</mat-label>
+          <textarea matInput rows="2" maxlength="2000" [ngModel]="sustento()" (ngModelChange)="sustento.set($event)"></textarea>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+          <mat-label>Conclusión{{ estado() !== 'Pendiente' ? ' (obligatoria)' : '' }}</mat-label>
+          <textarea matInput rows="2" maxlength="2000" [ngModel]="conclusion()" (ngModelChange)="conclusion.set($event)"></textarea>
+        </mat-form-field>
+      </div>
+      <div class="cmp-acciones">
+        <button mat-flat-button color="primary" type="button" [disabled]="guardando()" (click)="guardar(c)">Guardar análisis</button>
+        @if (!c.descartado) {
+        <mat-form-field appearance="outline" class="mlt-motivo">
+          <mat-label>Motivo para descartar</mat-label>
+          <input matInput maxlength="500" [ngModel]="motivoDescarte()" (ngModelChange)="motivoDescarte.set($event)"
+                 placeholder="Ej.: ingresos fijos que justifican el conjunto" />
+        </mat-form-field>
+        <button mat-stroked-button type="button" [disabled]="guardando()" (click)="descartar(c, true)">Descartar</button>
+        } @else {
+        <button mat-stroked-button type="button" [disabled]="guardando()" (click)="descartar(c, false)">Volver a considerar</button>
+        }
+      </div>
+      }
+
+      <section class="cmp-bloque">
+        <h4>Bitácora</h4>
+        @if (puedeRevisar) {
+        <div class="cmp-formulario">
+          <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+            <mat-label>Comentario</mat-label>
+            <textarea matInput rows="2" [ngModel]="comentario()" (ngModelChange)="comentario.set($event)"></textarea>
+          </mat-form-field>
+        </div>
+        <div class="cmp-acciones">
+          <input #arch type="file" class="cmp-archivo" accept=".pdf,.png,.jpg,.jpeg,.webp" (change)="alElegirArchivo($event)" />
+          <button mat-stroked-button type="button" (click)="arch.click()">
+            {{ adjunto()?.nombre || 'Adjuntar documento (PDF o imagen, máx. 10 MB)' }}
+          </button>
+          <button mat-flat-button color="primary" type="button" [disabled]="guardando()" (click)="agregarComentario(c)">Añadir</button>
+        </div>
+        }
+        @if (!bitacora().length) {
+        <p class="cmp-nota">Sin movimientos todavía.</p>
+        } @else {
+        <ul class="cmp-bitacora">
+          @for (e of bitacora(); track e.id) {
+          <li>
+            <span class="cmp-chip cmp-chip--baja">{{ e.type }}</span>
+            <span class="cmp-bitacora__texto">{{ e.text || '—' }}</span>
+            @if (e.hasFile) {
+            <button mat-button type="button" (click)="descargarEvidencia(e)">{{ e.originalName }} ({{ e.bytes / 1024 | number:'1.0-0' }} kB)</button>
+            }
+            <small class="cmp-bitacora__firma">{{ e.createdByName || '—' }} · {{ e.createdAt | date:'dd/MM/yy HH:mm' }}</small>
+          </li>
+          }
+        </ul>
+        }
+      </section>
+    </div>
+    }
+    }
+  </div>
+  }
+  }
+</div>

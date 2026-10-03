@@ -1,0 +1,247 @@
+<div class="cmp-panel">
+  <p class="cmp-bajada">
+    Cruce de la cartera contra las <strong>listas restrictivas oficiales</strong>: la
+    consolidada del Consejo de Seguridad de la ONU, la SDN de la OFAC y la consolidada de
+    la Unión Europea. Se bajan enteras cada madrugada y se reemplazan por fuente.
+  </p>
+
+  <!-- ESTADO DE LAS LISTAS -->
+
+  <div class="cmp-tarjetas">
+    @for (e of estado(); track e.listSource) {
+    <div class="cmp-tarjeta" [class.cmp-tarjeta--aviso]="estaVieja(e)">
+      <span class="cmp-tarjeta__cifra">{{ e.entries | number }}</span>
+      <span class="cmp-tarjeta__rotulo">{{ e.listSource }}</span>
+      <span class="cmp-tarjeta__pie">
+        @if (e.lastStatus) {
+        <span class="cmp-chip" [ngClass]="claseEstado(e.lastStatus)">{{ e.lastStatus }}</span>
+        }
+        @if (e.diasDesdeUltimaOk === null) {
+        <span class="cmp-tarjeta__falta">nunca se ha importado</span>
+        } @else if (e.diasDesdeUltimaOk === 0) {
+        actualizada hoy
+        } @else {
+        <span [class.cmp-tarjeta__falta]="estaVieja(e)">hace {{ e.diasDesdeUltimaOk }} días</span>
+        }
+      </span>
+      @if (e.lastError) {
+      <span class="cmp-tarjeta__pie cmp-vencido">{{ e.lastError }}</span>
+      }
+    </div>
+    }
+  </div>
+
+  <div class="cmp-acciones">
+    <button mat-stroked-button type="button" (click)="cargarEstado()">Actualizar el estado</button>
+    @if (puedeRevisar) {
+    <button mat-flat-button color="primary" type="button"
+            [disabled]="actualizando()" (click)="actualizar()">
+      {{ actualizando() ? 'Encolando…' : 'Volver a bajar las listas ahora' }}
+    </button>
+    }
+  </div>
+
+  <p class="cmp-aviso">
+    Corre solo cada madrugada. Este botón sirve cuando una fuente estuvo caída y no se
+    quiere esperar al día siguiente: tarda unos minutos porque baja las tres listas y
+    vuelve a cruzar toda la cartera.
+  </p>
+
+  <!-- CONSULTA MANUAL -->
+
+  <h3 class="cmp-titulo">Consultar una persona</h3>
+  <p class="cmp-aviso">
+    Busca en las listas sin registrar nada. Sirve para comprobar a alguien
+    <strong>antes</strong> de darlo de alta como cliente, que es cuando todavía se puede
+    decidir sin consecuencias.
+  </p>
+
+  <div class="cmp-filtros">
+    <mat-form-field appearance="outline" class="cmp-filtros__buscar">
+      <mat-label>Nombre completo</mat-label>
+      <input matInput [ngModel]="consultaNombre()" (ngModelChange)="consultaNombre.set($event)"
+             (keyup.enter)="consultar()" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Documento</mat-label>
+      <input matInput [ngModel]="consultaDocumento()" (ngModelChange)="consultaDocumento.set($event)"
+             (keyup.enter)="consultar()" />
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" type="button"
+            [disabled]="consultando()" (click)="consultar()">
+      {{ consultando() ? 'Consultando…' : 'Consultar' }}
+    </button>
+  </div>
+
+  @if (resultadoConsulta(); as r) {
+    @if (!r.length) {
+    <p class="cmp-nota cmp-plazo">Sin coincidencias en ninguna de las tres listas.</p>
+    } @else {
+    <div class="cmp-tabla cmp-tabla--consulta">
+      <div class="cmp-fila cmp-fila--cabecera">
+        <span>Lista</span><span>Nombre en la lista</span><span>Tipo</span>
+        <span>Programa</span><span>Certeza</span>
+      </div>
+      @for (c of r; track c.screeningEntryId) {
+      <div class="cmp-fila cmp-fila--vencida">
+        <span><span class="cmp-chip cmp-chip--alta">{{ c.listSource }}</span></span>
+        <span><strong>{{ c.fullName }}</strong></span>
+        <span>{{ c.entityType === 'Individual' ? 'Persona' : 'Entidad' }}</span>
+        <span><small>{{ c.programs || '—' }}</small></span>
+        <span>
+          {{ c.score }}
+          <small class="cmp-regla">{{ explicarCoincidencia(c.matchType) }}</small>
+        </span>
+      </div>
+      }
+    </div>
+    }
+  }
+
+  <!-- COLA DE COINCIDENCIAS -->
+
+  <h3 class="cmp-titulo">Coincidencias de la cartera</h3>
+
+  <div class="cmp-filtros">
+    <mat-form-field appearance="outline">
+      <mat-label>Estado</mat-label>
+      <mat-select [ngModel]="filtroEstado()" (ngModelChange)="filtroEstado.set($event); cargarCola()" placeholder="Selecciona el estado">
+        <mat-option value="">Todos</mat-option>
+        <mat-option value="Pendiente">Pendiente</mat-option>
+        <mat-option value="Descartado">Descartado</mat-option>
+        <mat-option value="Confirmado">Confirmado</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Lista</mat-label>
+      <mat-select [ngModel]="filtroFuente()" (ngModelChange)="filtroFuente.set($event); cargarCola()" placeholder="Selecciona la lista">
+        <mat-option value="">Todas</mat-option>
+        <mat-option value="ONU">ONU</mat-option>
+        <mat-option value="OFAC">OFAC</mat-option>
+        <mat-option value="UE">UE</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="cmp-filtros__buscar">
+      <mat-label>Cliente o nombre de la lista</mat-label>
+      <input matInput [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)"
+             (keyup.enter)="cargarCola()" />
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" type="button" (click)="cargarCola()">Buscar</button>
+  </div>
+
+  @if (cargandoCola()) {
+  <p class="cmp-nota">Cargando…</p>
+  } @else if (!coincidencias().length) {
+  <p class="cmp-nota">
+    Ninguna coincidencia con este filtro.
+    @if (filtroEstado() === 'Pendiente') { No hay nada pendiente de revisar. }
+  </p>
+  } @else {
+  <div class="cmp-tabla cmp-tabla--coincidencias">
+    <div class="cmp-fila cmp-fila--cabecera">
+      <span>Cliente</span><span>Coincide con</span><span>Lista</span>
+      <span>Certeza</span><span>Estado</span><span></span>
+    </div>
+    @for (c of coincidencias(); track c.id) {
+    <div class="cmp-fila" [class.cmp-fila--vencida]="c.status === 'Confirmado'"
+         [class.cmp-fila--incompleta]="c.status === 'Pendiente'">
+      <span>
+        <strong>{{ c.fullName || '—' }}</strong>
+        <small class="cmp-doc">{{ c.documentNumber }}</small>
+      </span>
+      <span>
+        {{ c.listName }}
+        <small class="cmp-regla">{{ c.programs || '—' }}</small>
+        @if (c.entradaRetirada) { <small class="cmp-regla">Ya no figura en la lista oficial</small> }
+      </span>
+      <span><span class="cmp-chip cmp-chip--baja">{{ c.listSource }}</span></span>
+      <span>
+        {{ c.score }}
+        <small class="cmp-regla">{{ explicarCoincidencia(c.matchType) }}</small>
+        @if (c.iaFecha) {
+        <span class="cmp-chip lst-ia" [ngClass]="claseIa(c.iaVeredicto)" tabindex="0"
+              matTooltip="Opinión de la IA; la decisión es del oficial">
+          IA: {{ rotuloIa(c.iaVeredicto) }}{{ c.iaConfianza !== null ? ' · ' + c.iaConfianza + '%' : '' }}
+        </span>
+        }
+      </span>
+      <span>
+        <span class="cmp-chip" [ngClass]="claseEstado(c.status)">{{ c.status }}</span>
+        @if (c.reviewNote) { <small class="cmp-regla">{{ c.reviewNote }}</small> }
+      </span>
+      <span>
+        @if (puedeRevisar) {
+        <button mat-button type="button" (click)="revisar(c)">Revisar</button>
+        }
+      </span>
+    </div>
+
+    @if (enRevision()?.id === c.id) {
+    <div class="cmp-edicion">
+      @if (c.iaFecha || ia()?.operativa) {
+      <div class="lst-ia-bloque">
+        <div class="lst-ia-cabecera">
+          <strong>Opinión de la IA</strong>
+          @if (c.iaFecha) {
+          <span class="cmp-chip" [ngClass]="claseIa(c.iaVeredicto)">
+            {{ rotuloIa(c.iaVeredicto) }}{{ c.iaConfianza !== null ? ' · confianza ' + c.iaConfianza + '%' : '' }}
+          </span>
+          <small class="cmp-regla">{{ c.iaFecha | date:'dd/MM/yyyy HH:mm' }} · {{ c.iaModelo }}</small>
+          }
+          @if (ia()?.operativa) {
+          <button mat-stroked-button type="button" [disabled]="analizando() !== null || !ia()?.restantesHoy"
+                  [attr.aria-busy]="analizando() === c.id" (click)="analizarIa(c)">
+            {{ analizando() === c.id ? 'Analizando…' : c.iaFecha ? 'Volver a analizar' : 'Analizar con IA' }}
+          </button>
+          <small class="cmp-regla" aria-live="polite">
+            {{ analizando() === c.id ? 'Puede tardar hasta dos minutos. ' : '' }}{{ ia()?.restantesHoy }} de {{ ia()?.topeDiario }} consultas disponibles hoy
+          </small>
+          }
+        </div>
+        @if (c.iaAnalisis) { <p class="lst-ia-texto">{{ c.iaAnalisis }}</p> }
+        <p class="cmp-aviso">
+          Es una opinión para ayudarte: compara la ficha del cliente con la entrada de la lista y puede buscar en
+          la web sobre la persona o entidad sancionada (nunca con los datos del cliente). No descarta ni confirma
+          nada; la decisión y su sustento son tuyos. Al proveedor de IA se envían el nombre, el documento, la
+          nacionalidad, el año de nacimiento, la ocupación, si es PEP, la zona (distrito a país) y un resumen de
+          lo operado.
+        </p>
+      </div>
+      }
+      <mat-form-field appearance="outline">
+        <mat-label>Resultado</mat-label>
+        <mat-select [ngModel]="resultado()" (ngModelChange)="resultado.set($event)" placeholder="Selecciona el resultado">
+          <mat-option value="Descartado">Descartar (falso positivo)</mat-option>
+          <mat-option value="Confirmado">Confirmar coincidencia</mat-option>
+          <mat-option value="Pendiente">Dejar pendiente</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="cmp-formulario__ancho">
+        <mat-label>Por qué (obligatorio)</mat-label>
+        <input matInput [ngModel]="nota()" (ngModelChange)="nota.set($event)"
+               placeholder="Ej.: mismo nombre, distinta fecha de nacimiento y nacionalidad." />
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" type="button"
+              [disabled]="guardando()" (click)="guardarRevision()">
+        {{ guardando() ? 'Guardando…' : 'Guardar' }}
+      </button>
+      <button mat-button type="button" (click)="enRevision.set(null)">Cancelar</button>
+
+      <p class="cmp-aviso">
+        Confirmar <strong>pasa a la persona a la lista negra</strong>: sus cuentas quedan bloqueadas
+        y no se le registran ni finalizan operaciones. Si luego se revierte la confirmación, sale de la
+        lista negra. Lo que escribas aquí queda como sustento de la decisión.
+      </p>
+    </div>
+    }
+    }
+  </div>
+  }
+</div>

@@ -1,0 +1,113 @@
+<form [formGroup]="form" class="create-step">
+
+  <h2 class="create-title">Cotiza tu operación</h2>
+
+  <div class="rate-cards">
+    <div class="rate-card" [class.active]="form.value.operationType === 'BUY'" (click)="swapAmounts()">
+
+      <span class="rate-label">Compra</span>
+
+      @if (form.value.coupon?.isCompra) {
+      <div class="rate-values">
+        <span class="rate-old">
+          {{ form.value.baseRate.priceCompra | number:'1.4-4' }}
+        </span>
+        <span class="rate-new">
+          {{ form.value.effectiveRate.priceCompra | number:'1.4-4' }}
+        </span>
+      </div>
+      } @else {
+      <span class="rate-value">
+        {{ form.value.effectiveRate.priceCompra | number:'1.4-4' }}
+      </span>
+      }
+    </div>
+
+    <div class="rate-card" [class.active]="form.value.operationType === 'SELL'" (click)="swapAmounts()">
+
+      <span class="rate-label">Venta</span>
+      @if (form.value.coupon?.isVenta) {
+      <div class="rate-values">
+        <span class="rate-old">
+          {{ form.value.baseRate.priceVenta | number:'1.4-4' }}
+        </span>
+        <span class="rate-new">
+          {{ form.value.effectiveRate.priceVenta | number:'1.4-4' }}
+        </span>
+      </div>
+      } @else {
+      <span class="rate-value">
+        {{ form.value.effectiveRate.priceVenta | number:'1.4-4' }}
+      </span>
+      }
+    </div>
+  </div>
+
+  <p class="rate-timer">
+    El tipo de cambio se actualiza en <strong>{{ refreshTime() }}</strong>
+  </p>
+
+  <div class="amount-box">
+
+    <div class="amount-field">
+      <label>{{form.value.operationType === 'BUY' ? 'Envías':'Recibes'}}</label>
+      <div class="amount-input">
+        <input matInput appAmountInput formControlName="amountUsd" currency="USD" />
+        <span class="currency">
+          Dólares <img src="./assets/images/flag/eeuu.jpg" alt="USD">
+        </span>
+      </div>
+    </div>
+
+    <button type="button" class="swap-btn" (click)="swapAmounts()" aria-label="Intercambiar monedas">
+      <img src="./assets/images/swap.png" alt="Intercambiar">
+    </button>
+
+    <div class="amount-field">
+      <label>{{form.value.operationType === 'BUY' ? 'Recibes':'Envías'}}</label>
+      <div class="amount-input">
+        <input matInput appAmountInput formControlName="amountPen" currency="PEN" />
+        <span class="currency">
+          Soles <img src="./assets/images/flag/peru.png" alt="PEN">
+        </span>
+      </div>
+    </div>
+
+  </div>
+
+  @if (!form.value.coupon) {
+  <div class="coupon-box">
+    <label>Ingresa tu cupón</label>
+    <div class="coupon-input">
+      <input matInput formControlName="couponCode" placeholder="Código de cupón" />
+
+      <button mat-button class="apply-btn" type="button" (click)="applyCoupon()" [disabled]="form.value.coupon">
+        Aplicar
+      </button>
+    </div>
+  </div>
+  } @else {
+  <div class="coupon-applied-box">
+
+    <div class="coupon-applied-info">
+      <i-tabler class="icon-success" [name]="'circle-check'"></i-tabler>
+
+      <div class="coupon-text">
+        <strong>¡Cupón aplicado!</strong>
+        <span>{{ form.value.coupon?.code }}</span>
+      </div>
+    </div>
+
+    <button mat-button class="remove-btn" type="button" [disabled]="!form.value.coupon" (click)="removeCoupon()">
+      Eliminar
+    </button>
+
+  </div>
+  }
+
+  <a [routerLink]="['/operations/create']" mat-flat-button color="primary" class="continue-btn"
+    [disabled]="form.invalid || isLoading()">
+    <span>Iniciar Operación</span>
+  </a>
+
+</form>

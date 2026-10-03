@@ -1,0 +1,112 @@
+<app-loading-splash-host></app-loading-splash-host>
+
+<mat-sidenav-container class="mainWrapper" autosize autoFocus [ngClass]="{
+  'sidebarNav-mini': options.sidenavCollapsed && options.navPos !== 'top' &&  !resView,
+  'sidebarNav-horizontal': options.horizontal,
+  cardBorder: options.cardBorder,
+  
+}" [dir]="options.dir!">
+  @if (!options.horizontal) {
+  <mat-sidenav #leftsidenav [mode]="isOver ? 'over' : 'side'" [opened]="
+      options.navPos === 'side' && options.sidenavOpened && !isOver && !resView
+    " (openedChange)="onSidenavOpenedChange($event)" (closedStart)="onSidenavClosedStart()" class="sidebarNav">
+    <div class="flex-layout">
+      <app-sidebar (toggleMobileNav)="sidenav.toggle()" [showToggle]="isOver"></app-sidebar>
+      <ng-scrollbar class="position-relative" style="height: 100%">
+        <mat-nav-list class="sidebar-list">
+          @for(item of navItems; track item) {
+          <app-nav-item [item]="item" (notify)="sidenav.toggle()" class="top-parent">
+          </app-nav-item>
+          }
+        </mat-nav-list>
+      </ng-scrollbar>
+
+      <!-- Horario y ayuda, como en el diseño del menú de la biblioteca. -->
+      <div class="sidebar-soporte">
+        <div class="sidebar-soporte__titulo">
+          <i-tabler name="headset"></i-tabler>
+          Horario de atención
+        </div>
+        <!-- Del API: se administra desde Configuración y cambia a la vez aquí y en el sitio público. -->
+        <p class="sidebar-soporte__horario">
+          @for (linea of horario.lineas(); track linea) {
+          {{ linea }}<br />
+          }
+        </p>
+
+        <button type="button" class="sidebar-soporte__ayuda" (click)="abrirAyuda()">
+          <i-tabler name="help"></i-tabler>
+          ¿Necesitas ayuda?
+        </button>
+      </div>
+    </div>
+  </mat-sidenav>
+  }
+
+  @else if (resView) {
+  <mat-sidenav #leftsidenav [mode]="'over'" [opened]="options.sidenavOpened && !isTablet"
+    (openedChange)="onSidenavOpenedChange($event)" (closedStart)="onSidenavClosedStart()" class="sidebarNav">
+    <div class="flex-layout">
+      <app-sidebar (toggleMobileNav)="sidenav.toggle()" [showToggle]="isOver"></app-sidebar>
+      <ng-scrollbar class="position-relative" style="height: 100%">
+        <mat-nav-list class="sidebar-list">
+          @for(item of navItems; track item) {
+          <app-nav-item [item]="item" (notify)="sidenav.toggle()">
+          </app-nav-item>
+          }
+        </mat-nav-list>
+      </ng-scrollbar>
+    </div>
+  </mat-sidenav>
+  }
+
+  <mat-sidenav-content class="contentWrapper" #content>
+
+    @if (!options.horizontal) {
+    <app-header [showToggle]="!isOver" (toggleCollapsed)="toggleCollapsed()" (toggleMobileNav)="sidenav.toggle()"
+      (toggleMobileFilterNav)="globalDrawer.toggle()" (optionsChange)="receiveOptions($event)"></app-header>
+    } @else {
+    <app-horizontal-header (toggleMobileNav)="sidenav.toggle()" (toggleMobileFilterNav)="globalDrawer.toggle()"
+      (optionsChange)="receiveOptions($event)"></app-horizontal-header>
+    } @if(options.horizontal) {
+    <app-horizontal-sidebar></app-horizontal-sidebar>
+    }
+    <div class="body-wrapper">
+      <main class="pageWrapper" [ngClass]="{
+          maxWidth: options.boxed
+        }">
+        <app-breadcrumb></app-breadcrumb>
+        
+        <router-outlet></router-outlet>
+        <!-- El WhatsApp directo vive dentro del asistente ("Hablar con un asesor"). -->
+        <app-asistente />
+
+      </main>
+    </div>
+  </mat-sidenav-content>
+
+  <mat-sidenav #customizerRight mode="over" position="end" class="customizerNav">
+    <div class="p-x-16 p-y-20 d-flex align-items-center justify-content-between b-b-1">
+      <h3 class="f-s-21 f-w-600">Ajustes</h3>
+
+      <a mat-icon-button (click)="customizerRight.toggle()" class="d-flex justify-content-center">
+        <mat-icon>close</mat-icon>
+      </a>
+    </div>
+
+    <!-- Solo se construye al abrir: suelto montaba 18 mat-button-toggle con sus tooltips en cada carga. -->
+    @if (customizerRight.opened) {
+    <app-customizer (optionsChange)="receiveOptions($event)"></app-customizer>
+    }
+  </mat-sidenav>
+
+</mat-sidenav-container>
+
+<mat-drawer-container class="global-drawer-container" [class.closed]="!globalDrawer?.opened">
+
+  <mat-drawer class="global-drawer" #globalDrawer mode="over" position="end" (closedStart)="onGlobalDrawerClosed()">
+
+    <ng-template [ngTemplateOutlet]="drawerTemplate"></ng-template>
+
+  </mat-drawer>
+</mat-drawer-container>

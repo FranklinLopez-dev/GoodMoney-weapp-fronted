@@ -1,0 +1,44 @@
+<div mat-dialog-title class="d-flex align-items-center justify-content-between">
+    <h3>{{ numero ? 'Comprobante: ' + numero : 'Operación registrada' }}</h3>
+    <button mat-icon-button mat-dialog-close class="d-flex justify-content-center">
+        <i-tabler name="x" class="icon-20 d-flex"></i-tabler>
+    </button>
+</div>
+<mat-dialog-content>
+    <div class="col-12 p-16 rounded" [class.bg-light-success]="numero" [class.bg-light-warning]="!numero">
+        <div class="f-s-14" [class.text-success]="numero">
+            {{ mensaje }}
+            @if (numero) { <br><small>Se envía a SUNAT en segundo plano; su estado se ve en Gestión fiscal.</small> }
+        </div>
+    </div>
+    @if (numero && operationId) {
+    <div class="row m-t-8">
+        <a (click)="descargar('A4')" class="col-sm-6 col-lg-4 cursor-pointer">
+            <mat-card class="cardWithShadow overflow-hidden">
+                <mat-card-content class="text-center p-y-24">
+                    <i-tabler name="file-type-pdf" width="80" class="d-flex rounded-circle"></i-tabler>
+                    <mat-card-title class="f-s-18 m-b-0 m-t-16">A4</mat-card-title>
+                </mat-card-content>
+            </mat-card>
+        </a>
+        <a (click)="descargar('Ticket')" class="col-sm-6 col-lg-4 cursor-pointer">
+            <mat-card class="cardWithShadow overflow-hidden">
+                <mat-card-content class="text-center p-y-24">
+                    <i-tabler name="ticket" width="80" class="d-flex rounded-circle"></i-tabler>
+                    <mat-card-title class="f-s-18 m-b-0 m-t-16">TICKET</mat-card-title>
+                </mat-card-content>
+            </mat-card>
+        </a>
+        <div class="col-md-12">
+            <mat-form-field appearance="outline" class="w-100" color="primary">
+                <button mat-icon-button type="button" matSuffix (click)="enviarWhatsApp(numberPhone.value)">
+                    <i-tabler matSuffix name="brand-whatsapp" width="80"
+                        class="m-r-16 d-flex rounded-circle"></i-tabler>
+                </button>
+                <input matInput [value]="_data.profile.cellPhone" maxlength="9" type="number" #numberPhone />
+                <span matPrefix class="m-l-16 m-r-16">+51</span>
+            </mat-form-field>
+        </div>
+    </div>
+    }
+</mat-dialog-content>

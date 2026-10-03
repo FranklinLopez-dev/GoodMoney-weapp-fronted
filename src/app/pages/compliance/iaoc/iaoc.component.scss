@@ -1,0 +1,11 @@
+.iaoc-tabla .cmp-fila { grid-template-columns: 110px 1fr 1.3fr 90px 100px 1.6fr; }
+.iaoc-tabla--ros .cmp-fila { grid-template-columns: 110px 1fr 1.3fr 90px 100px 110px 1.6fr; }
+
+.iaoc-total { font-weight: 700; background: var(--gm-color-fondo-crema); }
+.iaoc-futuro { opacity: .45; }
+
+@media (max-width: 767px) {
+  .iaoc-tabla .cmp-fila--cabecera { display: none; }
+  .iaoc-tabla .cmp-fila, .iaoc-tabla--ros .cmp-fila { grid-template-columns: 1fr; gap: 4px; }
+  .iaoc-tabla .cmp-numero { text-align: left; }
+}

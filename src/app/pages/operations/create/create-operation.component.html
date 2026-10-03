@@ -1,0 +1,235 @@
+<!-- Franja de pasos: marca el actual, que es lo que resuelve el "¿esto ya se envió?" en mitad de la operación. -->
+<div class="pasos">
+  @for (paso of pasos; track paso.numero) {
+  <div class="pasos__paso" [class.pasos__paso--activo]="!success() && step() === paso.numero"
+    [class.pasos__paso--hecho]="success() || step() > paso.numero">
+    <span class="pasos__icono">
+      <img [src]="'assets/images/iconos3d/tab-' + ['cotiza','registra','transfiere','adjunta'][paso.numero - 1] + '.webp'"
+        [width]="paso.anchoIcono" [height]="paso.altoIcono" alt="" />
+    </span>
+    <span class="pasos__texto">{{ paso.titulo }}</span>
+  </div>
+  }
+</div>
+
+<!-- En "Cotiza" las tarjetas informativas van a la izquierda y la calculadora a la derecha; el resto centrado. -->
+<div class="flujo" [class.flujo--cotiza]="!success() && step() === 1">
+  <mat-card class="cardWithShadow flujo__tarjeta" [class.flujo__tarjeta--oscura]="!success() && step() === 1"
+    [class.flujo__tarjeta--adjunta]="!success() && step() === 4">
+    <mat-card-content>
+      @if (!success()) {
+
+      @if (step() === 1) {
+      <app-quote-step [form]="controlQuote!" (next)="nextStep()">
+      </app-quote-step>
+      }
+
+      @if (step() === 2) {
+      <app-accounts-step [form]="controlAccounts!" (next)="nextStep()">
+      </app-accounts-step>
+      }
+
+      @if (step() === 3) {
+      <app-transfer-step (next)="nextStep()"></app-transfer-step>
+      }
+
+      @if (step() === 4) {
+      <app-confirmation-step [form]="controlConfirmation!" (finish)="finish()"></app-confirmation-step>
+      }
+      } @else {
+      <div class="create-step confirmation-step">
+
+        @if (success()) {
+
+        <mat-card class="success-card">
+
+          <div class="success-icon">
+            <!-- La insignia del diseño (frame 460), no un icono de línea. -->
+            <img src="assets/images/badge-check.webp" width="256" height="232" alt="" />
+          </div>
+
+          <h2 class="success-title">
+            ¡Operación creada correctamente!
+          </h2>
+
+          <p class="success-subtitle">
+            Estamos validando tu transferencia.<br />
+            Te notificaremos a tu correo <span>{{ profile?.email }}</span> cuando el proceso finalice.
+          </p>
+
+          <div class="success-summary">
+            <div class="col">
+              <span>N° de operación</span>
+              <strong>SC-{{ store.transfer()?.operationId }}</strong>
+            </div>
+
+            <div class="col">
+              <span>Monto enviado</span>
+              <strong>
+                {{ store.quote()?.operationType === 'BUY' ? '$' : 'S/' }}
+                {{ (store.quote()?.operationType === 'BUY' ? store.quote()?.amountUsd : store.quote()?.amountPen) | number:'1.2-2' }}
+              </strong>
+            </div>
+
+            <div class="col">
+              <span>Recibirás</span>
+              <strong>
+                {{ store.quote()?.operationType === 'BUY' ? 'S/' : '$' }}
+                {{ (store.quote()?.operationType === 'BUY' ? store.quote()?.amountPen : store.quote()?.amountUsd) | number:'1.2-2' }}
+              </strong>
+            </div>
+
+            <div class="col">
+              <span>Tipo de cambio</span>
+              <strong>
+                {{ (store.quote()?.operationType === 'BUY' ? store.quote()?.effectiveRate?.priceCompra : store.quote()?.effectiveRate?.priceVenta) | number:'1.4-4' }}
+              </strong>
+            </div>
+
+            <div class="col status">
+              <span>Estado</span>
+              <strong>En validación</strong>
+            </div>
+          </div>
+
+          <div class="success-actions">
+            <button mat-flat-button class="btn-nueva" (click)="reloadPage()">
+              Nueva cotización
+            </button>
+
+            <a [routerLink]="['/operations']" mat-flat-button color="primary">
+              Ir a operaciones
+            </a>
+          </div>
+
+        </mat-card>
+
+        }
+
+        @else {
+
+        <h2 class="create-title">Confirmar transferencia</h2>
+
+        <p class="step-subtitle">
+          Ingresa los datos del voucher para validar tu operación
+        </p>
+
+
+        }
+
+      </div>
+
+      }
+
+    </mat-card-content>
+  </mat-card>
+
+  @if (!success() && step() === 1) {
+  <!-- "Cotiza" lleva debajo las dos tarjetas informativas del mockup. -->
+  <div class="flujo-info">
+
+    <mat-card class="cardWithShadow">
+      <mat-card-content>
+
+        <div class="exchange-header">
+          <h3>Dólar en Perú</h3>
+          <span class="exchange-date">
+            <mat-icon>calendar_today</mat-icon>
+            {{ lastUpdate() }}
+          </span>
+        </div>
+
+        <div class="exchange-row exchange-head">
+          <div></div>
+          <div class="col">Compra</div>
+          <div class="col">Venta</div>
+        </div>
+
+        <div class="exchange-row">
+          <div class="label">
+            <img alt="logo" class="align-middle m-2 w-100" src="./assets/images/logos/sunat.png" width="1864"
+              height="493">
+          </div>
+          <div class="value">
+            {{ table()?.sunat?.compra | number:'1.4-4' }}
+          </div>
+          <div class="value">
+            {{ table()?.sunat?.venta | number:'1.4-4' }}
+          </div>
+        </div>
+
+        <div class="exchange-row highlight">
+          <div class="label">
+            <img alt="logo" class="align-middle m-2 w-100" src="./assets/images/logos/logo-black.png" width="512"
+              height="184">
+          </div>
+          <div class="value">
+            {{ table()?.exchangeRate?.priceCompra | number:'1.4-4' }}
+          </div>
+          <div class="value">
+            {{ table()?.exchangeRate?.priceVenta | number:'1.4-4' }}
+          </div>
+        </div>
+
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="cardWithShadow">
+      <mat-card-content>
+
+        <h3 class="bancos-titulo">Trabajamos con todos los bancos</h3>
+
+        <div class="bancos-grupos">
+
+          <div class="bancos-grupo">
+            <span class="bancos-grupo__nombre">
+              Inmediatas <img class="bancos-chip" src="assets/images/iconos3d/15min.svg" alt="15 minutos" />
+            </span>
+            <div class="bank-logos">
+              @for (icon of directBanks(); track icon) {
+              @if (icon) {
+              <img [src]="'data:image/jpeg;base64,' + icon" alt="Banco" fallbackImg="default" class="bank-logo" />
+              }
+              }
+            </div>
+          </div>
+
+          <div class="bancos-grupo">
+            <span class="bancos-grupo__nombre">
+              Interbancarias <img class="bancos-chip" src="assets/images/iconos3d/24hor.svg" alt="24 horas" />
+            </span>
+            <div class="bank-logos">
+              @for (bank of interbankBanks(); track bank.id) {
+              @if (bank.icon) {
+              <img [src]="bank.icon" [alt]="bank.name" fallbackImg="default" class="bank-logo" />
+              }
+              }
+              <span class="bank-logo bancos-otros" title="Otras entidades">
+                <img src="assets/images/iconos3d/banco-otros.webp" width="1216" height="1200" alt="" />
+                <small>Otros</small>
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+        <p class="bancos-nota">• Depende de tu entidad bancaria</p>
+
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+  }
+</div>
+
+<!-- Banner de cupones: fuera de la columna centrada para correr de borde a borde. En todos los pasos. -->
+<div class="banner-promo">
+  <div class="banner-promo__texto">
+    <p class="banner-promo__titulo">¡GANA Y CAMBIA CON<br /><span>GOOD MONEY!</span></p>
+    <p class="banner-promo__detalle">
+      Aplica tu cupón y obtén un mejor tipo de cambio en tus operaciones.
+    </p>
+  </div>
+  <img class="banner-promo__ilustracion" src="assets/images/promos/banner-cupon.webp" width="357" height="123"
+    alt="" />
+</div>

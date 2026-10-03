@@ -1,0 +1,261 @@
+@use "../variables" as *;
+
+.list-unstyled {
+  padding-left: 0;
+  list-style: none;
+}
+
+.text-truncate-2 {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-width: 215px;
+  width: 100%;
+  line-height: 20px;
+}
+
+.product-title {
+  min-width: 250px;
+}
+
+.theme-select {
+  width: 145px;
+}
+
+.theme-tab {
+  .mat-mdc-tab-header {
+    margin: 0 24px;
+    padding: 2px;
+    background-color: $light;
+    border-radius: 30px;
+
+    .mat-mdc-tab-label-container {
+      border-bottom-width: 0;
+    }
+
+    .mat-mdc-tab {
+      color: var(--mat-sys-container-lowest);
+      font-weight: 600;
+      padding: 8px 16px;
+      height: auto;
+      display: block;
+      border-radius: 30px;
+      min-width: 100px;
+      text-align: center;
+      text-decoration: none;
+      overflow: hidden;
+
+      .mdc-tab__text-label {
+        color: var(--mat-sys-container-lowest);
+      }
+
+      .mdc-tab-indicator__content--underline {
+        border: 0;
+      }
+
+      &.mdc-tab--active {
+        .mdc-tab__text-label {
+          color: var(--mat-sys-on-background);
+        }
+      }
+
+      &.mdc-tab--active,
+      &.active-class {
+        background-color: var(--mat-sys-surface);
+        color: var(--mat-sys-on-background);
+      }
+    }
+  }
+}
+
+.after-line {
+  position: relative;
+
+  &:after {
+    content: "";
+    height: 20px;
+    width: 1px;
+    background: $borderColor;
+    position: absolute;
+    top: 44px;
+    left: 20px;
+  }
+}
+
+.bg-lightest {
+  background: rgba(17, 28, 45, 0.1);
+
+  .b-r-1 {
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+.b-muted {
+  border-color: rgba(90, 106, 133, 0.1) !important;
+}
+
+.make-social-media {
+  position: absolute;
+  bottom: -5px;
+  right: 0;
+}
+
+.danger-card {
+  background: url("/assets/images/shapes/danger-card-shape.png") no-repeat top
+    right;
+}
+
+.secondary-card {
+  background: url("/assets/images/shapes/secondary-card-shape.png") no-repeat
+    top right;
+}
+
+.success-card {
+  background: url("/assets/images/shapes/success-card-shape.png") no-repeat top
+    right;
+}
+
+.payment-card {
+  background-image: url(/assets/images/shapes/circlr-shape.png);
+  background-repeat: no-repeat;
+  background-position: bottom right;
+  background-color: #1f2a3d !important;
+}
+
+.payment-card-2 {
+  background-image: url(/assets/images/shapes/circle-white-shape.png);
+  background-repeat: no-repeat;
+  background-position: bottom right;
+}
+
+.payment-methods-table {
+  thead {
+    display: none;
+  }
+}
+
+.badge-custom-dark {
+  background-color: rgba(41, 52, 61, 0.2);
+  padding: 7px 12px;
+}
+
+.bg-primary-gt {
+  position: relative;
+  background: linear-gradient(
+    261.23deg,
+    var(--mat-sys-primary) 0.42%,
+    #5a52ff 100%
+  );
+  &:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: url(/assets/images/backgrounds/welcome-bg2.png);
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: right bottom;
+  }
+}
+
+.rounded-bars
+  .apexcharts-bar-series.apexcharts-plot-series
+  .apexcharts-series
+  path {
+  clip-path: inset(0 0 5% 0 round 20px);
+}
+
+.rounded-pill-bars .apexcharts-rangebar-area {
+  clip-path: inset(9% 0 11% round 24px);
+}
+
+.timeline {
+  position: relative;
+
+  .timeline-item {
+    position: relative;
+    height: 59px;
+
+    &:last-child {
+      .point {
+        .timeline-border {
+          display: none !important;
+        }
+      }
+    }
+
+    .time {
+      padding: 6px 16px 6px 0;
+      min-width: 90px;
+      flex-shrink: 0;
+    }
+
+    .desc {
+      padding: 3px 16px;
+    }
+
+    .timline-border {
+      width: 1px;
+      height: 100%;
+      background-color: $borderColor;
+      flex-shrink: 0;
+    }
+
+    .point {
+      flex-direction: column;
+
+      .timeline-badge {
+        width: 12px;
+        height: 12px;
+        border-radius: 50px;
+        background-color: transparent;
+        flex-shrink: 0;
+      }
+
+      .timeline-border {
+        width: 1px;
+        height: 100%;
+        background-color: $borderColor;
+        flex-shrink: 0;
+      }
+    }
+  }
+}
+
+.social-chips {
+  img,
+  span {
+    margin-left: -20px;
+    border: 2px solid $white;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+.rounded-circle-shape {
+  width: 56px;
+  height: 40px;
+}
+
+.circle-shape {
+  width: 18px;
+  height: 10px;
+}
+
+
+html .mat-expansion-panel:not([class*="mat-elevation-z"]) {
+  box-shadow: var(--mat-sys-level2);
+}
+
+.most-visit-chart {
+  .apexcharts-bar-series.apexcharts-plot-series .apexcharts-series path {
+    clip-path: inset(0 0 5% 0 round 20px);
+  }
+}

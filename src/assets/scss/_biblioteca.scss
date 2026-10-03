@@ -1,0 +1,377 @@
+// La biblioteca de Figma sobre `.mat-mdc-*`, una sola vez; el `!important` solo donde Material usa su variable.
+
+// Campos: el diseño pide etiqueta fija encima y borde fino; Material la hace flotar hasta encajarse en el borde.
+
+.mat-mdc-form-field {
+  width: 100%;
+
+  .mat-mdc-text-field-wrapper {
+    background: #fff;
+    border-radius: var(--gm-radius-xl);
+  }
+
+  // Contorno del campo: 1px gris de la biblioteca, y 2px de marca al enfocar.
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: var(--gm-gris-500);
+  }
+
+  &.mat-focused {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: var(--gm-color-marca-acento);
+      border-width: 1.5px;
+    }
+  }
+
+  // Radios: 12px, el `rounded-xl` que la biblioteca reserva a campos y botones.
+  .mdc-notched-outline__leading {
+    border-radius: var(--gm-radius-xl) 0 0 var(--gm-radius-xl);
+    width: 14px;
+  }
+
+  .mdc-notched-outline__trailing {
+    border-radius: 0 var(--gm-radius-xl) var(--gm-radius-xl) 0;
+  }
+
+  // Centrado vertical real: con padding fijo arriba, el texto se pegaba al borde en cualquier campo más alto.
+  .mat-mdc-form-field-infix {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  // Sin el padding del infix, un textarea alto tocaría el contorno.
+  textarea.mat-mdc-input-element {
+    margin: 12px 0;
+  }
+
+  input.mat-mdc-input-element,
+  textarea.mat-mdc-input-element,
+  .mat-mdc-select-value-text {
+    font-size: var(--gm-font-size-base);
+    color: var(--gm-color-texto-principal);
+
+    &::placeholder {
+      font-weight: 500;
+    }
+  }
+
+  .mat-mdc-form-field-hint {
+    font-size: 12px;
+    color: var(--gm-plomo-400);
+  }
+
+  .mat-mdc-form-field-error {
+    font-size: 12px;
+    color: var(--gm-color-text-error);
+  }
+
+  // Campo con error: el contorno en rojo de estado, como en la lámina.
+  &.mat-form-field-invalid:not(.mat-focused) {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: var(--gm-color-text-error);
+    }
+  }
+}
+
+// La etiqueta de un campo deshabilitado no debe leerse como texto activo.
+.mat-mdc-form-field.mat-form-field-disabled .mat-mdc-text-field-wrapper {
+  background: var(--gm-gris-100);
+}
+
+// Botones: primario verde en píldora de 12px sin sombra, secundario blanco con filete, ambos de 44px.
+
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-flat-button,
+.mat-mdc-outlined-button,
+.mat-mdc-button {
+  height: 44px;
+  padding: 0 22px;
+  border-radius: var(--gm-radius-xl);
+  font-size: var(--gm-font-size-base);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.mat-mdc-unelevated-button.mat-primary,
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-flat-button.mat-primary {
+  --mdc-filled-button-container-color: var(--gm-color-marca-acento);
+  --mdc-filled-button-label-text-color: #fff;
+  --mdc-protected-button-container-color: var(--gm-color-marca-acento);
+  --mdc-protected-button-label-text-color: #fff;
+  box-shadow: none;
+
+  &:hover {
+    filter: brightness(0.95);
+  }
+
+  // Deshabilitado: el gris de estado, no el verde apagado de Material.
+  &:disabled {
+    --mdc-filled-button-disabled-container-color: var(--gm-color-estado-deshabilitado);
+    --mdc-filled-button-disabled-label-text-color: #fff;
+  }
+}
+
+.mat-mdc-outlined-button {
+  --mdc-outlined-button-outline-color: var(--gm-gris-500);
+  --mdc-outlined-button-label-text-color: var(--gm-color-texto-principal);
+  background: #fff;
+
+  &:hover {
+    border-color: var(--gm-color-marca-acento);
+  }
+}
+
+// Aprobar / rechazar: los dos colores que la lámina reserva a decisiones.
+.mat-mdc-unelevated-button.mat-warn,
+.mat-mdc-flat-button.mat-warn {
+  --mdc-filled-button-container-color: var(--gm-color-text-error);
+  --mdc-filled-button-label-text-color: #fff;
+}
+
+// Tarjetas
+
+.mat-mdc-card,
+.cardWithShadow {
+  border-radius: var(--gm-radius-2xl);
+  box-shadow: var(--gm-shadow-sm) !important;
+  border: 1px solid var(--gm-gris-300);
+}
+
+// Tablas: cabecera crema en negrita, filete tenue entre filas y sin rayado cebra.
+
+.mat-mdc-table {
+  border-radius: var(--gm-radius-2xl);
+  overflow: hidden;
+
+  .mat-mdc-header-row {
+    background: var(--gm-color-fondo-crema);
+    min-height: 48px;
+  }
+
+  .mat-mdc-header-cell {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gm-color-texto-principal);
+    border-bottom: 0;
+  }
+
+  .mat-mdc-row {
+    min-height: 56px;
+
+    &:hover {
+      background: var(--gm-color-fondo-crema);
+    }
+  }
+
+  .mat-mdc-cell {
+    font-size: 14px;
+    color: var(--gm-plomo-700);
+    border-bottom-color: var(--gm-gris-300);
+  }
+}
+
+// Cinco insignias de estado, ni una más, para que un estado se reconozca por el color.
+
+.gm-insignia {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 12px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+
+  // Neutro: registrada, pendiente, sin clasificar.
+  border-color: var(--gm-gris-500);
+  background: var(--gm-gris-100);
+  color: var(--gm-plomo-700);
+}
+
+.gm-insignia--exito {
+  border-color: var(--gm-color-text-success);
+  background: var(--gm-estado-success-300);
+  color: var(--gm-color-text-success);
+}
+
+.gm-insignia--proceso {
+  border-color: var(--gm-color-text-warning);
+  background: var(--gm-estado-warning-300);
+  color: var(--gm-color-text-warning);
+}
+
+.gm-insignia--error {
+  border-color: var(--gm-color-text-error);
+  background: var(--gm-estado-error-300);
+  color: var(--gm-color-text-error);
+}
+
+.gm-insignia--info {
+  border-color: var(--gm-color-text-info);
+  background: var(--gm-estado-info-300);
+  color: var(--gm-color-text-info);
+}
+
+// Casillas y conmutadores
+
+.mat-mdc-checkbox {
+  --mdc-checkbox-selected-icon-color: var(--gm-color-marca-acento);
+  --mdc-checkbox-selected-hover-icon-color: var(--gm-color-marca-acento);
+  --mdc-checkbox-selected-pressed-icon-color: var(--gm-color-marca-acento);
+  --mdc-checkbox-selected-focus-icon-color: var(--gm-color-marca-acento);
+  --mdc-checkbox-unselected-icon-color: var(--gm-gris-500);
+}
+
+.mat-mdc-slide-toggle {
+  --mdc-switch-selected-track-color: var(--gm-color-marca-acento);
+  --mdc-switch-selected-handle-color: #fff;
+  --mdc-switch-selected-hover-track-color: var(--gm-color-marca-acento);
+  --mdc-switch-selected-focus-track-color: var(--gm-color-marca-acento);
+  --mdc-switch-selected-pressed-track-color: var(--gm-color-marca-acento);
+}
+
+.mat-mdc-radio-button {
+  --mdc-radio-selected-icon-color: var(--gm-color-marca-acento);
+  --mdc-radio-selected-hover-icon-color: var(--gm-color-marca-acento);
+  --mdc-radio-selected-focus-icon-color: var(--gm-color-marca-acento);
+  --mdc-radio-selected-pressed-icon-color: var(--gm-color-marca-acento);
+}
+
+// Pestañas: sin la barra rellena de Material; el activo va en negrita con filete debajo.
+
+.mat-mdc-tab-group {
+  .mat-mdc-tab {
+    letter-spacing: 0;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .mdc-tab--active .mdc-tab__text-label {
+    font-weight: 700;
+    color: var(--gm-color-texto-principal) !important;
+  }
+
+  .mdc-tab-indicator__content--underline {
+    border-color: var(--gm-color-marca-primario);
+    border-top-width: 3px;
+  }
+}
+
+// Paginador
+
+.mat-mdc-paginator {
+  border-top: 1px solid var(--gm-gris-300);
+  background: transparent;
+  font-size: 13px;
+  color: var(--gm-plomo-700);
+}
+
+// Diálogos
+
+.mat-mdc-dialog-surface {
+  border-radius: var(--gm-radius-3xl) !important;
+}
+
+// Una sola acción principal: con los dos botones en verde había que leerlos para saber cuál confirmaba.
+.mat-mdc-dialog-actions {
+  gap: 10px;
+  padding: 8px 24px 20px;
+
+  .mat-mdc-button:not(.mat-primary):not(.mat-warn),
+  .mat-mdc-outlined-button:not(.mat-primary):not(.mat-warn),
+  .mat-mdc-button.mat-primary:not(.mat-mdc-unelevated-button):not(.mat-mdc-raised-button),
+  .mat-mdc-outlined-button.mat-primary {
+    --mdc-text-button-label-text-color: var(--gm-plomo-700);
+    --mdc-outlined-button-label-text-color: var(--gm-plomo-700);
+    --mdc-outlined-button-outline-color: var(--gm-gris-500);
+    color: var(--gm-plomo-700);
+    font-weight: 500;
+  }
+}
+
+// Menús desplegables
+
+.mat-mdc-menu-panel {
+  border-radius: var(--gm-radius-2xl) !important;
+  box-shadow: var(--gm-shadow-lg) !important;
+}
+
+// Resumen por estado al pie de una tabla (frame 443): píldoras a la izquierda, paginador a la derecha.
+
+.resumen-estados {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 8px;
+
+  .mat-mdc-paginator {
+    border-top: 0;
+    margin-left: auto;
+  }
+}
+
+.resumen-estados__pildoras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+// Botones en la fila de filtros: misma altura y radio que los campos para que se lean como una sola barra.
+
+.gm-acciones {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 8px;
+
+  .mat-mdc-button-base {
+    height: 48px;
+    padding: 0 18px;
+    border-radius: var(--gm-radius-xl);
+    white-space: nowrap;
+
+    // `bg-*` fuerza el color con !important y el deshabilitado de Material no llega a verse.
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+
+  .mdc-button__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mat-mdc-progress-spinner {
+    --mat-progress-spinner-active-indicator-color: currentColor;
+  }
+
+  // Excel comparte verde con el botón primario: el respiro separa exportar de la acción principal.
+  @media (min-width: 960px) {
+    app-botones-exportar + .mat-mdc-button-base {
+      margin-left: 8px;
+    }
+  }
+
+  // Bajo 960px las columnas se apilan: los botones se reparten el ancho y, si no caben, el último baja a su propia fila.
+  @media (max-width: 959px) {
+    flex-wrap: wrap;
+
+    .mat-mdc-button-base {
+      flex: 1 1 120px;
+    }
+  }
+}
