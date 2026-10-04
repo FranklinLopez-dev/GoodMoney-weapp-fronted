@@ -34,7 +34,10 @@ export class FileViewerDialogComponent {
 
   safeUrl = signal<SafeResourceUrl | ''>('');
 
-  /** Los adjuntos son fotos de documentos y a tamaño ajustado la letra no se lee; 1 = ajustada al modal. */
+  /**
+   * Los adjuntos son fotos de documentos y a tamaño ajustado la letra no se
+   * lee; 1 = ajustada al modal.
+   */
   zoom = signal(1);
 
   private arrastre: { x: number; y: number; left: number; top: number } | null = null;
@@ -43,9 +46,10 @@ export class FileViewerDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: FileItem,
     private sanitizer: DomSanitizer
   ) {
-    // Una ruta `files/...` se pide con sesión y llega como `blob:`; las demás URLs pasan igual.
-    // El bypass es necesario (iframe/img no aceptan una ResourceUrl sin marcar), pero se restringe el
-    // esquema: los adjuntos reales son http(s)/blob/data, nunca `javascript:` u otro esquema activo.
+    // Una ruta `files/...` se pide con sesión y llega como `blob:`; las demás
+    // URLs pasan igual. El bypass es necesario (iframe/img no aceptan una
+    // ResourceUrl sin marcar), pero se restringe el esquema: los adjuntos son
+    // http(s)/blob/data, nunca `javascript:` u otro esquema activo.
     inject(ArchivosPrivadosService).url(data.url)
       .pipe(takeUntilDestroyed(inject(DestroyRef)))
       .subscribe(url => this.safeUrl.set(esUrlDeArchivoSegura(url)

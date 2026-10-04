@@ -26,11 +26,11 @@
   </button>
   }
 
-  <!-- En móvil el nombre completo no cabe y el ellipsis se comía TODO el nombre ("¡Bienvenido …"). -->
+  <!-- En móvil el saludo completo no cabe y el ellipsis ocultaría el nombre. -->
   @if(profile()?.names) {
   <span class="topbar-saludo">
     <span class="topbar-saludo__completo">¡Bienvenido {{ profile()?.names | titlecase }}!</span>
-    <!-- "Bienvenido" ya mide ~120px: en angosto el saludo corto deja que se lea EL NOMBRE. -->
+    <!-- "Bienvenido" mide ~120px: el saludo corto deja leer el nombre. -->
     <span class="topbar-saludo__corto">¡Hola, {{ primerNombre() | titlecase }}!</span>
   </span>
   }
@@ -47,12 +47,12 @@
   >
     <img class="topbar-icono" src="assets/images/iconos3d/correo-3d.webp" width="240" height="240" alt="" />
 
-    <!-- El globo venía pintado dentro del PNG del icono 3D; se recortó para que solo salga cuando hay algo que contar. -->
+    <!-- El icono 3D va sin globo: este solo sale cuando hay algo que contar. -->
     @if((appData.numImbox() ?? 0) > 0) {
     <span class="topbar-globo">{{ appData.numImbox() }}</span>
     }
   </button>
-  <!-- `matMenuContent`: el contenido se construye al abrir el menu, no en cada carga de la app. -->
+  <!-- `matMenuContent`: el contenido se construye al abrir el menú. -->
   <mat-menu #inboxmenu="matMenu" class="topbar-dd cardWithShadow">
     <ng-template matMenuContent>
       <div class="d-flex align-items-center p-x-32 p-y-16">
@@ -116,7 +116,7 @@
     <span class="topbar-globo">{{ appData.numNotification() }}</span>
     }
   </button>
-  <!-- `matMenuContent`: el contenido se construye al abrir el menu, no en cada carga de la app. -->
+  <!-- `matMenuContent`: el contenido se construye al abrir el menú. -->
   <mat-menu #notificationmenu="matMenu" class="topbar-dd cardWithShadow">
     <ng-template matMenuContent>
       <div class="d-flex align-items-center p-x-32 p-y-16">
@@ -130,7 +130,8 @@
       <button mat-menu-item class="p-x-30 p-y-12" (click)="abrirNotificacion(notification)">
         <div class="d-flex align-items-center">
           <span class="flex-shrink-0 rounded-circle icon-48 d-flex align-items-center justify-content-center">
-            <!-- El remitente que ve el cliente es siempre la empresa, así que el sustituto es el logo de Good Money. -->
+            <!-- El remitente que ve el cliente es siempre la empresa: sin foto, va el
+                 logo de Good Money. -->
             <img fallbackImg="marca" class="rounded-circle" [src]="notification.photoEnvia | archivoPrivado | async" width="45"
               height="45" alt="" />
           </span>
@@ -166,7 +167,7 @@
     aria-label="Mi cuenta"
     class="topbar-accion"
   >
-    <!-- Con foto se pinta la foto; sin ella, el avatar 3D del diseño, que no lleva globo pintado. -->
+    <!-- Con foto, la foto; si no, el avatar 3D del diseño (sin globo pintado). -->
     @if(profile()?.profilePhoto && !fotoRota) {
     <img [src]="profile()?.profilePhoto" class="topbar-foto" width="30" height="30" alt=""
       (error)="fotoRota = true" />
@@ -174,7 +175,7 @@
     <img class="topbar-icono" src="assets/images/iconos3d/avatar-3d.webp" width="240" height="240" alt="" />
     }
   </button>
-  <!-- `matMenuContent`: el contenido se construye al abrir el menu, no en cada carga de la app. -->
+  <!-- `matMenuContent`: el contenido se construye al abrir el menú. -->
   <mat-menu #profilemenu="matMenu" class="topbar-dd cardWithShadow">
     <ng-template matMenuContent>
       <div class="p-x-32 p-y-16">

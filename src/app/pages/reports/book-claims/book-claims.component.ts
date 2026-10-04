@@ -114,7 +114,8 @@ export class BookClaimsComponent {
         const items = this.store.items() ?? [];
         this.dataSource.data = items;
 
-        // Tras recargar llegan instancias nuevas: sin esto el reclamo abierto se cerraba al comentar o adjuntar.
+        // Tras recargar llegan instancias nuevas: se reubica el reclamo abierto
+        // para que no se cierre al comentar o adjuntar.
         if (this.expandedElement) {
             this.expandedElement = items.find(i => i.id === this.expandedElement!.id) ?? null;
         }
@@ -132,7 +133,7 @@ export class BookClaimsComponent {
     }
 
     private fetchData(): void {
-        // Aqui y no en loadData(): la paginacion entra por este camino y se quedaba sin spinner.
+        // Aquí y no en loadData(): la paginación también entra por este camino.
         this.store.setLoading(true);
 
         const v = this.form.value;

@@ -1,7 +1,7 @@
 name: CI
 
-# Valida ANTES de mergear a develop, staging o main. El despliegue compila, pero
-# recien despues del merge: para entonces el cambio ya esta en camino.
+# Valida antes de mergear a develop, staging o main: el despliegue compila
+# después del merge, con el cambio ya en camino.
 on:
   pull_request:
     branches: [main, staging, develop]
@@ -34,21 +34,19 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
-      # La misma configuracion que usa el deploy, para que lo que pasa aqui sea
-      # lo que se va a publicar.
+      # Misma configuración que el deploy: lo que pasa aquí es lo que se publica.
       - name: Build produccion
         run: npx ng build
 
-      # El .htaccess lleva el rewrite del SPA. Sin el, el rsync --delete del
-      # deploy borra el del servidor y todas las rutas profundas dan 404.
+      # El .htaccess lleva el rewrite del SPA: sin él, las rutas profundas dan 404.
       - name: Verificar que el .htaccess quedo en el build
         run: |
           test -f dist/goodmoney/browser/.htaccess \
             || { echo "Falta .htaccess en el build (revisa public/ y angular.json)"; exit 1; }
           echo ".htaccess presente en el build"
 
-      # Atrapa el error de apuntar el entorno de desarrollo a produccion, que es
-      # lo que hace que `ng serve` opere contra datos reales sin que se note.
+      # Si desarrollo apunta a producción, `ng serve` opera contra datos reales
+      # sin que se note.
       - name: Verificar que desarrollo no apunte a produccion
         run: |
           if grep -q "goodmoney.pseperu.pro" src/environments/environment.ts; then

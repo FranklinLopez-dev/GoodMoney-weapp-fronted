@@ -24,7 +24,7 @@ export class ArchivosPrivadosService {
         if (/^(https?:|blob:|data:)/.test(ruta)) return of(ruta);
 
         const relativa = ruta.replace(/\\/g, '/').replace(/^\/+/, '');
-        // Los logos de la empresa son públicos y se sirven tal cual.
+        // Los logos de la empresa son públicos: se sirven sin sesión.
         if (relativa.startsWith('files/public/')) return of(`${environment.apiUrl}/${relativa}`);
 
         let pedido = this.cache.get(relativa);
@@ -43,7 +43,10 @@ export class ArchivosPrivadosService {
         return pedido;
     }
 
-    /** Al cerrar sesión: libera las URLs locales y no deja imágenes del usuario anterior. */
+    /**
+     * Al cerrar sesión: libera las URLs locales y no deja imágenes del usuario
+     * anterior.
+     */
     limpiar(): void {
         for (const pedido of this.cache.values()) {
             pedido.subscribe(url => url?.startsWith('blob:') && URL.revokeObjectURL(url));

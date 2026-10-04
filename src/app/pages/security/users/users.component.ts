@@ -80,7 +80,7 @@ export class UsersComponent implements OnInit {
     private profilesStore = inject(AssignProfilesStore);
     profile = this.profilesStore.profile;
 
-    /** Filtros de clientes enviados al backend junto con paginacion y busqueda. */
+    /** Filtros de clientes enviados al backend junto con paginación y búsqueda. */
     filtroCorreo = new FormControl('');   // '' todos | '1' validado | '0' sin validar
     filtroCuenta = new FormControl('');   // '' todas | '1' bloqueada | '0' activa
 
@@ -438,7 +438,8 @@ export class UsersComponent implements OnInit {
     }
 
     async generarFichaUsuario(user: Users, filtro: any) {
-        // jsPDF son ~400 KB que solo hacen falta al pulsar. Se pide aqui para que baje EN PARALELO con la consulta.
+        // jsPDF (~400 KB) se carga bajo demanda; se pide aquí para que baje en
+        // paralelo con la consulta.
         const jsPDFPromise = import('jspdf');
         const stared = aFechaApi(new Date(filtro.fromDate));
         const end = aFechaApi(new Date(filtro.toDate));

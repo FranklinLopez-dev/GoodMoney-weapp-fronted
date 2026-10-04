@@ -44,7 +44,7 @@ export class OperationTimelineComponent {
     });
   }
 
-  /** La declaración jurada SBS que el cliente firmó (o la del mes que cubre esta operación). */
+  /** Declaración jurada SBS firmada (o la del mes que cubre esta operación). */
   descargarDj(): void {
     const op = this.operation;
     if (!op) return;

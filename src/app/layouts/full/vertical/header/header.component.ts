@@ -52,7 +52,7 @@ interface profiledd {
   link: string;
   icon?: string;
   new?: boolean;
-  /** Antes iba por `id === 6`: insertar una entrada arriba cerraba la sesión sin querer. */
+  /** Entrada de cerrar sesión; se identifica por esta bandera, no por `id`. */
   logout?: boolean;
 }
 
@@ -65,7 +65,8 @@ interface apps {
   link: string;
 }
 
-// Modulos de Material sueltos: `MaterialModule` reexporta 35 y los arrastra al bundle inicial.
+// Módulos de Material sueltos: `MaterialModule` reexporta 35 y los mete en
+// el bundle inicial.
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
@@ -162,7 +163,7 @@ export class HeaderComponent {
   addNotification(msg: any): void {
     if (msg === 'OK') {
       this.toastr.info('Tienes una notificación.', 'Éxito');
-      // Sin el subscribe el observable no ejecuta y el globo solo se actualizaba al recargar.
+      // Sin el subscribe el observable no se ejecuta y el globo no se actualiza.
       this.notificationsService.getNotificationsNotRead().subscribe(response => {
         if (response.notifications?.length) {
           this.notificationsService.show(
@@ -203,7 +204,7 @@ export class HeaderComponent {
 
   profile = this.appData.profile;
 
-  /** Mantiene resaltado el icono del header mientras se navega dentro de su sección. */
+  /** Resalta el icono del header mientras se navega dentro de su sección. */
   enSeccion(prefijo: string): boolean {
     return this.router.url.startsWith(prefijo);
   }
@@ -213,7 +214,10 @@ export class HeaderComponent {
     return this.profile()?.names?.trim().split(/\s+/)[0] ?? '';
   }
 
-  /** El perfil puede traer una ruta de foto que no existe: sin esto sale el icono de imagen rota. */
+  /**
+   * El perfil puede traer una ruta de foto que no existe: sin esto sale el
+   * icono de imagen rota.
+   */
   fotoRota = false;
   options = this.settings.getOptions();
 

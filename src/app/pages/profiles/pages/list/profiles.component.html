@@ -4,7 +4,7 @@
         <mat-card class="profile-card" (click)="selectProfile(profile.profile)">
 
             <div class="profile-photo">
-                <!-- Sin la guarda, un perfil sin foto pedía `<api>/null`: un 404 por cada fila del listado. -->
+                <!-- Sin foto no se pide `<api>/null`: evita un 404 por fila. -->
                 <img [src]="profile.profile.profilePhoto | archivoPrivado | async" alt="Perfil" [fallbackImg]="profile.profile.documentTypeIsNatural ? 'person' : 'company'" />
             </div>
 
@@ -20,7 +20,7 @@
                 {{ profile.profile.documentTypeName }}: <strong>{{ profile.profile.documentNumber }}</strong>
             </div>
 
-            <!-- Con el pin delante: sin él la dirección se confundía con una línea más de datos del documento. -->
+            <!-- El pin distingue la dirección de los datos del documento. -->
             <div class="profile-address">
                 <i-tabler name="map-pin"></i-tabler>
                 {{ profile.profile.address || 'Sin dirección registrada' }}

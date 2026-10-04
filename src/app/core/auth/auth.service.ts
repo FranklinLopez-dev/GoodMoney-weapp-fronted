@@ -33,7 +33,8 @@ export class AuthService {
   ) { }
 
   login(payload: AuthRequest) {
-    // withCredentials: el refresco vuelve en una cookie HttpOnly; sin esto ni se guarda ni se manda.
+    // withCredentials: el refresco va en una cookie HttpOnly; sin esto ni se
+    // guarda ni se envía.
     return this.http
       .post<AuthResponse>(`${this.baseUrl}/api/accounts/login`, payload, { withCredentials: true })
       .pipe(
@@ -41,7 +42,7 @@ export class AuthService {
       );
   }
 
-  /** Renueva el acceso; el backend rota, o sea que invalida el refresco entregado. */
+  /** Renueva el acceso; el backend rota e invalida el refresco entregado. */
   refreshSession(): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.baseUrl}/api/accounts/refresh`, {}, { withCredentials: true })
@@ -59,7 +60,7 @@ export class AuthService {
     return this.http.get<{ enabled: boolean }>(`${this.baseUrl}/api/accounts/two-factor`);
   }
 
-  /** Manda el código al correo; el API no dispara correos solo con el token, pide la contraseña. */
+  /** Manda el código al correo; el API exige la contraseña, no basta el token. */
   sendTwoFactorCode(password: string): Observable<{ enviado: boolean }> {
     return this.http.post<{ enviado: boolean }>(
       `${this.baseUrl}/api/accounts/two-factor/send-code`, { password });
@@ -158,7 +159,7 @@ export class AuthService {
     return this.http.post(`${this.baseUrl}/api/accounts/validar-email`, payload);
   }
 
-  /** Paso 1 del registro: manda al correo el codigo de 6 digitos. */
+  /** Paso 1 del registro: manda al correo el código de 6 dígitos. */
   sendVerificationCode(email: string): Observable<EmailVerificationResponse> {
     return this.http.post<EmailVerificationResponse>(
       `${this.baseUrl}/api/accounts/send-verification-code`,
@@ -166,7 +167,7 @@ export class AuthService {
     );
   }
 
-  /** Comprueba el codigo. El API tambien lo revalida al crear la cuenta. */
+  /** Comprueba el código. El API también lo revalida al crear la cuenta. */
   verifyCode(email: string, code: string): Observable<EmailVerificationResponse> {
     return this.http.post<EmailVerificationResponse>(
       `${this.baseUrl}/api/accounts/verify-code`,
@@ -182,7 +183,10 @@ export class AuthService {
     return this.http.post(`${this.baseUrl}/api/accounts/reset-password`, payload);
   }
 
-  /** Devuelve un token nuevo: el anterior lleva MustChangePassword y el API lo sigue rechazando. */
+  /**
+   * Devuelve un token nuevo: el anterior lleva MustChangePassword y el API lo
+   * sigue rechazando.
+   */
   changePassword(payload: ChangePasswordRequest) {
     return this.http
       .post<AuthResponse>(`${this.baseUrl}/api/accounts/change-password`, payload)
@@ -224,16 +228,16 @@ export class AuthService {
   }
 
   logout(): void {
-    // Cierra el hub antes de limpiar la sesion: si no, la conexion queda viva en el login y un
-    // usuario que entre despues en la misma pestana reutilizaria el socket del anterior.
+    // Cierra el hub antes de limpiar la sesión: si no, la conexión sigue viva en
+    // el login y otro usuario en la misma pestaña reutilizaría el socket.
     this.socketService.stop();
 
-    // Si falla igual se limpia la sesion local, que es lo que el usuario espera al pulsar salir.
+    // Aunque falle se limpia la sesión local: es lo que espera quien pulsa salir.
     this.http.post(`${this.baseUrl}/api/accounts/logout`, {}, { withCredentials: true })
       .subscribe({ error: () => { } });
 
     removeToken();
-    // Limpia el resto del esquema anterior, que guardaba el refresco aqui.
+    // El refresco va en cookie; esto borra uno que haya quedado en localStorage.
     removeRefreshToken();
     this.authStore.clear();
     this.archivos.limpiar();

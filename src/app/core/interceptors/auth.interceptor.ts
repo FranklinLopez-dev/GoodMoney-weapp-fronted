@@ -19,7 +19,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const service = inject(AuthService);
   const token = getToken();
 
-  // El Bearer solo viaja a la propia API: los assets (i18n, ubigeos) y cualquier tercero futuro no lo reciben.
+  // El Bearer solo viaja a la propia API: los assets (i18n, ubigeos) y
+  // cualquier tercero no lo reciben.
   const authReq = token && perteneceALaApi(req.url)
     ? req.clone({
       setHeaders: { Authorization: `Bearer ${token}` }
@@ -64,7 +65,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           }
           break;
         case 401:
-          // Antes de echar al usuario se renueva y se repite la peticion. Nunca sobre /refresh ni login: seria un bucle.
+          // Antes de echar al usuario se renueva y se repite la petición.
+          // Nunca sobre /refresh ni login: sería un bucle.
           if (!esDeAutenticacion(req.url)) {
             return service.refreshSession().pipe(
               switchMap(res => next(
@@ -99,14 +101,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             const messages = extractValidationErrors(parsedError.errors);
             messages.forEach((msg) => toastr.error(msg, 'Error de validación'));
           } else if (typeof parsedError === 'string') {
-            // Un 404 no es sesion caducada: cerrarla aqui tapaba el aviso real con dos "sesión expiró".
+            // Un 404 no es sesión caducada: solo se cierra si falta el perfil.
             if (parsedError.startsWith('Perfil no encontrado')) {
               toastr.error(
                 'Tu usuario no tiene un perfil asociado. Contacta con soporte.',
                 'No podemos cargar tu cuenta'
               );
 
-              // Sin perfil el panel no monta y la pantalla se queda en blanco para siempre.
+              // Sin perfil el panel no monta y la pantalla queda en blanco.
               service.logout();
               router.navigate(['/authentication/login']);
             } else {
@@ -144,12 +146,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
 };
 
-/** Solo las peticiones a la API configurada llevan el token; nada de terceros ni assets estaticos. */
+/** Solo la API configurada recibe el token; ni terceros ni assets estáticos. */
 function perteneceALaApi(url: string): boolean {
   return url.startsWith(environment.apiUrl);
 }
 
-/** Endpoints donde reintentar tras renovar no tiene sentido y provocaria un bucle. */
+/** Endpoints donde reintentar tras renovar provocaría un bucle. */
 function esDeAutenticacion(url: string): boolean {
   return url.includes('/api/accounts/refresh')
     || url.includes('/api/accounts/login')

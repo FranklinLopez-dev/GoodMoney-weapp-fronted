@@ -110,14 +110,15 @@ export class OperationsWebComponent implements OnInit {
     canceladas = signal(0);
 
     /**
-     * Reloj de la bandeja: los minutos los manda el servidor (con su reloj, no el del navegador) y aquí solo se
-     * les suma lo que pasó desde que llegaron, repintando cada 30 s sin volver a consultar.
+     * Reloj de la bandeja: los minutos los manda el servidor (con su reloj, no el
+     * del navegador); aquí solo se suma lo transcurrido desde que llegaron,
+     * repintando cada 30 s sin volver a consultar.
      */
     readonly ahora = signal(Date.now());
     private cargadoEn = Date.now();
     private readonly transcurrido = computed(() => Math.max(0, Math.floor((this.ahora() - this.cargadoEn) / 60_000)));
     readonly estadosKyc = ESTADOS_KYC;
-    /** Lo que lleva esperando la operación en proceso más antigua (de toda la bandeja, no solo de la página). */
+    /** Espera de la operación en proceso más antigua de toda la bandeja. */
     readonly esperaMasLarga = computed(() => {
         const m = this.store.items()?.procesoEsperaMinutos;
         return m == null ? null : m + this.transcurrido();
@@ -141,7 +142,7 @@ export class OperationsWebComponent implements OnInit {
         this.updateDataSource();
         this.buildColumns();
 
-        // Con las fechas incompletas loadData() avisa por toast: sin la guarda saldria uno por pausa de tipeo.
+        // La guarda evita un toast de fechas incompletas por cada pausa de tipeo.
         this.form.controls.searchTerm.valueChanges
             .pipe(conPausaDeTipeo(), takeUntilDestroyed(this.destroyRef))
             .subscribe(() => { if (this.form.valid) this.cargarData(); });
@@ -164,7 +165,7 @@ export class OperationsWebComponent implements OnInit {
         return this.form.controls;
     }
 
-    /** Llegó o cambió una operación: se recarga si se está mirando lo pendiente (antes miraba el filtro de tipo). */
+    /** Llegó o cambió una operación: se recarga si se está mirando lo pendiente. */
     addOperation(msg: any): void {
         const status = this.form.value.status;
         if (msg === 'OK' && (status === '1' || status === '2') && this.form.valid) {
@@ -190,7 +191,7 @@ export class OperationsWebComponent implements OnInit {
         return minutos >= 30 ? 'tarde' : minutos >= 15 ? 'atencion' : 'ok';
     }
 
-    /** Registrada: minutos que le quedan al cliente para transferir (negativo = ya venció, la cancela el sistema). */
+    /** Registrada: minutos para transferir (negativo: vencida, se cancela sola). */
     vence(op: Operation): number | null {
         return op.status === '1' && op.venceEnMinutos != null ? op.venceEnMinutos - this.transcurrido() : null;
     }
@@ -639,7 +640,7 @@ export class OperationsWebComponent implements OnInit {
         this.socket.off('RemoveNewOperation');
     }
 
-    /** Comprobante del motor nativo: se pide con la sesión (el PSE daba un enlace público; este no). */
+    /** Comprobante del motor nativo: se pide con la sesión (sin enlace público). */
     descargarComprobante(element: Operation): void {
         this.fiscal.pdfDeOperacion(element.id).subscribe({
             next: blob => descargarArchivo(blob, `${element.serie}-${element.correlative}.pdf`),

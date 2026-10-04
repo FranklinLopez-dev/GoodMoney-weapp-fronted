@@ -87,7 +87,7 @@ export class SearchProfileComponent {
     }
 
     loadData(): void {
-        // La guarda va antes de encender el spinner: saliendo aqui con loading en true se quedaba girando.
+        // La guarda va antes del spinner: si no, quedaría girando con loading en true.
         if (this.searchForm.invalid) return;
 
         this.profileStore.setLoading(true);

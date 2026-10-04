@@ -1,8 +1,8 @@
 name: Deploy (AWS)
 
-# staging → ambiente de pruebas; main → produccion. Cada uno corre en su
-# ambiente de GitHub (Settings → Environments): ahi estan su rol de AWS y sus
-# variables, y produccion exige aprobacion manual antes de empezar.
+# staging → ambiente de pruebas; main → producción. Cada uno corre en su
+# ambiente de GitHub (Settings → Environments): ahí están su rol de AWS y sus
+# variables, y producción exige aprobación manual antes de empezar.
 on:
   push:
     branches: [staging, main]
@@ -38,7 +38,7 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
-      # La direccion de la API es de cada ambiente (variable API_URL): el panel
+      # La dirección de la API es de cada ambiente (variable API_URL): el panel
       # se compila para el ambiente al que va.
       - name: Apuntar a la API del ambiente
         env:
@@ -58,8 +58,8 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROL_DESPLIEGUE }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      # Los archivos con hash en el nombre no cambian nunca: cache de un año.
-      # index.html se revalida siempre, para que el navegador tome la version nueva.
+      # Los archivos con hash en el nombre no cambian nunca: caché de un año.
+      # index.html se revalida siempre, para que el navegador tome la versión nueva.
       - name: Publicar en S3
         env:
           BUCKET: ${{ vars.BUCKET_PANEL }}

@@ -5,7 +5,7 @@
 <mat-dialog-content class="viewer-content">
 
     @if (data.type === 'PNG') {
-    <!-- El área captura rueda (zoom), doble click (alternar) y arrastre; a zoom 1 se ve como antes. -->
+    <!-- Rueda: zoom; doble clic: alternar; arrastre: desplazar. -->
     <div #area class="image-zoom-area" [class.image-zoom-area--zoomed]="zoom() > 1"
         (wheel)="onWheel($event)" (dblclick)="alternarZoom()"
         (pointerdown)="iniciarArrastre($event, area)"
@@ -48,7 +48,8 @@
     <button mat-button mat-dialog-close>Cerrar</button>
 </mat-dialog-actions>
 
-<!-- Al final del DOM para que el foco inicial del diálogo no caiga en ella; la posición la fija .viewer-cerrar. -->
+<!-- Al final del DOM para que el foco inicial del diálogo no caiga en ella;
+     la posición la fija .viewer-cerrar. -->
 <button mat-icon-button mat-dialog-close class="viewer-cerrar" matTooltip="Cerrar">
     <i-tabler name="x" class="icon-20 d-flex"></i-tabler>
 </button>

@@ -265,8 +265,9 @@ export class ChatsComponent {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
 
-      // El chat solo envia imagenes (el input declara accept="image/*"); se descarta cualquier otro tipo
-      // en vez de mandarlo marcado como imagen. La validacion real sigue siendo del backend.
+      // El chat solo envía imágenes (el input declara accept="image/*"); se
+      // descarta cualquier otro tipo en vez de mandarlo marcado como imagen.
+      // La validación real sigue siendo del backend.
       if (!file.type.startsWith('image/')) {
         this.toastr.warning('Solo se permiten imágenes', 'Archivo no válido');
         event.target.value = '';

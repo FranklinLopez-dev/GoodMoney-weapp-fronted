@@ -1,4 +1,4 @@
-<!-- Mismos estados que en "Mis operaciones": la escala de la biblioteca, no azul/naranja/turquesa/rojo. -->
+<!-- Mismos estados que en "Mis operaciones": escala de la biblioteca. -->
 <div class="gm-estados">
 
   <div class="gm-estado gm-estado--pendiente">
@@ -400,7 +400,7 @@
                                 <i-tabler class="icon-20 d-flex" name="file-type-pdf"></i-tabler>
                             </a>
                             } @else if (element.status === '3' && element.correlative > 0) {
-                            <!-- Comprobante del motor nativo: se descarga con la sesión, no por un enlace público. -->
+                            <!-- Comprobante nativo: se descarga con la sesión, sin enlace público. -->
                             <button mat-mini-fab class="bg-error text-white" matTooltip="Descargar comprobante"
                                 aria-label="Descargar comprobante" (click)="descargarComprobante(element)">
                                 <i-tabler class="icon-20 d-flex" name="file-type-pdf"></i-tabler>

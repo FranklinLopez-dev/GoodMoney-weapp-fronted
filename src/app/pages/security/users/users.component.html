@@ -1,7 +1,7 @@
 <mat-card>
     <mat-card-content>
 
-        <!-- Una sola fila compacta: buscador y filtros seguidos. En tablet quedan 2x2 y en móvil apilados. -->
+        <!-- Buscador y filtros en una fila; en tablet 2x2 y en móvil apilados. -->
         <div class="row">
             <div class="col-md-6" [class.col-lg-6]="mode !== 'clients'" [class.col-lg-4]="mode === 'clients'">
                 <mat-form-field appearance="outline" class="w-100">
@@ -71,7 +71,7 @@
                             <img fallbackImg="default" class="rounded-circle" [src]="element.photo | archivoPrivado | async"
                                 width="45" height="45" />
                             }
-                            <!-- Los nombres llegan como se escribieron (todo mayúsculas, todo minúsculas...). -->
+                            <!-- Los nombres llegan como se escribieron: titlecase los unifica. -->
                             <div>{{ element.names | titlecase }}</div>
                         </div>
                     </td>
@@ -100,7 +100,7 @@
                     <th mat-header-cell *matHeaderCellDef>Roles</th>
                     <td mat-cell *matCellDef="let element" data-label="Roles">
                         <div class="d-flex gap-8 flex-wrap">
-                            <!-- Chips y no nombres separados por barras: con tres roles la celda se leía como una sola frase. -->
+                            <!-- Chips y no barras: con varios roles la celda no se lee como una frase. -->
                             @for (role of element.roles; track role.id) {
                             <span class="gm-chip">{{ role.name }}</span>
                             }
